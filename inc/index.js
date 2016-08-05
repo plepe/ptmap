@@ -10,9 +10,7 @@ window.onload = function() {
       });
     },
     function(err, results) {
-      for(var i = 0; i < results.length; i++) {
-        results[i].render();
-      }
+      build_segments(results);
     }
   );
 }

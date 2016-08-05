@@ -23,3 +23,28 @@ OSMRoute.prototype.render = function() {
     L.polyline(line, { color: 'red'}).addTo(map).bindPopup(this.data.tags.ref);
   }
 }
+
+OSMRoute.prototype.route_parts = function() {
+  var result = [];
+  var route_index = 0;
+
+  for(var i = 0; i < this.data.members.length; i++) {
+    var member = this.data.members[i];
+
+    if(member.type != 'way')
+      continue;
+    if(member.role != '')
+      continue;
+
+    result.push([
+      member,
+      {
+        'role': member.role,
+        'dir': 'forward',
+        'route_index': route_index++
+      }
+    ]);
+  }
+
+  return result;
+}
