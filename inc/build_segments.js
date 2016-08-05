@@ -1,7 +1,6 @@
 function build_segments(routes) {
   var ways = {};
   var route_parts = {};
-  var segments = [];
 
   for(var i = 0; i < routes.length; i++) {
     var route = routes[i];
@@ -17,7 +16,7 @@ function build_segments(routes) {
     }
   }
 
-
+  var segments = [];
   for(var i = 0; i < routes.length; i++) {
     var route = routes[i];
     var parts = route_parts[route.id];
@@ -29,8 +28,7 @@ function build_segments(routes) {
     for(var j = 0; j < parts.length; j++) {
       var part = parts[j];
       var links = ways[part[0].ref].links;
-      if(ways[part[0].ref].segment)
-        continue;
+      if(!ways[part[0].ref].segment) {
 
       if(last_links === null) {
       }
@@ -60,12 +58,29 @@ function build_segments(routes) {
         }
       }
 
-      last_links = links;
       current_segment.ways.push([ part[0], links, part[1].dir ]);
       ways[part[0].ref].segment = current_segment;
+      }
+
+      last_links = links;
     }
+
+    segments.push(current_segment);
   }
 
-  console.log(segments);
-  console.log(ways);
+  for(var i = 0; i < segments.length; i++) {
+    var segment = segments[i];
+    var line = [];
+
+    for(var j = 0; j < segment.ways.length; j++) {
+      var way = segment.ways[j];
+
+      for(var k = 0; k < way[0].geometry.length; k++) {
+        var g = way[0].geometry[k];
+        line.push([ g.lat, g.lon ]);
+      }
+    }
+
+    L.polyline(line, { color: 'red'}).addTo(map).bindPopup("<pre>" + JSON.stringify(segment.ways[0][1], null, '    '));
+  }
 }
