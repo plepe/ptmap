@@ -11,6 +11,7 @@
     <?php print_add_html_headers(); /* print additional html headers */ ?>
     <link rel="stylesheet" href="https://npmcdn.com/leaflet@1.0.0-rc.2/dist/leaflet.css" />
     <script src="https://npmcdn.com/leaflet@1.0.0-rc.2/dist/leaflet.js"></script>
+    <script src="lib/async.js"></script>
   </head>
   <body>
   <div id='map'></div>
