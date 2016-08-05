@@ -12,11 +12,11 @@ function build_segments(routes) {
       if(!(part.member.ref in ways))
         ways[part.member.ref] = {
           way: part.member,
-          links: {},
+          links: [],
           segment: null
         };
 
-      ways[part.member.ref].links[route.id] = part.link;
+      ways[part.member.ref].links.push(part.link);
     }
   }
 
@@ -40,18 +40,19 @@ function build_segments(routes) {
         if(last_links !== null) {
           var match = true;
 
-          for(var k in links) {
-            if(k in last_links) {
-            }
-            else {
-              match = false;
-            }
-          }
-          for(var k in last_links) {
-            if(k in links) {
-            }
-            else {
-              match = false;
+          if(last_links.length != links.length)
+            match = false;
+
+          if(match) {
+            for(var l1 = 0; l1 < links.length; l1++) {
+              var found = false;
+              for(var l2 = 0; l2 < links.length; l2++) {
+                if(l1.route_id == l2.route_id)
+                  found = true;
+              }
+
+              if(!found)
+                match = false;
             }
           }
 
