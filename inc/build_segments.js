@@ -9,10 +9,14 @@ function build_segments(routes) {
 
     for(var j = 0; j < parts.length; j++) {
       var part = parts[j];
-      if(!(part[0].ref in ways))
-        ways[part[0].ref] = { 'way': part[0], 'links': {}, 'segment': null };
+      if(!(part.member.ref in ways))
+        ways[part.member.ref] = {
+          way: part.member,
+          links: {},
+          segment: null
+        };
 
-      ways[part[0].ref].links[route.id] = part[1];
+      ways[part.member.ref].links[route.id] = part.link;
     }
   }
 
@@ -27,8 +31,8 @@ function build_segments(routes) {
 
     for(var j = 0; j < parts.length; j++) {
       var part = parts[j];
-      var links = ways[part[0].ref].links;
-      if(!ways[part[0].ref].segment) {
+      var links = ways[part.member.ref].links;
+      if(!ways[part.member.ref].segment) {
 
       if(last_links === null) {
       }
@@ -58,8 +62,8 @@ function build_segments(routes) {
         }
       }
 
-      current_segment.ways.push([ part[0], links, part[1].dir ]);
-      ways[part[0].ref].segment = current_segment;
+      current_segment.ways.push([ part.member, links, part.link.dir ]);
+      ways[part.member.ref].segment = current_segment;
       }
 
       last_links = links;

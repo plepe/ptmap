@@ -36,14 +36,14 @@ OSMRoute.prototype.route_parts = function() {
     if(member.role != '')
       continue;
 
-    result.push([
-      member,
-      {
-        'role': member.role,
-        'dir': 'forward',
-        'route_index': route_index++
+    result.push({
+      member: member,
+      link: {
+        role: member.role,
+        dir: 'forward',
+        route_index: route_index++
       }
-    ]);
+    });
   }
 
   return result;
