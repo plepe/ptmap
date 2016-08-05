@@ -88,9 +88,17 @@ function build_segments(routes) {
     for(var j = 0; j < segment.ways.length; j++) {
       var way = segment.ways[j];
 
-      for(var k = 0; k < way.way.geometry.length; k++) {
-        var g = way.way.geometry[k];
-        line.push([ g.lat, g.lon ]);
+      if(way.dir == 'backward') {
+        for(var k = way.way.geometry.length - 1; k >= 0; k--) {
+          var g = way.way.geometry[k];
+          line.push([ g.lat, g.lon ]);
+        }
+      }
+      else {
+        for(var k = 0; k < way.way.geometry.length; k++) {
+          var g = way.way.geometry[k];
+          line.push([ g.lat, g.lon ]);
+        }
       }
     }
 
