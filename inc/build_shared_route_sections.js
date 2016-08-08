@@ -45,7 +45,7 @@ function build_shared_route_sections(routes, callback) {
             for(var l1 = 0; l1 < links.length; l1++) {
               var found = false;
               for(var l2 = 0; l2 < links.length; l2++) {
-                if(l1.route_id == l2.route_id)
+                if(l1.route == l2.route)
                   found = true;
               }
 

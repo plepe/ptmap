@@ -50,7 +50,7 @@ OSMRoute.prototype.route_parts = function() {
     result.push({
       member: member,
       link: {
-        route_id: this.id,
+        route: this,
         member_id: member.ref,
         role: member.role,
         dir: dir,
