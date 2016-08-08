@@ -15,6 +15,19 @@ SharedRouteSection.prototype.add_way = function(way, links, dir) {
   });
 }
 
+SharedRouteSection.prototype.routes = function() {
+  if(!this.ways.length)
+    return [];
+
+  var ret = [];
+  for(var i = 0; i < this.ways[0].links.length; i++) {
+    var link = this.ways[0].links[i];
+    ret.push(link.route);
+  }
+
+  return ret;
+}
+
 SharedRouteSection.prototype.render = function() {
   var line = [];
 
