@@ -1,16 +1,17 @@
 window.onload = function() {
   call_hooks("init");
 
-  var route_ids = [ '1306732', '1306733', '910885', '910886' ];
-  async.map(route_ids,
-    function(id, callback) {
-      http_load(id + '.json', null, null, function(err, data) {
-        var route = new OSMRoute("r" + data.id, data);
-        callback(null, route);
-      });
-    },
+  http_load(
+    'https://www.overpass-api.de/api/interpreter',
+    null,
+    "[out:json][bbox:48.194271721398096,16.3236665725708,48.20379718953509,16.35585308074951];relation[route=tram];out meta geom;",
     function(err, results) {
-      build_segments(results);
+      var routes = [];
+      for(var i = 0; i < results.elements.length; i++) {
+	var data = results.elements[i];
+	routes.push(new OSMRoute("r" + data.id, data));
+      }
+      build_segments(routes);
     }
   );
 }
