@@ -102,6 +102,9 @@ function build_segments(routes) {
       }
     }
 
+    if(!segment.ways.length)
+      return;
+
     L.polyline(line, { color: 'red'}).addTo(map).bindPopup("<pre>" + JSON.stringify(segment.ways[0].links, null, '    '));
   }
 }
