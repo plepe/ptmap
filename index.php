@@ -12,7 +12,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="node_modules/leaflet/dist/leaflet.css" />
     <script src="node_modules/leaflet/dist/leaflet.js"></script>
-    <script src="lib/async.js"></script>
+    <script src="node_modules/async/dist/async.min.js"></script>
     <script src="node_modules/leaflet-textpath/leaflet.textpath.js"></script>
   </head>
   <body>
