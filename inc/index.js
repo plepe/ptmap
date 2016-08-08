@@ -12,7 +12,8 @@ window.onload = function() {
 	var ob = create_osm_object(data);
 	routes.push(ob);
       }
-      build_segments(routes);
+
+      build_shared_route_sections(routes);
     }
   );
 }

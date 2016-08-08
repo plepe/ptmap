@@ -1,4 +1,4 @@
-function build_segments(routes) {
+function build_shared_route_sections(routes) {
   var ways = {};
   var route_parts = {};
 
@@ -13,20 +13,20 @@ function build_segments(routes) {
         ways[part.member.ref] = {
           way: part.member,
           links: [],
-          segment: null
+          shared_route_section: null
         };
 
       ways[part.member.ref].links.push(part.link);
     }
   }
 
-  var segments = [];
+  var shared_route_sections = [];
   for(var i = 0; i < routes.length; i++) {
     var route = routes[i];
     var parts = route_parts[route.id];
     var last_links = null;
-    var current_segment = {
-      id: segments.length,
+    var current_shared_route_section = {
+      id: shared_route_sections.length,
       ways: []
     };
 
@@ -34,8 +34,8 @@ function build_segments(routes) {
       var part = parts[j];
       var links = ways[part.member.ref].links;
 
-      // if current way has not already been assigned to a segment
-      if(!ways[part.member.ref].segment) {
+      // if current way has not already been assigned to a shared_route_section
+      if(!ways[part.member.ref].shared_route_section) {
         // first way of a route
         if(last_links !== null) {
           var match = true;
@@ -56,37 +56,37 @@ function build_segments(routes) {
             }
           }
 
-          // no match -> create new segment
+          // no match -> create new shared_route_section
           if(!match) {
-            segments.push(current_segment);
-            current_segment = {
-              id: segments.length,
+            shared_route_sections.push(current_shared_route_section);
+            current_shared_route_section = {
+              id: shared_route_sections.length,
               ways: []
             };
           }
         }
 
-        current_segment.ways.push({
+        current_shared_route_section.ways.push({
           id: part.member.ref,
           way: part.member,
           links: links,
           dir: part.link.dir
         });
-        ways[part.member.ref].segment = current_segment;
+        ways[part.member.ref].shared_route_section = current_shared_route_section;
       }
 
       last_links = links;
     }
 
-    segments.push(current_segment);
+    shared_route_sections.push(current_shared_route_section);
   }
 
-  for(var i = 0; i < segments.length; i++) {
-    var segment = segments[i];
+  for(var i = 0; i < shared_route_sections.length; i++) {
+    var shared_route_section = shared_route_sections[i];
     var line = [];
 
-    for(var j = 0; j < segment.ways.length; j++) {
-      var way = segment.ways[j];
+    for(var j = 0; j < shared_route_section.ways.length; j++) {
+      var way = shared_route_section.ways[j];
 
       if(way.dir == 'backward') {
         for(var k = way.way.geometry.length - 1; k >= 0; k--) {
@@ -102,9 +102,9 @@ function build_segments(routes) {
       }
     }
 
-    if(!segment.ways.length)
+    if(!shared_route_section.ways.length)
       return;
 
-    L.polyline(line, { color: 'red'}).addTo(map).bindPopup("<pre>" + JSON.stringify(segment.ways[0].links, null, '    '));
+    L.polyline(line, { color: 'red'}).addTo(map).bindPopup("<pre>" + JSON.stringify(shared_route_section.ways[0].links, null, '    '));
   }
 }
