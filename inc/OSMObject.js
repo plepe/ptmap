@@ -65,3 +65,11 @@ OSMObject.prototype.init = function(data) {
 
   osm_objects[this.id] = this;
 }
+
+OSMObject.prototype.render = function() {
+}
+
+OSMObject.prototype.remove = function() {
+  if(this.feature)
+    this.feature.remove();
+}

@@ -23,6 +23,6 @@ OSMRelation.prototype.render = function() {
       line.push(new L.LatLng(g.lat, g.lon));
     }
 
-    L.polyline(line, { color: 'red'}).addTo(map).bindPopup(this.data.tags.ref);
+    this.feature = L.polyline(line, { color: 'red'}).addTo(map).bindPopup(this.data.tags.ref);
   }
 }

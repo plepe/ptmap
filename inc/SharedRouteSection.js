@@ -38,5 +38,10 @@ SharedRouteSection.prototype.render = function() {
     }
   }
 
-  L.polyline(line, { color: 'red'}).addTo(map).bindPopup("<pre>" + JSON.stringify(this.ways[0].links, null, '    '));
+  this.feature = L.polyline(line, { color: 'red'}).addTo(map).bindPopup("<pre>" + JSON.stringify(this.ways[0].links, null, '    '));
+}
+
+SharedRouteSection.prototype.remove = function() {
+  if(this.feature)
+    this.feature.remove();
 }

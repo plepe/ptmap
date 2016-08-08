@@ -11,5 +11,5 @@ OSMNode.prototype.data = function(callback) {
 }
 
 OSMNode.prototype.render = function() {
-  L.circle(new L.LatLng(this.data.lat, this.data.lon), 10, { color: 'blue'}).addTo(map).bindPopup(this.id);
+  this.feature = L.circle(new L.LatLng(this.data.lat, this.data.lon), 10, { color: 'blue'}).addTo(map).bindPopup(this.id);
 }

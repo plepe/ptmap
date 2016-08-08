@@ -18,5 +18,5 @@ OSMWay.prototype.render = function() {
     line.push(new L.LatLng(g.lat, g.lon));
   }
 
-  L.polyline(line, { color: 'blue'}).addTo(map).bindPopup(this.id);
+  this.feature = L.polyline(line, { color: 'blue'}).addTo(map).bindPopup(this.id);
 }
