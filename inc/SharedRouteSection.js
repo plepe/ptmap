@@ -39,6 +39,18 @@ SharedRouteSection.prototype.build_popup = function() {
   return ret;
 }
 
+SharedRouteSection.prototype.build_label = function() {
+  var ret = [];
+  var routes = this.routes();
+
+  for(var i = 0; i < routes.length; i++) {
+    if('ref' in routes[i].tags)
+      ret.push(routes[i].tags.ref);
+  }
+
+  return ret.join(", ") + " →                       ";
+}
+
 SharedRouteSection.prototype.render = function() {
   var line = [];
 
@@ -63,6 +75,13 @@ SharedRouteSection.prototype.render = function() {
   }
 
   this.feature = L.polyline(line, { color: 'red'}).addTo(map).bindPopup(this.build_popup());
+  this.feature.setText(this.build_label(), {
+    repeat: true,
+    offset: 12,
+    attributes: {
+      fill: 'red'
+    }
+  });
 }
 
 SharedRouteSection.prototype.remove = function() {

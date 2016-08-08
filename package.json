@@ -1,5 +1,6 @@
 {
     "dependencies": {
-        "leaflet": "^0.7.0"
+        "leaflet": "^0.7.0",
+        "leaflet-textpath": "^1.0.0"
     }
 }
