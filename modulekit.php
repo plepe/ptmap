@@ -3,6 +3,7 @@ $name = "PT-Map";
 $id = "ptmap";
 $depend = array(
   'modulekit-form',
+  'twig',
 );
 
 $include = array(

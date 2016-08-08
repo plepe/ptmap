@@ -28,6 +28,17 @@ SharedRouteSection.prototype.routes = function() {
   return ret;
 }
 
+SharedRouteSection.prototype.build_popup = function() {
+  var ret = "";
+  var routes = this.routes();
+
+  for(var i = 0; i < routes.length; i++) {
+    ret += twig_render_custom("<div>{{ref}} {{to}}</div>", routes[i].tags);
+  }
+
+  return ret;
+}
+
 SharedRouteSection.prototype.render = function() {
   var line = [];
 
@@ -51,7 +62,7 @@ SharedRouteSection.prototype.render = function() {
     }
   }
 
-  this.feature = L.polyline(line, { color: 'red'}).addTo(map).bindPopup("<pre>" + JSON.stringify(this.ways[0].links, null, '    '));
+  this.feature = L.polyline(line, { color: 'red'}).addTo(map).bindPopup(this.build_popup());
 }
 
 SharedRouteSection.prototype.remove = function() {
