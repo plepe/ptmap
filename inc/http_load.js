@@ -6,6 +6,14 @@ function http_load(url, get_param, post_param, callback) {
       callback(null, data);
     }
   }
-  req.open("GET", url, true);
-  req.send();
+
+  var req_type = 'GET';
+  var post_data = null;
+  if(post_param) {
+    req_type = 'POST';
+    post_data = post_param;
+  }
+
+  req.open(req_type, url, true);
+  req.send(post_data);
 }
