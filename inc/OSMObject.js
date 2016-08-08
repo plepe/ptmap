@@ -6,7 +6,16 @@ function create_osm_object(data) {
     return osm_objects[id];
 
   if(data.type == 'relation') {
-    var ret = new OSMRoute();
+    if(data.tags.type && (data.tags.type == 'route'))
+      var ret = new OSMRoute();
+    else
+      var ret = new OSMRelation();
+  }
+  else if(data.type == 'way') {
+      var ret = new OSMWay();
+  }
+  else if(data.type == 'node') {
+      var ret = new OSMNode();
   }
   else {
     var ret = new OSMObject();

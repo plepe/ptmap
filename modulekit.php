@@ -11,6 +11,7 @@ $include = array(
   ),
   'js' => array(
     'inc/OSMObject.js',
+    'inc/OSMRelation.js',
     'inc/*.js' // automatically include all files in inc-directory
   ),
   'css' => array(
