@@ -9,7 +9,8 @@ window.onload = function() {
       var routes = [];
       for(var i = 0; i < results.elements.length; i++) {
 	var data = results.elements[i];
-	routes.push(new OSMRoute("r" + data.id, data));
+	var ob = create_osm_object(data);
+	routes.push(ob);
       }
       build_segments(routes);
     }

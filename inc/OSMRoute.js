@@ -1,6 +1,9 @@
-function OSMRoute(id, data) {
-  this.id = id;
-  this.data = data;
+OSMRoute.inherits_from(OSMObject);
+function OSMRoute() {
+}
+
+OSMRoute.prototype.init = function(data) {
+  this.parent("OSMRoute").init.call(this, data);
 }
 
 OSMRoute.prototype.data = function(callback) {

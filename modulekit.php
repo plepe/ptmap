@@ -10,6 +10,7 @@ $include = array(
     'inc/*.php' // automatically include all files in inc-directory
   ),
   'js' => array(
+    'inc/OSMObject.js',
     'inc/*.js' // automatically include all files in inc-directory
   ),
   'css' => array(
