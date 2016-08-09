@@ -40,15 +40,59 @@ SharedRouteSection.prototype.build_popup = function() {
 }
 
 SharedRouteSection.prototype.build_label = function() {
-  var ret = [];
+  var ret = '';
   var routes = this.routes();
+  var ref_both = [];
+  var ref_forward = [];
+  var ref_backward = [];
 
-  for(var i = 0; i < routes.length; i++) {
-    if('ref' in routes[i].tags)
-      ret.push(routes[i].tags.ref);
+  if(!this.ways.length)
+    return '';
+
+  for(var i = 0; i < this.ways[0].links.length; i++) {
+    var link = this.ways[0].links[i];
+    var route = link.route;
+    var ref = null;
+
+    if('ref' in route.tags)
+      ref = route.tags.ref;
+
+    if(ref !== null) {
+      if(ref_both.indexOf(ref) != -1) {
+	// already seen in both directions -> ignore
+      }
+      else if(link.dir == 'backward') {
+	if(ref_forward.indexOf(ref) != -1) {
+	  ref_forward.splice(ref_forward.indexOf(ref), 1);
+	  ref_both.push(ref);
+	}
+	else if(ref_backward.indexOf(ref) == -1) {
+	  ref_backward.push(ref);
+	}
+      }
+      else {
+	if(ref_backward.indexOf(ref) != -1) {
+	  ref_backward.splice(ref_backward.indexOf(ref), 1);
+	  ref_both.push(ref);
+	}
+	else if(ref_forward.indexOf(ref) == -1) {
+	  ref_forward.push(ref);
+	}
+      }
+    }
   }
 
-  return ret.join(", ") + " →                       ";
+  ret = '   ';
+  if(ref_backward.length)
+    ret += ' ← ' + ref_backward.join(', ') + '   ';
+
+  if(ref_both.length)
+    ret += ref_both.join(', ') + '   ';
+
+  if(ref_forward.length)
+    ret += ref_forward.join(', ') + ' → ';
+
+  return ret + '             ';
 }
 
 SharedRouteSection.prototype.render = function() {
