@@ -3,8 +3,10 @@ function build_shared_route_sections(routes, callback) {
   var route_parts = {};
 
   async.each(routes, function(route, callback) {
-      route.route_parts(_build_shared_route_sections_ways.bind(this, route));
-      callback();
+      route.route_parts(function(route, err, parts) {
+	_build_shared_route_sections_ways(route, err, parts);
+	callback();
+      }.bind(this, route));
     },
     _build_shared_route_sections_sections
   );
