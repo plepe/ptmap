@@ -82,6 +82,11 @@ SharedRouteSection.prototype.build_label = function() {
     }
   }
 
+  var sort_param = { insensitive: true };
+  ref_both.sort(natsort(sort_param));
+  ref_forward.sort(natsort(sort_param));
+  ref_backward.sort(natsort(sort_param));
+
   ret = '   ';
   if(ref_backward.length)
     ret += ' ← ' + ref_backward.join(', ') + '   ';
