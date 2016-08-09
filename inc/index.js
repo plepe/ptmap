@@ -4,7 +4,7 @@ window.onload = function() {
   http_load(
     'cache.php', // 'https://www.overpass-api.de/api/interpreter',
     null,
-    "[out:json][bbox:48.194271721398096,16.3236665725708,48.20379718953509,16.35585308074951];relation[route=tram];out meta geom;",
+    "[out:json][bbox:48.194271721398096,16.3236665725708,48.20379718953509,16.35585308074951];relation[route=bus];out meta geom;",
     function(err, results) {
       var routes = [];
       for(var i = 0; i < results.elements.length; i++) {
@@ -13,17 +13,7 @@ window.onload = function() {
 	routes.push(ob);
       }
 
-      build_shared_route_sections(routes, function(err, sections) {
-	async.each(
-	  sections,
-	  function(section, callback) {
-	    section.render();
-	    callback();
-	  },
-	  function(err, results) {
-	    // done
-	  }
-	);
+      update_map(routes, function() {
       });
     }
   );
