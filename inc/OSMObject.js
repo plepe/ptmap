@@ -63,6 +63,13 @@ OSMObject.prototype.init = function(data) {
   this.data = data;
   this.tags = data.tags;
 
+  if(data.bounds) {
+    this.bounds = L.latLngBounds(
+      L.latLng(data.bounds.minlat, data.bounds.minlon),
+      L.latLng(data.bounds.maxlat, data.bounds.maxlon)
+    );
+  }
+
   osm_objects[this.id] = this;
 }
 
@@ -72,4 +79,11 @@ OSMObject.prototype.render = function() {
 OSMObject.prototype.remove = function() {
   if(this.feature)
     this.feature.remove();
+}
+
+OSMObject.prototype.is_visible = function(bounds) {
+  if(!this.bounds)
+    return null;
+
+  return this.bounds.intersects(bounds);
 }
