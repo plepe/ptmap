@@ -7,7 +7,7 @@ function update_map(routes, callback) {
 	callback();
       },
       function(err, results) {
-	callback(err, results);
+	callback(err, sections);
       }
     );
   });
