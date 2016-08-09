@@ -1,13 +1,12 @@
 function get_routes(callback) {
-  http_load(
-    'cache.php', // 'https://www.overpass-api.de/api/interpreter',
-    null,
-    "[out:json][bbox:48.194271721398096,16.3236665725708,48.20379718953509,16.35585308074951];relation[route=bus];out meta geom;",
+  var bounds = map.getBounds();
+  overpass_query(
+    'relation[route=bus];',
+    bounds,
     function(err, results) {
-      var bounds = map.getBounds();
       var routes = [];
-      for(var i = 0; i < results.elements.length; i++) {
-	var data = results.elements[i];
+      for(var i = 0; i < results.length; i++) {
+	var data = results[i];
 	var ob = create_osm_object(data);
 
 	if(ob.is_visible(bounds)) {
