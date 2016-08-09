@@ -1,5 +1,66 @@
 var overpass_elements = {};
 var overpass_tiles = {};
+var overpass_get_request_active = false;
+var overpass_get_requests = {};
+
+function overpass_get(id, callback) {
+  if(id in overpass_elements) {
+    return callback(null, el);
+  }
+
+  if(!overpass_get_request_active) {
+    overpass_get_request_active = true;
+
+    window.setTimeout(function() {
+      overpass_get_request_active = false;
+      var req = overpass_get_requests;
+      overpass_get_requests = {};
+
+      var query = "";
+
+      for(var id in req) {
+	var type = {
+	  'n': 'node',
+	  'w': 'way',
+	  'r': 'relation',
+	}[id.substr(0, 1)];
+
+	query += type + '(' + id.substr(1) + ');';
+      }
+
+      http_load(
+	'cache.php', // 'https://www.overpass-api.de/api/interpreter',
+	null,
+	"[out:json];(" + query + ");out meta body;",
+	function(err, results) {
+	  for(var i = 0; i < results.elements.length; i++) {
+	    var el = results.elements[i];
+	    var id = el.type.substr(0, 1) + el.id;
+	    overpass_elements[id] = el;
+	  }
+
+	  for(var id in req) {
+	    var err = 'not found';
+	    var el = null;
+
+	    if(id in overpass_elements) {
+	      err = null;
+	      el = overpass_elements[id];
+	    }
+
+	    for(var i = 0; i < req[id].length; i++) {
+	      req[id][i](err, el);
+	    }
+	  }
+	});
+    }, 1);
+  }
+
+  if(id in overpass_get_requests)
+    overpass_get_requests[id].push(callback);
+  else
+    overpass_get_requests[id] = [ callback ];
+}
 
 function overpass_query(query, bounds, callback) {
   var ret = [];
