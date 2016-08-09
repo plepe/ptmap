@@ -135,5 +135,5 @@ SharedRouteSection.prototype.render = function() {
 
 SharedRouteSection.prototype.remove = function() {
   if(this.feature)
-    this.feature.remove();
+    map.removeLayer(this.feature);
 }

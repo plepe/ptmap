@@ -78,7 +78,7 @@ OSMObject.prototype.render = function() {
 
 OSMObject.prototype.remove = function() {
   if(this.feature)
-    this.feature.remove();
+    map.removeLayer(this.feature);
 }
 
 OSMObject.prototype.is_visible = function(bounds) {
