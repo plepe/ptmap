@@ -31,27 +31,12 @@ function get_osm_object(id, callback) {
     callback(null, osm_objects[id]);
   }
   else {
-    var type = {
-      'n': 'node',
-      'w': 'way',
-      'r': 'relation',
-    }[id.substr(0, 1)];
-
-    http_load(
-      'https://www.overpass-api.de/api/interpreter',
-      null,
-      "[out:json];" + type + "(" + id.substr(1) + ");out meta geom;",
-      function(err, result) {
-	if(!result.elements.length) {
-          osm_objects[id] = null;
-	  callback('not found', null);
-	}
-	else {
-	  var r = create_osm_object(result.elements[0]);
-	  callback(null, r);
-	}
+    overpass_get(id, function(err, result) {
+      if(result) {
+	var r = create_osm_object(result);
+	callback(err, r);
       }
-    );
+    });
   }
 }
 
