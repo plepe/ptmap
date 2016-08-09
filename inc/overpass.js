@@ -75,6 +75,7 @@ function overpass_query(query, bounds, callback) {
     "[out:json][bbox:" + bbox_string + "];" + query + "out ids bb;",
     function(err, results) {
       var todo = [];
+      var todo_ids = {};
 
       for(var i = 0; i < results.elements.length; i++) {
 	var el = results.elements[i];
@@ -84,6 +85,7 @@ function overpass_query(query, bounds, callback) {
 	  ret.push(overpass_elements[id]);
 	}
 	else {
+	  todo_ids[id] = {};
 	  todo.push(el.type + '(' + el.id + ');');
 	}
       }
@@ -94,12 +96,13 @@ function overpass_query(query, bounds, callback) {
 	  null,
 	  '[out:json];(' + todo.join('') + ');out meta geom;',
 	  function(err, results) {
-	    console.log(results);
 	    for(var i = 0; i < results.elements.length; i++) {
 	      var el = results.elements[i];
 	      var id = el.type.substr(0, 1) + el.id;
 
-	      ret.push(el);
+	      if(id in todo_ids)
+		ret.push(el);
+
 	      overpass_elements[id] = el;
 	    }
 
