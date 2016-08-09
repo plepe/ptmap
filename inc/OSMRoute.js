@@ -6,7 +6,7 @@ OSMRoute.prototype.init = function(data) {
   this.parent("OSMRoute").init.call(this, data);
 }
 
-OSMRoute.prototype.route_parts = function() {
+OSMRoute.prototype.route_parts = function(callback) {
   var result = [];
   var route_index = 0;
   var last_route_part = null;
@@ -65,5 +65,5 @@ OSMRoute.prototype.route_parts = function() {
   if(last_dir === null)
     result[result.length - 1].dir = 'unknown';
 
-  return result;
+  callback(null, result);
 }

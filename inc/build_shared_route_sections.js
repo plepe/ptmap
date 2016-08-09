@@ -2,24 +2,30 @@ function build_shared_route_sections(routes, callback) {
   var ways = {};
   var route_parts = {};
 
-  for(var i = 0; i < routes.length; i++) {
-    var route = routes[i];
-    var parts = route.route_parts();
-    route_parts[route.id] = parts;
+  async.each(routes, function(route, callback) {
+      route.route_parts(_build_shared_route_sections_ways.bind(this, route));
+      callback();
+    },
+    _build_shared_route_sections_sections
+  );
 
-    for(var j = 0; j < parts.length; j++) {
-      var part = parts[j];
-      if(!(part.member.ref in ways))
-        ways[part.member.ref] = {
-          way: part.member,
-          links: [],
-          shared_route_section: null
-        };
+function _build_shared_route_sections_ways(route, err, parts) {
+  route_parts[route.id] = parts;
 
-      ways[part.member.ref].links.push(part.link);
-    }
+  for(var j = 0; j < parts.length; j++) {
+    var part = parts[j];
+    if(!(part.member.ref in ways))
+      ways[part.member.ref] = {
+	way: part.member,
+	links: [],
+	shared_route_section: null
+      };
+
+    ways[part.member.ref].links.push(part.link);
   }
+}
 
+function _build_shared_route_sections_sections() {
   var shared_route_sections = [];
   for(var i = 0; i < routes.length; i++) {
     var route = routes[i];
@@ -77,4 +83,5 @@ function build_shared_route_sections(routes, callback) {
   }
 
   callback(null, shared_route_sections);
+}
 }
