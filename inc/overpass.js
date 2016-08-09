@@ -5,7 +5,7 @@ var overpass_get_requests = {};
 
 function overpass_get(id, callback) {
   if(id in overpass_elements) {
-    return callback(null, el);
+    return callback(null, overpass_elements[id]);
   }
 
   if(!overpass_get_request_active) {
