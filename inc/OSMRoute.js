@@ -12,14 +12,13 @@ OSMRoute.prototype.route_parts = function(callback) {
   var last_route_part = null;
   var last_dir;
 
-  for(var i = 0; i < this.data.members.length; i++) {
-    var member = this.data.members[i];
+  async.eachSeries(this.data.members, function(member, callback) {
     var dir = null;
 
     if(member.type != 'way')
-      continue;
+      return callback();
     if(member.role != '')
-      continue;
+      return callback();
 
     if(last_route_part) {
       if(cmp(last_route_part.geometry[0], member.geometry[0]) ||
@@ -60,10 +59,12 @@ OSMRoute.prototype.route_parts = function(callback) {
 
     last_route_part = member;
     last_dir = dir;
-  }
 
-  if(last_dir === null)
-    result[result.length - 1].dir = 'unknown';
+    callback();
+  }.bind(this), function() {
+    if(last_dir === null)
+      result[result.length - 1].dir = 'unknown';
 
-  callback(null, result);
+    callback(null, result);
+  }.bind(this));
 }
