@@ -11,6 +11,8 @@ OSMRoute.prototype.route_parts = function(callback) {
   var route_index = 0;
   var last_route_part = null;
   var last_dir;
+  var node_index = {};
+  var route_parts_index = {};
 
   if(this._route_parts)
     return callback(null, this._route_parts);
@@ -24,6 +26,18 @@ OSMRoute.prototype.route_parts = function(callback) {
       return callback();
 
     get_osm_object('w' + member.ref, function(callback, err, ob) {
+      for(var i = 0; i < ob.nodes.length; i++) {
+	var node = ob.nodes[i];
+
+	// only for the first matching way
+	if(!(node.id in node_index)) {
+	  node_index[node] = {
+	    way: ob,
+	    index: i
+	  };
+	}
+      }
+
       if(last_route_part) {
 	if(last_route_part.nodes[0] == ob.nodes[0] ||
 	   last_route_part.nodes[last_route_part.nodes.length - 1] == ob.nodes[0])
@@ -49,6 +63,10 @@ OSMRoute.prototype.route_parts = function(callback) {
 	else
 	  result[result.length - 1].dir = 'unknown';
       }
+
+      if(!(ob.id in route_parts_index))
+	route_parts_index[ob.id] = [];
+      route_parts_index[ob.id].push(route_index);
 
       result.push({
 	member: ob,
