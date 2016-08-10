@@ -4,6 +4,9 @@ function OSMWay() {
 
 OSMWay.prototype.init = function(data) {
   this.parent("OSMWay").init.call(this, data);
+
+  this.nodes = data.nodes;
+  this.geometry = data.geometry;
 }
 
 OSMWay.prototype.data = function(callback) {
