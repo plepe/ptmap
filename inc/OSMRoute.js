@@ -23,7 +23,7 @@ OSMRoute.prototype.route_parts = function(callback) {
     get_osm_object('w' + member.ref, function(callback, err, ob) {
       if(last_route_part) {
 	if(last_route_part.nodes[0] == ob.nodes[0] ||
-	   last_route_part.nodes[last_route_part.nodes.length - 1], ob.nodes[0])
+	   last_route_part.nodes[last_route_part.nodes.length - 1] == ob.nodes[0])
 	  dir = 'forward';
 
 	else if(last_route_part.nodes[0] == ob.nodes[ob.nodes.length - 1] ||
@@ -35,12 +35,12 @@ OSMRoute.prototype.route_parts = function(callback) {
       }
 
       if(last_dir === null) {
-	if(last_route_part.nodes[0].ref == ob.nodes[0].ref ||
-	   last_route_part.nodes[0].ref == ob.nodes[ob.nodes.length - 1].ref)
+	if(last_route_part.nodes[0] == ob.nodes[0] ||
+	   last_route_part.nodes[0] == ob.nodes[ob.nodes.length - 1])
 	  result[result.length - 1].dir = 'backward';
 
-	else if(last_route_part.nodes[last_route_part.nodes.length - 1].ref == ob.nodes[0].ref ||
-	   last_route_part.nodes[last_route_part.nodes.length - 1].ref == ob.nodes[ob.nodes.length - 1].ref)
+	else if(last_route_part.nodes[last_route_part.nodes.length - 1] == ob.nodes[0] ||
+	   last_route_part.nodes[last_route_part.nodes.length - 1] == ob.nodes[ob.nodes.length - 1])
 	  result[result.length - 1].dir = 'forward';
 
 	else
