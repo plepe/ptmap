@@ -8,7 +8,7 @@ SharedRouteSection.prototype.init = function(id) {
 
 SharedRouteSection.prototype.add_way = function(way, links, dir) {
   this.ways.push({
-    id: way.ref,
+    id: way.id,
     way: way,
     links: links,
     dir: dir

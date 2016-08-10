@@ -16,14 +16,14 @@ function _build_shared_route_sections_ways(route, err, parts) {
 
   for(var j = 0; j < parts.length; j++) {
     var part = parts[j];
-    if(!(part.member.ref in ways))
-      ways[part.member.ref] = {
+    if(!(part.member.id in ways))
+      ways[part.member.id] = {
 	way: part.member,
 	links: [],
 	shared_route_section: null
       };
 
-    ways[part.member.ref].links.push(part.link);
+    ways[part.member.id].links.push(part.link);
   }
 }
 
@@ -38,10 +38,10 @@ function _build_shared_route_sections_sections() {
 
     for(var j = 0; j < parts.length; j++) {
       var part = parts[j];
-      var links = ways[part.member.ref].links;
+      var links = ways[part.member.id].links;
 
       // if current way has not already been assigned to a shared_route_section
-      if(!ways[part.member.ref].shared_route_section) {
+      if(!ways[part.member.id].shared_route_section) {
         // first way of a route
         if(last_links !== null) {
           var match = true;
@@ -75,7 +75,7 @@ function _build_shared_route_sections_sections() {
           links,
           part.link.dir
         );
-        ways[part.member.ref].shared_route_section = current_shared_route_section;
+        ways[part.member.id].shared_route_section = current_shared_route_section;
       }
 
       last_links = links;
