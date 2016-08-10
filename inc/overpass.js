@@ -100,8 +100,10 @@ function overpass_query(query, bounds, callback) {
 	      var el = results.elements[i];
 	      var id = el.type.substr(0, 1) + el.id;
 
-	      if(id in todo_ids)
+	      if(id in todo_ids) {
 		ret.push(el);
+		delete(todo_ids[id]);
+	      }
 
 	      overpass_elements[id] = el;
 	    }
