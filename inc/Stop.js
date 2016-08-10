@@ -22,11 +22,17 @@ Stop.prototype.name = function() {
   return this.links[0].ob.tags.name;
 }
 
+Stop.prototype.build_popup = function() {
+  return "<b>" + this.name() + "</b>";
+}
+
 Stop.prototype.render = function() {
-  console.log(this.name());
+  this.feature = L.rectangle(this.bounds, { color: 'blue'}).addTo(map).bindPopup(this.build_popup());
 }
 
 Stop.prototype.remove = function() {
+  if(this.feature)
+    map.removeLayer(this.feature);
 }
 
 function build_stops(stops) {
