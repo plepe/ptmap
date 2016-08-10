@@ -75,8 +75,9 @@ OSMRoute.prototype.route_parts = function(callback) {
 	  member_id: ob.id,
 	  role: member.role,
 	  dir: dir,
+	  stops: [],
 	  route_index: route_index++
-	}
+	},
       });
 
       last_route_part = ob;
@@ -88,8 +89,71 @@ OSMRoute.prototype.route_parts = function(callback) {
     if(last_dir === null)
       result[result.length - 1].dir = 'unknown';
 
-    this._route_parts = result;
+    this._route_parts_stops(result, route_parts_index, node_index, function(err, result) {
+      this._route_parts = result;
 
-    callback(null, result);
+      callback(null, result);
+    }.bind(this));
   }.bind(this));
+}
+
+OSMRoute.prototype._route_parts_stops = function(route_parts, route_parts_index, node_index, callback) {
+  var last_route_part_index = 0;
+  this._stops = [];
+
+  async.eachSeries(this.data.members, function(member, callback) {
+    if(member.type != 'node')
+      return callback();
+    if(member.role != 'stop')
+      return callback();
+
+    get_osm_object('n' + member.ref, function(callback, err, ob) {
+      var node_ref;
+
+      if(node_ref = node_index[ob.id.substr(1)]) {
+	var matching_route_parts_index = null;
+	var matching_route_parts_indexes = route_parts_index[node_ref.way.id];
+	for(var i = 0; i < matching_route_parts_indexes.length; i++) {
+	  if(matching_route_parts_indexes[i] >= last_route_part_index) {
+	    matching_route_parts_index = matching_route_parts_indexes[i];
+	  }
+	}
+
+	route_parts[matching_route_parts_index].link.stops.push({
+	  ob: ob,
+	  node_index: node_ref.index
+	});
+
+	this._stops.push({
+	  ob: ob,
+	  route_parts_index: matching_route_parts_index,
+	  node_index: node_ref.index
+	});
+      }
+      else {
+	// TODO: find nearest position on route part; for now, ignore other stops
+	this._stops.push({
+	  ob: ob
+	});
+      }
+
+      callback();
+    }.bind(this, callback));
+  }.bind(this),
+  function(callback, err, result) {
+    callback(null, route_parts);
+  }.bind(this, callback));
+}
+
+/**
+ *
+ * @return [ { member: OSMNode }
+ */
+OSMRoute.prototype.stops = function(callback) {
+  if(this._stops)
+    callback(null, this._stops);
+
+  this.route_parts(function(err, result) {
+    callback(err, this._stops);
+  });
 }
