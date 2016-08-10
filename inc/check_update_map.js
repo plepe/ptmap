@@ -1,6 +1,7 @@
 var current_route_ids = {};
 var current_route_count = 0;
 var current_sections = [];
+var current_stops = [];
 var check_update_map_active = false;
 var check_update_map_requested = false;
 
@@ -45,12 +46,16 @@ function check_update_map() {
       current_route_count = routes.length;
     }
 
-    update_map(routes, function(err, sections) {
+    update_map(routes, function(err, sections, stops) {
       for(var i = 0; i < current_sections.length; i++) {
 	current_sections[i].remove();
       }
+      for(var i = 0; i < current_stops.length; i++) {
+	current_stops[i].remove();
+      }
 
       current_sections = sections;
+      current_stops = stops;
 
       check_update_map_active = false;
       if(check_update_map_requested)
