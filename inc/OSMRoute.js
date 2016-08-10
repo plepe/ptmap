@@ -12,6 +12,9 @@ OSMRoute.prototype.route_parts = function(callback) {
   var last_route_part = null;
   var last_dir;
 
+  if(this._route_parts)
+    return callback(null, this._route_parts);
+
   async.eachSeries(this.data.members, function(member, callback) {
     var dir = null;
 
@@ -66,6 +69,8 @@ OSMRoute.prototype.route_parts = function(callback) {
   }.bind(this), function() {
     if(last_dir === null)
       result[result.length - 1].dir = 'unknown';
+
+    this._route_parts = result;
 
     callback(null, result);
   }.bind(this));
