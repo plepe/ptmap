@@ -28,6 +28,36 @@ SharedRouteSection.prototype.routes = function() {
   return ret;
 }
 
+SharedRouteSection.prototype.stops = function() {
+  if(this._stops)
+    return this._stops;
+
+  var stops = {};
+  for(var i = 0; i < this.ways.length; i++) {
+    for(var j = 0; j < this.ways[i].links.length; j++) {
+      var link = this.ways[i].links[j];
+      for(var k = 0; k < link.stops.length; k++) {
+	if(!((i + '-' + k) in stops)) {
+	  stops[i + '-' + k] = {
+	    ob: link.stops[k].ob,
+	    way: this.ways[i].way,
+	    way_node_index: link.stops[k].node_index,
+	    routes: []
+	  };
+	}
+
+	stops[i + '-' + k].routes.push(link.route);
+      }
+    }
+  }
+
+  this._stops = [];
+  for(var k in stops)
+    this._stops.push(stops[k]);
+
+  return this._stops;
+}
+
 SharedRouteSection.prototype.build_popup = function() {
   var ret = "";
   var routes = this.routes();
