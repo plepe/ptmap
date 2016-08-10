@@ -4,6 +4,11 @@ function OSMNode() {
 
 OSMNode.prototype.init = function(data) {
   this.parent("OSMNode").init.call(this, data);
+
+  this.geometry = {
+    lat: data.lat,
+    lon: data.lon
+  };
 }
 
 OSMNode.prototype.data = function(callback) {
