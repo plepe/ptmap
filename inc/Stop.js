@@ -28,11 +28,21 @@ Stop.prototype.build_popup = function() {
 
 Stop.prototype.render = function() {
   this.feature = L.rectangle(this.bounds, { color: 'blue'}).addTo(map).bindPopup(this.build_popup());
+  var label = L.divIcon({
+    className: 'label-stop',
+    iconSize: null,
+    html: '<div><span>' + this.name() + '</span></div>'
+  });
+
+  this.feature_label =
+    L.marker(L.latLng(this.bounds.getNorth(), this.bounds.getCenter().lng), { icon: label }).addTo(map);
 }
 
 Stop.prototype.remove = function() {
   if(this.feature)
     map.removeLayer(this.feature);
+  if(this.feature_label)
+    map.removeLayer(this.feature_label);
 }
 
 function build_stops(stops) {
