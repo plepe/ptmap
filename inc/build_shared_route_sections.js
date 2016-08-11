@@ -50,10 +50,10 @@ function _build_shared_route_sections_sections() {
             match = false;
 
           if(match) {
-            for(var l1 = 0; l1 < links.length; l1++) {
+            for(var l1 = 0; l1 < last_links.length; l1++) {
               var found = false;
               for(var l2 = 0; l2 < links.length; l2++) {
-                if(l1.route == l2.route)
+                if(last_links[l1].route == links[l2].route)
                   found = true;
               }
 
