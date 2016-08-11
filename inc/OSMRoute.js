@@ -19,6 +19,7 @@ OSMRoute.prototype.route_parts = function(callback) {
 
   async.eachSeries(this.data.members, function(member, callback) {
     var dir = null;
+    var connected = true;
 
     if(member.type != 'way')
       return callback();
@@ -47,8 +48,10 @@ OSMRoute.prototype.route_parts = function(callback) {
 	   last_route_part.nodes[last_route_part.nodes.length - 1] == ob.nodes[ob.nodes.length - 1])
 	  dir = 'backward';
 
-	else if(route_parts_index != 0)
+	else if(route_parts_index != 0) {
 	  this.errors.push('Way ' + ob.id + ' not connected to previous way');
+	  connected = false;
+	}
       }
 
       if(last_dir === null) {
@@ -59,8 +62,10 @@ OSMRoute.prototype.route_parts = function(callback) {
 	else if(last_route_part.nodes[last_route_part.nodes.length - 1] == ob.nodes[0] ||
 	   last_route_part.nodes[last_route_part.nodes.length - 1] == ob.nodes[ob.nodes.length - 1])
 	  result[result.length - 1].link.dir = 'forward';
-	else
+	else {
 	  this.errors.push('Way ' + last_route_part.id + ' not connected to next way');
+	  connected = false;
+	}
       }
 
       if(!(ob.id in route_parts_index))
@@ -74,6 +79,7 @@ OSMRoute.prototype.route_parts = function(callback) {
 	  member_id: ob.id,
 	  role: member.role,
 	  dir: dir,
+	  connected: connected,
 	  stops: [],
 	  route_index: route_index++
 	},

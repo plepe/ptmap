@@ -55,10 +55,10 @@ function _build_shared_route_sections_sections() {
 
               for(var l2 = 0; l2 < links.length; l2++) {
 		// to match, two subsequent route parts of a route need to have
-		// a direction and have to folllow each other (either ascending
+		// a connection and have to folllow each other (either ascending
 		// or descending)
 		if(last_links[l1].route == links[l2].route &&
-		   last_links[l1].dir && links[l2].dir &&
+		   links[l2].connected &&
 		   (last_links[l1].route_index - links[l2].route_index == -1 ||
 		    last_links[l1].route_index - links[l2].route_index == 1))
                   found = true;
