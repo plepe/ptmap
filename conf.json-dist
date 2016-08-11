@@ -1,0 +1,13 @@
+{
+    "routes": {
+        "bus": {
+	    "color": "blue"
+	},
+        "tram": {
+	    "color": "red"
+	},
+        "subway": {
+	    "color": "magenta"
+	}
+    }
+}

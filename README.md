@@ -8,4 +8,6 @@ git submodule update
 npm install
 cp conf.php-dist conf.php
 nano conf.php
+cp conf.json-dist conf.json
+nano conf.json
 ```

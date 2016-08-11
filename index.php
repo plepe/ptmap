@@ -1,6 +1,10 @@
 <?php include "conf.php"; /* load a local configuration */ ?>
 <?php include "modulekit/loader.php"; /* loads all php-includes */ ?>
 <?php call_hooks("init"); /* initialize submodules */ ?>
+<?php
+$conf = json_decode(file_get_contents("conf.json"), 1);
+html_export_var(array("conf" => $conf));
+?>
 <!DOCTYPE HTML>
 <html>
   <head>
