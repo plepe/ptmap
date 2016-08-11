@@ -138,8 +138,6 @@ OSMRoute.prototype._route_parts_stops = function(route_parts, route_parts_index,
 	});
       }
       else {
-	// TODO: find nearest position on route part; for now, ignore other stops
-	this.errors.push('Stop ' + ob.id + ' not connected to route way, finding nearest location');
 	var node_geo = ob.GeoJSON();
 	var matching_point = null;
 	var matching_distance = null;
@@ -156,18 +154,30 @@ OSMRoute.prototype._route_parts_stops = function(route_parts, route_parts_index,
 	  }
 	}
 
-	this._stops.push({
-	  ob: ob,
-	  route_parts_index: matching_route_parts_index,
-	  geometry: {
-	    lon: matching_point.geometry.coordinates[0],
-	    lat: matching_point.geometry.coordinates[1]
-	  }
-	});
+	// matching point on route must be closer than 100m
+	if(matching_distance !== null && matching_distance < 0.1) {
+	  this._stops.push({
+	    ob: ob,
+	    route_parts_index: matching_route_parts_index,
+	    geometry: {
+	      lon: matching_point.geometry.coordinates[0],
+	      lat: matching_point.geometry.coordinates[1]
+	    }
+	  });
 
-	route_parts[matching_route_parts_index].link.stops.push({
-	  ob: ob
-	});
+	  route_parts[matching_route_parts_index].link.stops.push({
+	    ob: ob
+	  });
+
+	  this.errors.push('Stop ' + ob.id + ' not connected to route way, found nearest location (' + (matching_distance * 1000) + 'm)');
+	}
+	else {
+	  this._stops.push({
+	    ob: ob
+	  });
+
+	  this.errors.push('Stop ' + ob.id + ' not connected to route way, could not find nearest location (not rendered!)');
+	}
       }
 
       callback();
