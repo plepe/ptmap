@@ -47,8 +47,8 @@ OSMRoute.prototype.route_parts = function(callback) {
 	   last_route_part.nodes[last_route_part.nodes.length - 1] == ob.nodes[ob.nodes.length - 1])
 	  dir = 'backward';
 
-	else
-	  dir = 'unknown';
+	else if(route_parts_index != 0)
+	  this.errors.push('Way ' + ob.id + ' not connected to previous way');
       }
 
       if(last_dir === null) {
@@ -59,9 +59,8 @@ OSMRoute.prototype.route_parts = function(callback) {
 	else if(last_route_part.nodes[last_route_part.nodes.length - 1] == ob.nodes[0] ||
 	   last_route_part.nodes[last_route_part.nodes.length - 1] == ob.nodes[ob.nodes.length - 1])
 	  result[result.length - 1].link.dir = 'forward';
-
 	else
-	  result[result.length - 1].link.dir = 'unknown';
+	  this.errors.push('Way ' + last_route_part.id + ' not connected to next way');
       }
 
       if(!(ob.id in route_parts_index))

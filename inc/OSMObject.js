@@ -47,6 +47,7 @@ OSMObject.prototype.init = function(data) {
   this.id = data.type.substr(0, 1) + data.id;
   this.data = data;
   this.tags = data.tags;
+  this.errors = [];
 
   if(data.bounds) {
     this.bounds = L.latLngBounds(
