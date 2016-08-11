@@ -1,4 +1,5 @@
 var map;
+var layer_route;
 
 register_hook('init', function() {
   map = L.map('map').setView([48.202, 16.338], 15);
@@ -10,4 +11,6 @@ register_hook('init', function() {
     }
   );
   osm_mapnik.addTo(map);
+
+  layer_route = L.layerGroup().addTo(map);
 });

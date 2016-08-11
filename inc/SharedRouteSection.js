@@ -153,7 +153,7 @@ SharedRouteSection.prototype.render = function() {
     }
   }
 
-  this.feature = L.polyline(line, { color: 'red'}).addTo(map).bindPopup(this.build_popup());
+  this.feature = L.polyline(line, { color: 'red', opacity: 1 }).addTo(layer_route).bindPopup(this.build_popup());
   this.feature.setText(this.build_label(), {
     repeat: true,
     offset: 12,
