@@ -54,14 +54,14 @@ OSMRoute.prototype.route_parts = function(callback) {
       if(last_dir === null) {
 	if(last_route_part.nodes[0] == ob.nodes[0] ||
 	   last_route_part.nodes[0] == ob.nodes[ob.nodes.length - 1])
-	  result[result.length - 1].dir = 'backward';
+	  result[result.length - 1].link.dir = 'backward';
 
 	else if(last_route_part.nodes[last_route_part.nodes.length - 1] == ob.nodes[0] ||
 	   last_route_part.nodes[last_route_part.nodes.length - 1] == ob.nodes[ob.nodes.length - 1])
-	  result[result.length - 1].dir = 'forward';
+	  result[result.length - 1].link.dir = 'forward';
 
 	else
-	  result[result.length - 1].dir = 'unknown';
+	  result[result.length - 1].link.dir = 'unknown';
       }
 
       if(!(ob.id in route_parts_index))
