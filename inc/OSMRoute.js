@@ -6,6 +6,10 @@ OSMRoute.prototype.init = function(data) {
   this.parent("OSMRoute").init.call(this, data);
 }
 
+OSMRoute.prototype.title = function() {
+  return this.tags.ref + " " + this.tags.to;
+}
+
 OSMRoute.prototype.route_parts = function(callback) {
   var result = [];
   var route_index = 0;

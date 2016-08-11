@@ -23,7 +23,17 @@ Stop.prototype.name = function() {
 }
 
 Stop.prototype.build_popup = function() {
-  return "<b>" + this.name() + "</b>";
+  var ret = "<b>" + this.name() + "</b><ul>\n";
+
+  for(var i = 0; i < this.links.length; i++) {
+    for(var j = 0; j < this.links[i].routes.length; j++) {
+      ret += "<li>" + this.links[i].routes[j].title() + "</li>";
+    }
+  }
+
+  ret += "</ul>";
+
+  return ret;
 }
 
 Stop.prototype.render = function() {
