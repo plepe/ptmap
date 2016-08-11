@@ -157,3 +157,11 @@ OSMRoute.prototype.stops = function(callback) {
     callback(err, this._stops);
   });
 }
+
+OSMRoute.prototype.is_active = function() {
+  if(this.tags.ref && (this.tags.ref.substr(0, 1) == "N")) {
+    return false;
+  }
+
+  return true;
+}
