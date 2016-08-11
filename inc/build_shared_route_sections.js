@@ -52,8 +52,15 @@ function _build_shared_route_sections_sections() {
           if(match) {
             for(var l1 = 0; l1 < last_links.length; l1++) {
               var found = false;
+
               for(var l2 = 0; l2 < links.length; l2++) {
-                if(last_links[l1].route == links[l2].route)
+		// to match, two subsequent route parts of a route need to have
+		// a direction and have to folllow each other (either ascending
+		// or descending)
+		if(last_links[l1].route == links[l2].route &&
+		   last_links[l1].dir && links[l2].dir &&
+		   (last_links[l1].route_index - links[l2].route_index == -1 ||
+		    last_links[l1].route_index - links[l2].route_index == 1))
                   found = true;
               }
 
