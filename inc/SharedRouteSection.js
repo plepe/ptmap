@@ -75,6 +75,8 @@ SharedRouteSection.prototype.build_label = function() {
   var ref_both = [];
   var ref_forward = [];
   var ref_backward = [];
+  var ref_unknown = [];
+
 
   if(!this.ways.length)
     return '';
@@ -88,7 +90,11 @@ SharedRouteSection.prototype.build_label = function() {
       ref = route.tags.ref;
 
     if(ref !== null) {
-      if(ref_both.indexOf(ref) != -1) {
+      if(link.dir == null) {
+	if(ref_unknown.indexOf(ref) == -1)
+	  ref_unknown.push(ref);
+      }
+      else if(ref_both.indexOf(ref) != -1) {
 	// already seen in both directions -> ignore
       }
       else if(link.dir == 'backward') {
@@ -100,7 +106,7 @@ SharedRouteSection.prototype.build_label = function() {
 	  ref_backward.push(ref);
 	}
       }
-      else {
+      else if(link.dir == 'forward') {
 	if(ref_backward.indexOf(ref) != -1) {
 	  ref_backward.splice(ref_backward.indexOf(ref), 1);
 	  ref_both.push(ref);
@@ -116,6 +122,7 @@ SharedRouteSection.prototype.build_label = function() {
   ref_both.sort(natsort(sort_param));
   ref_forward.sort(natsort(sort_param));
   ref_backward.sort(natsort(sort_param));
+  ref_unknown.sort(natsort(sort_param));
 
   ret = '   ';
   if(ref_backward.length)
@@ -126,6 +133,9 @@ SharedRouteSection.prototype.build_label = function() {
 
   if(ref_forward.length)
     ret += ref_forward.join(', ') + ' → ';
+
+  if(ref_unknown.length)
+    ret += ' ?? ' + ref_unknown.join(', ') + ' ?? ';
 
   return ret + '             ';
 }
