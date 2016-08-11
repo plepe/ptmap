@@ -10,10 +10,9 @@
     <?php print modulekit_include_css(); /* prints all css-includes */ ?>
     <?php print_add_html_headers(); /* print additional html headers */ ?>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="node_modules/leaflet/dist/leaflet.css" />
-    <script src="node_modules/leaflet/dist/leaflet.js"></script>
+    <link rel="stylesheet" href="node_modules/openlayers/dist/ol.css" />
+    <script src="node_modules/openlayers/dist/ol.js"></script>
     <script src="node_modules/async/dist/async.min.js"></script>
-    <script src="node_modules/leaflet-textpath/leaflet.textpath.js"></script>
     <script src="node_modules/natsort/index.js"></script>
   </head>
   <body>
