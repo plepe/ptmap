@@ -103,9 +103,9 @@ OSMRoute.prototype._route_parts_stops = function(route_parts, route_parts_index,
 
   async.eachSeries(this.data.members, function(member, callback) {
     if(member.type != 'node')
-      return callback();
+      return async.setImmediate(function() { callback() });
     if(member.role != 'stop')
-      return callback();
+      return async.setImmediate(function() { callback() });
 
     get_osm_object('n' + member.ref, function(callback, err, ob) {
       var node_ref;
