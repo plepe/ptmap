@@ -59,6 +59,14 @@ OSMObject.prototype.init = function(data) {
   osm_objects[this.id] = this;
 }
 
+OSMObject.prototype.GeoJSON = function() {
+  return {
+    type: 'Feature',
+    geometry: null,
+    properties: this.tags
+  };
+}
+
 OSMObject.prototype.render = function() {
 }
 

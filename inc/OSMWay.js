@@ -9,6 +9,21 @@ OSMWay.prototype.init = function(data) {
   this.geometry = data.geometry;
 }
 
+OSMWay.prototype.GeoJSON = function() {
+  var coordinates = [];
+  for(var i = 0; i < this.geometry.length; i++)
+    coordinates.push([ this.geometry[i].lon, this.geometry[i].lat ]);
+
+  return {
+    type: 'Feature',
+    geometry: {
+      type: 'LineString',
+      coordinates: coordinates
+    },
+    properties: this.tags
+  };
+}
+
 OSMWay.prototype.data = function(callback) {
   callback(null, this.data);
 }

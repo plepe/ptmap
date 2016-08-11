@@ -11,6 +11,17 @@ OSMNode.prototype.init = function(data) {
   };
 }
 
+OSMNode.prototype.GeoJSON = function() {
+  return {
+    type: 'Feature',
+    geometry: {
+      type: 'Point',
+      coordinates: [ this.geometry.lon, this.geometry.lat ]
+    },
+    properties: this.tags
+  };
+}
+
 OSMNode.prototype.data = function(callback) {
   callback(null, this.data);
 }
