@@ -15,6 +15,7 @@
     <script src="node_modules/async/dist/async.min.js"></script>
     <script src="node_modules/leaflet-textpath/leaflet.textpath.js"></script>
     <script src="node_modules/natsort/index.js"></script>
+    <script src="node_modules/turf/turf.js"></script>
   </head>
   <body>
   <div id='map'></div>
