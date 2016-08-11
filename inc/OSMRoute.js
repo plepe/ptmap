@@ -15,16 +15,18 @@ OSMRoute.prototype.route_parts = function(callback) {
   var route_parts_index = {};
 
   if(this._route_parts)
-    return callback(null, this._route_parts);
+    return async.setImmediate(function() {
+      callback(null, this._route_parts);
+    });
 
   async.eachSeries(this.data.members, function(member, callback) {
     var dir = null;
     var connected = true;
 
     if(member.type != 'way')
-      return callback();
+      return async.setImmediate(function() { callback() });
     if(member.role != '')
-      return callback();
+      return async.setImmediate(function() { callback() });
 
     get_osm_object('w' + member.ref, function(callback, err, ob) {
       for(var i = 0; i < ob.nodes.length; i++) {
@@ -182,7 +184,9 @@ OSMRoute.prototype._route_parts_stops = function(route_parts, route_parts_index,
  */
 OSMRoute.prototype.stops = function(callback) {
   if(this._stops)
-    callback(null, this._stops);
+    return async.setImmediate(function() {
+      callback(null, this._stops);
+    });
 
   this.route_parts(function(err, result) {
     callback(err, this._stops);

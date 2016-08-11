@@ -28,7 +28,9 @@ function create_osm_object(data) {
 
 function get_osm_object(id, callback) {
   if(id in osm_objects) {
-    callback(null, osm_objects[id]);
+    async.setImmediate(function() {
+      callback(null, osm_objects[id]);
+    });
   }
   else {
     overpass_get(id, function(err, result) {
