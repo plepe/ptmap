@@ -28,6 +28,11 @@ SharedRouteSection.prototype.routes = function() {
   return ret;
 }
 
+SharedRouteSection.prototype.top_route = function() {
+  var ret = this.routes();
+  return ret[0];
+}
+
 SharedRouteSection.prototype.stops = function() {
   if(this._stops)
     return this._stops;
@@ -163,12 +168,25 @@ SharedRouteSection.prototype.render = function() {
     }
   }
 
-  this.feature = L.polyline(line, { color: 'red'}).addTo(map).bindPopup(this.build_popup());
+  var route_conf = {
+    color: 'black'
+  };
+
+  var top_route = this.top_route();
+  if('routes' in conf && top_route.tags.route in conf.routes) {
+    route_conf = conf.routes[top_route.tags.route];
+  }
+
+  this.feature = L.polyline(line, {
+    color: route_conf.color,
+    opacity: 1
+  }).addTo(map).bindPopup(this.build_popup());
+
   this.feature.setText(this.build_label(), {
     repeat: true,
     offset: 12,
     attributes: {
-      fill: 'red'
+      fill: route_conf.color
     }
   });
 }
