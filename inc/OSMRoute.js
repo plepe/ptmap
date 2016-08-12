@@ -21,7 +21,7 @@ OSMRoute.prototype.route_parts = function(callback) {
   if(this._route_parts)
     return async.setImmediate(function() {
       callback(null, this._route_parts);
-    });
+    }.bind(this));
 
   async.eachSeries(this.data.members, function(member, callback) {
     var dir = null;
@@ -200,9 +200,9 @@ OSMRoute.prototype.stops = function(callback) {
   if(this._stops)
     return async.setImmediate(function() {
       callback(null, this._stops);
-    });
+    }.bind(this));
 
   this.route_parts(function(err, result) {
     callback(err, this._stops);
-  });
+  }.bind(this));
 }
