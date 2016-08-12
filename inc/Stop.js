@@ -37,7 +37,14 @@ Stop.prototype.build_popup = function() {
 }
 
 Stop.prototype.render = function() {
-  this.feature = L.rectangle(this.bounds, { color: 'blue'}).addTo(map).bindPopup(this.build_popup());
+  this.feature = L.rectangle(this.bounds, {
+    color: 'black',
+    opacity: 0.8,
+    fillColor: 'grey',
+    fillOpacity: 0.4,
+    weight: 1
+  }).addTo(map).bindPopup(this.build_popup());
+
   var label = L.divIcon({
     className: 'label-stop',
     iconSize: null,
