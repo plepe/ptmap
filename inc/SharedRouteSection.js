@@ -154,6 +154,13 @@ SharedRouteSection.prototype.render = function() {
   for(var j = 0; j < this.ways.length; j++) {
     var way = this.ways[j];
 
+    var m = way.way.geometry.length - 1;
+    if(!map.getBounds().intersects([
+	[ way.way.geometry[0].lat, way.way.geometry[0].lon ],
+	[ way.way.geometry[m].lat, way.way.geometry[m].lon ]
+      ]))
+      continue;
+
     if(way.dir == 'backward') {
       for(var k = way.way.geometry.length - 1; k >= 0; k--) {
         var g = way.way.geometry[k];
