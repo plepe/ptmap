@@ -6,6 +6,13 @@ function update_map(routes, callback) {
     }
     stops = build_stops(stops);
 
+    update_map_render_all(sections, stops, function() {
+      callback(null, sections, stops);
+    });
+  });
+}
+
+function update_map_render_all(sections, stops, callback) {
     async.series([
       function(callback) {
 	async.each(
@@ -31,6 +38,15 @@ function update_map(routes, callback) {
 	callback2();
 	callback(null, sections, stops);
       }
-    ])
-  });
+    ]);
+}
+
+function update_map_remove_all(sections, stops, callback) {
+  for(var i = 0; i < sections.length; i++) {
+    sections[i].remove();
+  }
+  for(var i = 0; i < stops.length; i++) {
+    stops[i].remove();
+  }
+  callback();
 }

@@ -47,12 +47,7 @@ function check_update_map() {
     }
 
     update_map(routes, function(err, sections, stops) {
-      for(var i = 0; i < current_sections.length; i++) {
-	current_sections[i].remove();
-      }
-      for(var i = 0; i < current_stops.length; i++) {
-	current_stops[i].remove();
-      }
+      update_map_remove_all(current_sections, current_stops, function() {});
 
       current_sections = sections;
       current_stops = stops;
