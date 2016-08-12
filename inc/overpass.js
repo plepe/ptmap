@@ -120,3 +120,20 @@ function overpass_query(query, bounds, callback) {
     }
   );
 }
+
+function overpass_regexp_escape(s) {
+  return s.replace('\\', '\\\\')
+       .replace('.', '\\.')
+       .replace('|', '\\|')
+       .replace('[', '\\[')
+       .replace(']', '\\]')
+       .replace('(', '\\(')
+       .replace(')', '\\)')
+       .replace('{', '\\{')
+       .replace('}', '\\}')
+       .replace('?', '\\?')
+       .replace('+', '\\+')
+       .replace('*', '\\*')
+       .replace('^', '\\^')
+       .replace('$', '\\$');
+}
