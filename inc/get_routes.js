@@ -1,7 +1,12 @@
 function get_routes(callback) {
+  var query = [];
+  for(var type in conf.routes) {
+    query.push(overpass_regexp_escape(type));
+  }
+
   var bounds = map.getBounds();
   overpass_query(
-    'relation[route=bus];',
+    'relation[type=route][route~"^(' + query.join('|') + ')$"];',
     bounds,
     function(err, results) {
       var routes = [];
