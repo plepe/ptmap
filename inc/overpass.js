@@ -33,7 +33,7 @@ function overpass_get(id, callback) {
       http_load(
 	'cache.php', // 'https://www.overpass-api.de/api/interpreter',
 	null,
-	"[out:json];(" + query + ");out meta geom;",
+	"[out:json];(" + query + ");out body geom;",
 	function(err, results) {
 	  for(var i = 0; i < results.elements.length; i++) {
 	    var el = results.elements[i];
@@ -96,7 +96,7 @@ function overpass_query(query, bounds, callback) {
 	http_load(
 	  'cache.php', // 'https://www.overpass-api.de/api/interpreter',
 	  null,
-	  '[out:json];(' + todo.join('') + ');out meta geom;>;out meta geom;',
+	  '[out:json];((' + todo.join('') + ');)->.i;out bb body;node(r.i);out body;way(r.i);out body geom;',
 	  function(err, results) {
 	    for(var i = 0; i < results.elements.length; i++) {
 	      var el = results.elements[i];
