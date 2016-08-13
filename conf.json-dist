@@ -1,12 +1,18 @@
 {
+    "overpass": {
+        "url": "https://www.overpass-api.de/api/interpreter"
+    },
     "routes": {
         "bus": {
+	    "weight": 1,
 	    "color": "blue"
 	},
         "tram": {
+	    "weight": 2,
 	    "color": "red"
 	},
         "subway": {
+	    "weight": 3,
 	    "color": "magenta"
 	}
     }
