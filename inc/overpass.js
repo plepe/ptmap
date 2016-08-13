@@ -83,12 +83,20 @@ function overpass_query(query, bounds, callback) {
 	var el = results.elements[i];
 	var id = el.type.substr(0, 1) + el.id;
 
-	if(id in overpass_elements) {
-	  ret.push(overpass_elements[id]);
-	}
-	else {
-	  todo_ids[id] = {};
-	  todo.push(el.type + '(' + el.id + ');');
+	var bounds = L.latLngBounds(
+	  L.latLng(el.bounds.minlat, el.bounds.minlon),
+	  L.latLng(el.bounds.maxlat, el.bounds.maxlon)
+	);
+	var approx_route_length = bounds_diagonal_px_length(bounds);
+
+	if(approx_route_length < 5000) {
+	  if(id in overpass_elements) {
+	    ret.push(overpass_elements[id]);
+	  }
+	  else {
+	    todo_ids[id] = {};
+	    todo.push(el.type + '(' + el.id + ');');
+	  }
 	}
       }
 
