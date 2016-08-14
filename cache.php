@@ -15,8 +15,15 @@ else {
   curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 
   $response = curl_exec($ch);
-  curl_close($ch);
+
+  if($response === false) {
+    Header("HTTP/1.1 500 Internal Server Error");
+    print "Error receiving response from Overpass API: " . curl_error($ch);
+    exit(0);
+  }
 
   file_put_contents("data/{$id}.json", $response);
   print $response;
+
+  curl_close($ch);
 }
