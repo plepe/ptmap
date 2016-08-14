@@ -36,7 +36,14 @@ Stop.prototype.build_popup = function() {
   return ret;
 }
 
+Stop.prototype.is_visible = function(bounds) {
+  return this.bounds.intersects(bounds);
+}
+
 Stop.prototype.render = function() {
+  if(!this.is_visible(map.getBounds()))
+    return;
+
   this.feature = L.rectangle(this.bounds, {
     color: 'black',
     opacity: 0.8,
@@ -60,6 +67,9 @@ Stop.prototype.remove = function() {
     map.removeLayer(this.feature);
   if(this.feature_label)
     map.removeLayer(this.feature_label);
+
+  delete(this.feature);
+  delete(this.feature_label);
 }
 
 function build_stops(stops) {
