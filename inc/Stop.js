@@ -2,7 +2,7 @@ function Stop() {
 }
 
 Stop.prototype.init = function(data) {
-  this.links = [ data ];
+  this.stop_positions = [ data ];
 
   this.bounds = L.latLngBounds(
     L.latLng(data.ob.geometry.lat, data.ob.geometry.lon),
@@ -10,8 +10,8 @@ Stop.prototype.init = function(data) {
   );
 }
 
-Stop.prototype.add_stop = function(data) {
-  this.links.push(data);
+Stop.prototype.add_stop_position = function(data) {
+  this.stop_positions.push(data);
 
   this.bounds.extend(
     L.latLng(data.ob.geometry.lat, data.ob.geometry.lon)
@@ -19,15 +19,15 @@ Stop.prototype.add_stop = function(data) {
 }
 
 Stop.prototype.name = function() {
-  return this.links[0].ob.tags.name;
+  return this.stop_positions[0].ob.tags.name;
 }
 
 Stop.prototype.build_popup = function() {
   var ret = "<b>" + this.name() + "</b><ul>\n";
 
-  for(var i = 0; i < this.links.length; i++) {
-    for(var j = 0; j < this.links[i].routes.length; j++) {
-      ret += "<li>" + this.links[i].routes[j].title() + "</li>";
+  for(var i = 0; i < this.stop_positions.length; i++) {
+    for(var j = 0; j < this.stop_positions[i].routes.length; j++) {
+      ret += "<li>" + this.stop_positions[i].routes[j].title() + "</li>";
     }
   }
 
@@ -72,7 +72,7 @@ function build_stops(stops) {
 
     if(name) {
       if(name in name_index) {
-	name_index[name].add_stop(stop);
+	name_index[name].add_stop_position(stop);
       }
       else {
 	var stop_ob = new Stop();
