@@ -10,6 +10,30 @@ OSMRoute.prototype.title = function() {
   return this.tags.ref + " " + this.tags.to;
 }
 
+OSMRoute.prototype.px_length = function() {
+  if(this.current_px_length_zoom == map.getZoom())
+    return this.current_px_length;
+
+  this.current_px_length = 0.0;
+
+  for(var i = 0; i < this._route_parts.length; i++) {
+    var part = this._route_parts[i];
+    var way = part.member;
+
+    this.current_px_length += way.px_length();
+  }
+
+  this.current_px_length_zoom = map.getZoom();
+  return this.current_px_length;
+}
+
+OSMRoute.prototype.avg_stop_distance = function() {
+  if(!this._stops.length)
+    return this.px_length();
+
+  return this.px_length() / this._stops.length;
+}
+
 OSMRoute.prototype.route_parts = function(callback) {
   var result = [];
   var route_index = 0;
