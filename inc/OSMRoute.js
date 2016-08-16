@@ -29,7 +29,7 @@ OSMRoute.prototype.route_parts = function(callback) {
 
     if(member.type != 'way')
       return async.setImmediate(function() { callback() });
-    if(member.role != '')
+    if([ '', 'forward', 'backward'].indexOf(member.role) == -1)
       return async.setImmediate(function() { callback() });
 
     get_osm_object('w' + member.ref, function(callback, err, ob) {
@@ -45,7 +45,10 @@ OSMRoute.prototype.route_parts = function(callback) {
 	}
       }
 
-      if(last_route_part) {
+      if([ 'forward', 'backward'].indexOf(member.role) != -1) {
+	dir = member.role;
+      }
+      else if(last_route_part) {
 	if(last_route_part.nodes[0] == ob.nodes[0] ||
 	   last_route_part.nodes[last_route_part.nodes.length - 1] == ob.nodes[0])
 	  dir = 'forward';
