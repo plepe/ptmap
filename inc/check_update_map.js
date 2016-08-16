@@ -6,6 +6,15 @@ var check_update_map_active = false;
 var check_update_map_requested = false;
 
 function check_update_map() {
+  if(map.getZoom() < 14) {
+    async.setImmediate(function(sections, stops) {
+      update_map_remove_all(sections, stops, function() {
+      });
+    }.bind(this, current_sections, current_stops));
+
+    return;
+  }
+
   async.setImmediate(function(sections, stops) {
     update_map_remove_all(sections, stops, function() {
       update_map_render_all(sections, stops, function() {
