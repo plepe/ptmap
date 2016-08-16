@@ -24,6 +24,24 @@ OSMWay.prototype.GeoJSON = function() {
   };
 }
 
+OSMWay.prototype.px_length = function() {
+  var points = this.geometry;
+  var total_length = 0.0;
+
+  for(var i = 1; i < this.geometry.length; i++) {
+    var l1 = map.latLngToLayerPoint([ this.geometry[i - 1].lon, this.geometry[i - 1].lat ]);
+    var l2 = map.latLngToLayerPoint([ this.geometry[i].lon, this.geometry[i].lat ]);
+
+    var h = l1.x - l2.x;
+    var v = l1.y - l2.y;
+
+    var d = Math.sqrt(h * h + v * v);
+    total_length += d;
+  }
+
+  return total_length;
+}
+
 OSMWay.prototype.data = function(callback) {
   callback(null, this.data);
 }
