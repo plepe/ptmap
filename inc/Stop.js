@@ -40,6 +40,24 @@ Stop.prototype.is_visible = function(bounds) {
   return this.bounds.intersects(bounds);
 }
 
+Stop.prototype.priority = function() {
+  var max_avg_stop_distance = 0.0;
+
+  for(var i = 0; i < this.stop_positions.length; i++) {
+    var pos_max_avg_stop_distance = 0.0;
+
+    for(var j = 0; j < this.stop_positions[i].routes.length; j++) {
+      var dist = this.stop_positions[i].routes[j].avg_stop_distance();
+      if(dist > pos_max_avg_stop_distance)
+	pos_max_avg_stop_distance = dist;
+    }
+
+    max_avg_stop_distance += pos_max_avg_stop_distance;
+  }
+
+  return max_avg_stop_distance;
+}
+
 Stop.prototype.render = function() {
   if(!this.is_visible(map.getBounds()))
     return;
@@ -52,14 +70,16 @@ Stop.prototype.render = function() {
     weight: 1
   }).addTo(map).bindPopup(this.build_popup());
 
-  var label = L.divIcon({
-    className: 'label-stop',
-    iconSize: null,
-    html: '<div><span>' + this.name() + '</span></div>'
-  });
+  if(this.priority() > 512.0) {
+    var label = L.divIcon({
+      className: 'label-stop',
+      iconSize: null,
+      html: '<div><span>' + this.name() + '</span></div>'
+    });
 
-  this.feature_label =
-    L.marker(L.latLng(this.bounds.getNorth(), this.bounds.getCenter().lng), { icon: label }).addTo(map);
+    this.feature_label =
+      L.marker(L.latLng(this.bounds.getNorth(), this.bounds.getCenter().lng), { icon: label }).addTo(map);
+  }
 }
 
 Stop.prototype.remove = function() {
