@@ -4,6 +4,7 @@
         "leaflet-textpath": "^1.0.0",
 	"async": "*",
 	"natsort": "*",
-	"turf": "*"
+	"turf": "*",
+	"twig": "0.8.9"
     }
 }
