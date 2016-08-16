@@ -19,6 +19,9 @@ Stop.prototype.add_stop = function(data) {
 }
 
 Stop.prototype.name = function() {
+  if(!('name' in this.links[0].ob.tags))
+    return 'unknown';
+
   return this.links[0].ob.tags.name;
 }
 
@@ -78,7 +81,10 @@ function build_stops(stops) {
 
   for(var i = 0; i < stops.length; i++) {
     var stop = stops[i];
-    var name = stop.ob.tags.name;
+    var name = null;
+
+    if('name' in stop.ob.tags)
+      name = stop.ob.tags.name;
 
     if(name) {
       if(name in name_index) {
@@ -90,6 +96,11 @@ function build_stops(stops) {
 	name_index[name] = stop_ob;
 	result.push(stop_ob);
       }
+    }
+    else {
+      var stop_ob = new Stop();
+      stop_ob.init(stop);
+      result.push(stop_ob);
     }
   }
 
