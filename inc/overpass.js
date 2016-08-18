@@ -1,67 +1,121 @@
 var overpass_elements = {};
 var overpass_tiles = {};
-var overpass_get_request_active = false;
-var overpass_get_requests = {};
+var overpass_requests = [];
+var overpass_request_active = false;
 
-function overpass_get(id, callback) {
-  if(id in overpass_elements) {
-    return async.setImmediate(function() {
-      callback(null, overpass_elements[id]);
-    });
+/**
+ * @param array|string ids One or more IDs, e.g. [ 'n123', 'w2345', 'n123' ]
+ * @param function feature_callback Will be called for each object in the order of the IDs in parameter 'ids'. Will be passed: 1. err (if an error occured, otherwise null), 2. the object or null, 3. the index in the array ids.
+ * @param function final_callback Will be called after the last feature. Will be passed: 1. err (if an error occured, otherwise null).
+ */
+function overpass_get(ids, feature_callback, final_callback) {
+  if(typeof ids == 'string')
+    ids = [ ids ];
+
+  var done = true;
+  for(var i = 0; i < ids.length; i++) {
+    if(ids[i] in overpass_elements) {
+      async.setImmediate(function(ob, i) {
+        feature_callback(null, ob, i);
+      }.bind(this, overpass_elements[ids[i]], i));
+      ids[i] = null;
+    }
+    else {
+      done = false;
+      break;
+    }
   }
 
-  if(!overpass_get_request_active) {
-    overpass_get_request_active = true;
+  if(done) {
+    if(final_callback) {
+      async.setImmediate(function() {
+        final_callback(null);
+      });
+    }
+  }
+  else {
+    overpass_requests.push({
+      ids: ids,
+      feature_callback: feature_callback,
+      final_callback: final_callback
+    });
 
-    window.setTimeout(function() {
-      overpass_get_request_active = false;
-      var req = overpass_get_requests;
-      overpass_get_requests = {};
+    _overpass_process();
+  }
+}
 
-      var query = "";
+function _overpass_process() {
+  if(overpass_request_active)
+    return;
 
-      for(var id in req) {
-	var type = {
-	  'n': 'node',
-	  'w': 'way',
-	  'r': 'relation',
-	}[id.substr(0, 1)];
+  if(!overpass_requests.length)
+    return;
 
-	query += type + '(' + id.substr(1) + ');';
+  overpass_request_active = true;
+  var request = overpass_requests.pop();
+  var ids = request.ids;
+
+  var query = "";
+  var todo = {};
+  for(var i = 0; i < ids.length; i++) {
+    if(ids[i] === null)
+      continue;
+    if(ids[i] in overpass_elements)
+      continue;
+    if(ids[i] in todo)
+      continue;
+
+    todo[ids[i]] = true;
+    var id = ids[i].substr(1);
+    var type = {
+      'n': 'node',
+      'w': 'way',
+      'r': 'relation',
+    }[ids[i].substr(0, 1)];
+
+    query += type + '(' + id + ');';
+
+    if(type == 'way')
+      query += 'out body geom;\n';
+    else if(type == 'relation')
+      query += 'out body bb;\n';
+    else
+      query += 'out body;\n';
+  }
+
+  http_load(
+    conf.overpass.url,
+    null,
+    "[out:json];" + query,
+    function(err, results) {
+      for(var i = 0; i < results.elements.length; i++) {
+        var el = results.elements[i];
+        var id = el.type.substr(0, 1) + el.id;
+        overpass_elements[id] = create_osm_object(el);
       }
 
-      http_load(
-	conf.overpass.url,
-	null,
-	"[out:json];(" + query + ");out body geom;",
-	function(err, results) {
-	  for(var i = 0; i < results.elements.length; i++) {
-	    var el = results.elements[i];
-	    var id = el.type.substr(0, 1) + el.id;
-	    overpass_elements[id] = create_osm_object(el);
-	  }
+      for(var i = 0; i < ids.length; i++) {
+        var id = ids[i];
+        if(id === null)
+          continue;
 
-	  for(var id in req) {
-	    var err = 'not found';
-	    var el = null;
+        var err = 'not found';
+        var el = null;
+        if(id in overpass_elements) {
+          err = null;
+          el = overpass_elements[id];
+        }
 
-	    if(id in overpass_elements) {
-	      err = null;
-	      el = overpass_elements[id];
-	    }
+        request.feature_callback(null, el, i);
+      }
 
-	    for(var i = 0; i < req[id].length; i++) {
-	      req[id][i](err, el);
-	    }
-	  }
-	});
-    }, 1);
-  }
+      if(request.final_callback)
+        request.final_callback(null);
+      overpass_request_active = false;
 
-  if(id in overpass_get_requests)
-    overpass_get_requests[id].push(callback);
-  else
-    overpass_get_requests[id] = [ callback ];
+      _overpass_process();
+   }
+ );
 }
 
 function overpass_query(query, bounds, callback) {
