@@ -83,6 +83,30 @@ function _overpass_process() {
       query += 'out body;\n';
   }
 
+  // all required objects have already been loaded in the meantime
+  if(query == '') {
+    for(var i = 0; i < ids.length; i++) {
+      var id = ids[i];
+      if(id === null)
+        continue;
+
+      var err = 'not found';
+      var el = null;
+      if(id in overpass_elements) {
+        err = null;
+        el = overpass_elements[id];
+      }
+
+      request.feature_callback(null, el, i);
+    }
+
+    if(request.final_callback)
+      request.final_callback(null);
+    overpass_request_active = false;
+
+    return _overpass_process();
+  }
+
   http_load(
     conf.overpass.url,
     null,
@@ -150,7 +174,7 @@ function overpass_query(query, bounds, callback) {
 	http_load(
 	  conf.overpass.url,
 	  null,
-	  '[out:json];((' + todo.join('') + ');)->.i;out bb body;node(r.i);out body;way(r.i);out body geom;',
+	  '[out:json];((' + todo.join('') + ');)->.i;out bb body;', //node(r.i);out body;', //way(r.i);out body geom;',
 	  function(err, results) {
 	    for(var i = 0; i < results.elements.length; i++) {
 	      var el = results.elements[i];
