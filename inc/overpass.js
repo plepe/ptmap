@@ -38,7 +38,7 @@ function overpass_get(id, callback) {
 	  for(var i = 0; i < results.elements.length; i++) {
 	    var el = results.elements[i];
 	    var id = el.type.substr(0, 1) + el.id;
-	    overpass_elements[id] = el;
+	    overpass_elements[id] = create_osm_object(el);
 	  }
 
 	  for(var id in req) {
@@ -102,12 +102,12 @@ function overpass_query(query, bounds, callback) {
 	      var el = results.elements[i];
 	      var id = el.type.substr(0, 1) + el.id;
 
+	      overpass_elements[id] = create_osm_object(el);
+
 	      if(id in todo_ids) {
-		ret.push(el);
+		ret.push(overpass_elements[id]);
 		delete(todo_ids[id]);
 	      }
-
-	      overpass_elements[id] = el;
 	    }
 
 	    callback(null, ret);

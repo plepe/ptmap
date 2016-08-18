@@ -32,7 +32,7 @@ OSMRoute.prototype.route_parts = function(callback) {
     if([ '', 'forward', 'backward'].indexOf(member.role) == -1)
       return async.setImmediate(function() { callback() });
 
-    get_osm_object('w' + member.ref, function(callback, err, ob) {
+    overpass_get('w' + member.ref, function(callback, err, ob) {
       for(var i = 0; i < ob.nodes.length; i++) {
 	var node = ob.nodes[i];
 
@@ -121,7 +121,7 @@ OSMRoute.prototype._route_parts_stops = function(route_parts, route_parts_index,
     if(member.role != 'stop')
       return async.setImmediate(function() { callback() });
 
-    get_osm_object('n' + member.ref, function(callback, err, ob) {
+    overpass_get('n' + member.ref, function(callback, err, ob) {
       var node_ref;
 
       if(node_ref = node_index[ob.id.substr(1)]) {

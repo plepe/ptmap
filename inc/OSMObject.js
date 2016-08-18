@@ -1,10 +1,4 @@
-var osm_objects = {};
-
 function create_osm_object(data) {
-  var id = data.type.substr(0, 1) + data.id;
-  if(id in osm_objects)
-    return osm_objects[id];
-
   if(data.type == 'relation') {
     if(data.tags.type && (data.tags.type == 'route'))
       var ret = new OSMRoute();
@@ -26,22 +20,6 @@ function create_osm_object(data) {
   return ret;
 }
 
-function get_osm_object(id, callback) {
-  if(id in osm_objects) {
-    async.setImmediate(function() {
-      callback(null, osm_objects[id]);
-    });
-  }
-  else {
-    overpass_get(id, function(err, result) {
-      if(result) {
-	var r = create_osm_object(result);
-	callback(err, r);
-      }
-    });
-  }
-}
-
 function OSMObject() {
 }
 
@@ -59,8 +37,6 @@ OSMObject.prototype.init = function(data) {
       L.latLng(data.bounds.maxlat, data.bounds.maxlon)
     );
   }
-
-  osm_objects[this.id] = this;
 }
 
 OSMObject.prototype.GeoJSON = function() {
