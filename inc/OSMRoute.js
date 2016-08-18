@@ -23,16 +23,25 @@ OSMRoute.prototype.route_parts = function(callback) {
       callback(null, this._route_parts);
     }.bind(this));
 
-  async.eachSeries(this.data.members, function(member, callback) {
-    var dir = null;
-    var connected = true;
+  var way_list = [];
+  var way_roles = [];
+  for(var i = 0; i < this.data.members.length; i++) {
+    var member = this.data.members[i];
 
     if(member.type != 'way')
-      return async.setImmediate(function() { callback() });
+      continue;
     if([ '', 'forward', 'backward'].indexOf(member.role) == -1)
-      return async.setImmediate(function() { callback() });
+      continue;
 
-    overpass_get('w' + member.ref, function(callback, err, ob) {
+    way_list.push('w' + member.ref);
+    way_roles.push(member.role);
+  }
+
+  overpass_get(way_list, function(way_roles, err, ob, route_index) {
+    var dir = null;
+    var connected = true;
+    var role = way_roles[i];
+
       for(var i = 0; i < ob.nodes.length; i++) {
 	var node = ob.nodes[i];
 
@@ -45,8 +54,8 @@ OSMRoute.prototype.route_parts = function(callback) {
 	}
       }
 
-      if([ 'forward', 'backward'].indexOf(member.role) != -1) {
-	dir = member.role;
+      if([ 'forward', 'backward'].indexOf(role) != -1) {
+	dir = role;
       }
       else if(last_route_part) {
 	if(last_route_part.nodes[0] == ob.nodes[0] ||
@@ -86,20 +95,18 @@ OSMRoute.prototype.route_parts = function(callback) {
 	link: {
 	  route: this,
 	  member_id: ob.id,
-	  role: member.role,
+	  role: role,
 	  dir: dir,
 	  connected: connected,
 	  stops: [],
-	  route_index: route_index++
+	  route_index: route_index
 	},
       });
 
       last_route_part = ob;
       last_dir = dir;
-
-      callback();
-    }.bind(this, callback));
-  }.bind(this), function() {
+  }.bind(this, way_roles),
+  function() {
     if(last_dir === null)
       result[result.length - 1].dir = 'unknown';
 
@@ -115,13 +122,21 @@ OSMRoute.prototype._route_parts_stops = function(route_parts, route_parts_index,
   var last_route_part_index = 0;
   this._stops = [];
 
-  async.eachSeries(this.data.members, function(member, callback) {
-    if(member.type != 'node')
-      return async.setImmediate(function() { callback() });
-    if(member.role != 'stop')
-      return async.setImmediate(function() { callback() });
+  var node_list = [];
+  var node_roles = [];
+  for(var i = 0; i < this.data.members.length; i++) {
+    var member = this.data.members[i];
 
-    overpass_get('n' + member.ref, function(callback, err, ob) {
+    if(member.type != 'node')
+      continue;
+    if(member.role != 'stop')
+      continue;
+
+    node_list.push('n' + member.ref);
+    node_roles.push(member.role);
+  }
+
+  overpass_get(node_list, function(node_roles, err, ob, route_index) {
       var node_ref;
 
       if(node_ref = node_index[ob.id.substr(1)]) {
@@ -186,11 +201,8 @@ OSMRoute.prototype._route_parts_stops = function(route_parts, route_parts_index,
 	  this.errors.push('Stop ' + ob.id + ' not connected to route way, could not find nearest location (not rendered!)');
 	}
       }
-
-      callback();
-    }.bind(this, callback));
-  }.bind(this),
-  function(callback, err, result) {
+  }.bind(this, node_roles),
+  function(callback, err) {
     callback(null, route_parts);
   }.bind(this, callback));
 }
