@@ -52,28 +52,49 @@ function _overpass_process() {
     return;
 
   overpass_request_active = true;
-  var request = overpass_requests.pop();
-  var ids = request.ids;
-
-  var query = "";
   var todo = {};
-  for(var i = 0; i < ids.length; i++) {
-    if(ids[i] === null)
-      continue;
-    if(ids[i] in overpass_elements)
-      continue;
-    if(ids[i] in todo)
-      continue;
+  var query = "";
+  for(var j = 0; j < overpass_requests.length; j++) {
+    var request = overpass_requests[j];
+    var ids = request.ids;
+    var all_found_until_now = true;
 
-    todo[ids[i]] = true;
-    var id = ids[i].substr(1);
+    for(var i = 0; i < ids.length; i++) {
+      if(ids[i] === null)
+        continue;
+      if(ids[i] in overpass_elements) {
+        if(all_found_until_now) {
+          request.feature_callback(null, overpass_elements[ids[i]], i);
+          request.ids[i] = null;
+        }
+        continue;
+      }
+
+      all_found_until_now = false;
+      if(ids[i] in todo)
+        continue;
+
+      todo[ids[i]] = true;
+    }
+
+    if(all_found_until_now) {
+      request.final_callback(null);
+      overpass_requests[j] = null;
+    }
+  }
+
+  var p;
+  while((p = overpass_requests.indexOf(null)) != -1)
+    overpass_requests.splice(p, 1);
+
+  for(var id in todo) {
     var type = {
       'n': 'node',
       'w': 'way',
       'r': 'relation',
-    }[ids[i].substr(0, 1)];
+    }[id.substr(0, 1)];
 
-    query += type + '(' + id + ');';
+    query += type + '(' + id.substr(1) + ');';
 
     if(type == 'way')
       query += 'out body geom;\n';
@@ -83,28 +104,9 @@ function _overpass_process() {
       query += 'out body;\n';
   }
 
-  // all required objects have already been loaded in the meantime
   if(query == '') {
-    for(var i = 0; i < ids.length; i++) {
-      var id = ids[i];
-      if(id === null)
-        continue;
-
-      var err = 'not found';
-      var el = null;
-      if(id in overpass_elements) {
-        err = null;
-        el = overpass_elements[id];
-      }
-
-      request.feature_callback(null, el, i);
-    }
-
-    if(request.final_callback)
-      request.final_callback(null);
     overpass_request_active = false;
-
-    return _overpass_process();
+    return;
   }
 
   http_load(
@@ -118,23 +120,11 @@ function _overpass_process() {
         overpass_elements[id] = create_osm_object(el);
       }
 
-      for(var i = 0; i < ids.length; i++) {
-        var id = ids[i];
-        if(id === null)
-          continue;
-
-        var err = 'not found';
-        var el = null;
-        if(id in overpass_elements) {
-          err = null;
-          el = overpass_elements[id];
-        }
-
-        request.feature_callback(null, el, i);
+      for(var id in todo) {
+        if(!(id in overpass_elements))
+          overpass_elements[id] = null;
       }
 
-      if(request.final_callback)
-        request.final_callback(null);
       overpass_request_active = false;
 
       _overpass_process();
