@@ -7,6 +7,7 @@ var overpass_request_active = false;
  * @param {(string|string[])} ids - One or more IDs, e.g. [ 'n123', 'w2345', 'n123' ]
  * @param {object} options
  * @param {number} [options.priority=0] - Priority for loading these objects. The lower the sooner they will be requested.
+ * @param {boolean} [options.call_ordered=false] - When set to true, the function feature_callback will be called in the order of the array ids.
  * @param {function} feature_callback - Will be called for each object in the order of the IDs in parameter 'ids'. Will be passed: 1. err (if an error occured, otherwise null), 2. the object or null, 3. the index in the array ids.
  * @param {function} final_callback - Will be called after the last feature. Will be passed: 1. err (if an error occured, otherwise null).
  */
@@ -51,7 +52,8 @@ function _overpass_process() {
       if(ids[i] === null)
         continue;
       if(ids[i] in overpass_elements) {
-        if(all_found_until_now) {
+        if(!('call_ordered' in request.options) ||
+           (request.options.call_ordered && all_found_until_now)) {
           async.setImmediate(function(ob, i, callback) {
             callback(null, ob, i);
           }.bind(this, overpass_elements[ids[i]], i, request.feature_callback));
@@ -131,6 +133,7 @@ function _overpass_process() {
  * @param {object} options
  * @param {number} [options.priority=0] - Priority for loading these objects. The lower the sooner they will be requested.
  * @param {boolean} [options.order_approx_route_length=false] - Order objects by approximate route length (calculated from the bbox diagonal)
+ * @param {boolean} [options.call_ordered=false] - When set to true, the function feature_callback will be called in some particular order (e.g. from order_approx_route_length).
  * @param {function} feature_callback Will be called for each object in the order of the IDs in parameter 'ids'. Will be passed: 1. err (if an error occured, otherwise null), 2. the object or null.
  * @param {function} final_callback Will be called after the last feature. Will be passed: 1. err (if an error occured, otherwise null).
  */
