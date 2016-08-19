@@ -30,8 +30,11 @@ function _overpass_process() {
 
   overpass_request_active = true;
   var todo = {};
-  var query = "";
+  var effort = 0;
+  var query = '';
   for(var j = 0; j < overpass_requests.length; j++) {
+    if(overpass_requests[j] === null)
+      continue;
     var request = overpass_requests[j];
     var ids = request.ids;
     var all_found_until_now = true;
@@ -53,7 +56,25 @@ function _overpass_process() {
       if(ids[i] in todo)
         continue;
 
+      // too much data - delay for next iteration
+      if(effort > 256)
+        continue;
+
       todo[ids[i]] = true;
+      switch(ids[i].substr(0, 1)) {
+        case 'n':
+          query += 'node(' + ids[i].substr(1) + ');out body;\n';
+          effort += 1;
+          break;
+        case 'w':
+          query += 'way(' + ids[i].substr(1) + ');out body geom;\n';
+          effort += 4;
+          break;
+        case 'r':
+          query += 'relation(' + ids[i].substr(1) + ');out body bb;\n';
+          effort += 16;
+          break;
+      }
     }
 
     if(all_found_until_now) {
@@ -67,23 +88,6 @@ function _overpass_process() {
   var p;
   while((p = overpass_requests.indexOf(null)) != -1)
     overpass_requests.splice(p, 1);
-
-  for(var id in todo) {
-    var type = {
-      'n': 'node',
-      'w': 'way',
-      'r': 'relation',
-    }[id.substr(0, 1)];
-
-    query += type + '(' + id.substr(1) + ');';
-
-    if(type == 'way')
-      query += 'out body geom;\n';
-    else if(type == 'relation')
-      query += 'out body bb;\n';
-    else
-      query += 'out body;\n';
-  }
 
   if(query == '') {
     overpass_request_active = false;
