@@ -12,36 +12,13 @@ function overpass_get(ids, feature_callback, final_callback) {
   if(typeof ids == 'string')
     ids = [ ids ];
 
-  var done = true;
-  for(var i = 0; i < ids.length; i++) {
-    if(ids[i] in overpass_elements) {
-      async.setImmediate(function(ob, i) {
-        feature_callback(null, ob, i);
-      }.bind(this, overpass_elements[ids[i]], i));
-      ids[i] = null;
-    }
-    else {
-      done = false;
-      break;
-    }
-  }
+  overpass_requests.push({
+    ids: ids,
+    feature_callback: feature_callback,
+    final_callback: final_callback
+  });
 
-  if(done) {
-    if(final_callback) {
-      async.setImmediate(function() {
-        final_callback(null);
-      });
-    }
-  }
-  else {
-    overpass_requests.push({
-      ids: ids,
-      feature_callback: feature_callback,
-      final_callback: final_callback
-    });
-
-    _overpass_process();
-  }
+  _overpass_process();
 }
 
 function _overpass_process() {
