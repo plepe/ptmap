@@ -4,11 +4,10 @@ var overpass_requests = [];
 var overpass_request_active = false;
 
 /**
- * @param array|string ids One or more IDs, e.g. [ 'n123', 'w2345', 'n123' ]
- * @param object options
- *                 none defined yet
- * @param function feature_callback Will be called for each object in the order of the IDs in parameter 'ids'. Will be passed: 1. err (if an error occured, otherwise null), 2. the object or null, 3. the index in the array ids.
- * @param function final_callback Will be called after the last feature. Will be passed: 1. err (if an error occured, otherwise null).
+ * @param {(string|string[])} ids - One or more IDs, e.g. [ 'n123', 'w2345', 'n123' ]
+ * @param {object} options
+ * @param {function} feature_callback - Will be called for each object in the order of the IDs in parameter 'ids'. Will be passed: 1. err (if an error occured, otherwise null), 2. the object or null, 3. the index in the array ids.
+ * @param {function} final_callback - Will be called after the last feature. Will be passed: 1. err (if an error occured, otherwise null).
  */
 function overpass_get(ids, options, feature_callback, final_callback) {
   if(typeof ids == 'string')
@@ -122,6 +121,13 @@ function _overpass_process() {
  );
 }
 
+/**
+ * @param {string} query - Query for requesting objects from Overpass API, e.g. "node[amenity=restaurant]"
+ * @param {L.latLngBounds} bounds - A Leaflet Bounds object, e.g. from map.getBounds()
+ * @param {object} options
+ * @param {function} feature_callback Will be called for each object in the order of the IDs in parameter 'ids'. Will be passed: 1. err (if an error occured, otherwise null), 2. the object or null.
+ * @param {function} final_callback Will be called after the last feature. Will be passed: 1. err (if an error occured, otherwise null).
+ */
 function overpass_bbox_query(query, bounds, options, feature_callback, final_callback) {
   var ret = [];
   var bbox_string = bounds.toBBoxString();
