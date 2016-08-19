@@ -4,6 +4,7 @@ $id = "ptmap";
 $depend = array(
   'modulekit-form',
   'twig',
+  'weight_sort',
 );
 
 $include = array(

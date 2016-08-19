@@ -6,6 +6,7 @@ var overpass_request_active = false;
 /**
  * @param {(string|string[])} ids - One or more IDs, e.g. [ 'n123', 'w2345', 'n123' ]
  * @param {object} options
+ * @param {number} [options.priority=0] - Priority for loading these objects. The lower the sooner they will be requested.
  * @param {function} feature_callback - Will be called for each object in the order of the IDs in parameter 'ids'. Will be passed: 1. err (if an error occured, otherwise null), 2. the object or null, 3. the index in the array ids.
  * @param {function} final_callback - Will be called after the last feature. Will be passed: 1. err (if an error occured, otherwise null).
  */
@@ -18,9 +19,12 @@ function overpass_get(ids, options, feature_callback, final_callback) {
   overpass_requests.push({
     ids: ids,
     options: options,
+    priority: 'priority' in options ? options.priority : 0,
     feature_callback: feature_callback,
     final_callback: final_callback
   });
+
+  overpass_requests = weight_sort(overpass_requests, 'priority');
 
   _overpass_process();
 }
@@ -125,6 +129,7 @@ function _overpass_process() {
  * @param {string} query - Query for requesting objects from Overpass API, e.g. "node[amenity=restaurant]"
  * @param {L.latLngBounds} bounds - A Leaflet Bounds object, e.g. from map.getBounds()
  * @param {object} options
+ * @param {number} [options.priority=0] - Priority for loading these objects. The lower the sooner they will be requested.
  * @param {function} feature_callback Will be called for each object in the order of the IDs in parameter 'ids'. Will be passed: 1. err (if an error occured, otherwise null), 2. the object or null.
  * @param {function} final_callback Will be called after the last feature. Will be passed: 1. err (if an error occured, otherwise null).
  */
