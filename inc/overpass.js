@@ -130,6 +130,7 @@ function _overpass_process() {
  * @param {L.latLngBounds} bounds - A Leaflet Bounds object, e.g. from map.getBounds()
  * @param {object} options
  * @param {number} [options.priority=0] - Priority for loading these objects. The lower the sooner they will be requested.
+ * @param {boolean} [options.order_approx_route_length=false] - Order objects by approximate route length (calculated from the bbox diagonal)
  * @param {function} feature_callback Will be called for each object in the order of the IDs in parameter 'ids'. Will be passed: 1. err (if an error occured, otherwise null), 2. the object or null.
  * @param {function} final_callback Will be called after the last feature. Will be passed: 1. err (if an error occured, otherwise null).
  */
@@ -152,8 +153,21 @@ function overpass_bbox_query(query, bounds, options, feature_callback, final_cal
 	var el = results.elements[i];
 	var id = el.type.substr(0, 1) + el.id;
 
-	todo.push(id);
+        if(options.order_approx_route_length) {
+          var ob_bbox = L.latLngBounds(
+            L.latLng(el.bounds.minlat, el.bounds.minlon),
+            L.latLng(el.bounds.maxlat, el.bounds.maxlon)
+          );
+          var approx_route_length = bounds_diagonal_px_length(ob_bbox);
+
+          todo.push([ bounds_diagonal_px_length(ob_bbox), id ]);
+        }
+        else
+          todo.push(id);
       }
+
+      if(options.order_approx_route_length)
+        todo = weight_sort(todo);
 
       overpass_get(todo, options, feature_callback, final_callback);
     }
