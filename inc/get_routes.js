@@ -5,19 +5,16 @@ function get_routes(callback) {
   }
 
   var bounds = map.getBounds();
-  overpass_query(
+  var routes = [];
+  overpass_bbox_query(
     'relation[type=route][route~"^(' + query.join('|') + ')$"];',
     bounds,
+    {},
+    function(err, route) {
+      if(route.is_visible(bounds))
+        routes.push(route);
+    },
     function(err, results) {
-      var routes = [];
-      for(var i = 0; i < results.length; i++) {
-	var ob = results[i];
-
-	if(ob.is_visible(bounds)) {
-	  routes.push(ob);
-	}
-      }
-
       callback(null, routes);
     }
   );

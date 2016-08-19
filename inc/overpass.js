@@ -122,7 +122,7 @@ function _overpass_process() {
  );
 }
 
-function overpass_query(query, bounds, callback) {
+function overpass_bbox_query(query, bounds, options, feature_callback, final_callback) {
   var ret = [];
   var bbox_string = bounds.toBBoxString();
   bbox_string = bbox_string.split(/,/);
@@ -141,40 +141,10 @@ function overpass_query(query, bounds, callback) {
 	var el = results.elements[i];
 	var id = el.type.substr(0, 1) + el.id;
 
-	if(id in overpass_elements) {
-	  ret.push(overpass_elements[id]);
-	}
-	else {
-	  todo_ids[id] = {};
-	  todo.push(el.type + '(' + el.id + ');');
-	}
+	todo.push(id);
       }
 
-      if(todo.length) {
-	http_load(
-	  conf.overpass.url,
-	  null,
-	  '[out:json];((' + todo.join('') + ');)->.i;out bb body;', //node(r.i);out body;', //way(r.i);out body geom;',
-	  function(err, results) {
-	    for(var i = 0; i < results.elements.length; i++) {
-	      var el = results.elements[i];
-	      var id = el.type.substr(0, 1) + el.id;
-
-	      overpass_elements[id] = create_osm_object(el);
-
-	      if(id in todo_ids) {
-		ret.push(overpass_elements[id]);
-		delete(todo_ids[id]);
-	      }
-	    }
-
-	    callback(null, ret);
-	  }
-	);
-      }
-      else {
-	callback(null, ret);
-      }
+      overpass_get(todo, options, feature_callback, final_callback);
     }
   );
 }
