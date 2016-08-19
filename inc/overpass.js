@@ -5,15 +5,20 @@ var overpass_request_active = false;
 
 /**
  * @param array|string ids One or more IDs, e.g. [ 'n123', 'w2345', 'n123' ]
+ * @param object options
+ *                 none defined yet
  * @param function feature_callback Will be called for each object in the order of the IDs in parameter 'ids'. Will be passed: 1. err (if an error occured, otherwise null), 2. the object or null, 3. the index in the array ids.
  * @param function final_callback Will be called after the last feature. Will be passed: 1. err (if an error occured, otherwise null).
  */
-function overpass_get(ids, feature_callback, final_callback) {
+function overpass_get(ids, options, feature_callback, final_callback) {
   if(typeof ids == 'string')
     ids = [ ids ];
+  if(options === null)
+    options = {};
 
   overpass_requests.push({
     ids: ids,
+    options: options,
     feature_callback: feature_callback,
     final_callback: final_callback
   });

@@ -37,7 +37,7 @@ OSMRoute.prototype.route_parts = function(callback) {
     way_roles.push(member.role);
   }
 
-  overpass_get(way_list, function(way_roles, err, ob, route_index) {
+  overpass_get(way_list, {}, function(way_roles, err, ob, route_index) {
     var dir = null;
     var connected = true;
     var role = way_roles[i];
@@ -136,7 +136,7 @@ OSMRoute.prototype._route_parts_stops = function(route_parts, route_parts_index,
     node_roles.push(member.role);
   }
 
-  overpass_get(node_list, function(node_roles, err, ob, route_index) {
+  overpass_get(node_list, {}, function(node_roles, err, ob, route_index) {
       var node_ref;
 
       if(node_ref = node_index[ob.id.substr(1)]) {
