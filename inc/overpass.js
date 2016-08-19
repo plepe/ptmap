@@ -41,7 +41,9 @@ function _overpass_process() {
         continue;
       if(ids[i] in overpass_elements) {
         if(all_found_until_now) {
-          request.feature_callback(null, overpass_elements[ids[i]], i);
+          async.setImmediate(function(ob, i, callback) {
+            callback(null, ob, i);
+          }.bind(this, overpass_elements[ids[i]], i, request.feature_callback));
           request.ids[i] = null;
         }
         continue;
@@ -55,7 +57,9 @@ function _overpass_process() {
     }
 
     if(all_found_until_now) {
-      request.final_callback(null);
+      async.setImmediate(function(callback) {
+        callback(null);
+      }.bind(this, request.final_callback));
       overpass_requests[j] = null;
     }
   }
