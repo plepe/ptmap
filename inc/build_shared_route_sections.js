@@ -34,7 +34,6 @@ function _build_shared_route_sections_sections() {
     var parts = route_parts[route.id];
     var last_links = null;
     var current_shared_route_section = new SharedRouteSection();
-    current_shared_route_section.init(shared_route_sections.length);
 
     for(var j = 0; j < parts.length; j++) {
       var part = parts[j];
@@ -71,9 +70,7 @@ function _build_shared_route_sections_sections() {
 
           // no match -> create new shared_route_section
           if(!match) {
-            shared_route_sections.push(current_shared_route_section);
             current_shared_route_section = new SharedRouteSection();
-	    current_shared_route_section.init(shared_route_sections.length);
           }
         }
 
@@ -87,8 +84,6 @@ function _build_shared_route_sections_sections() {
 
       last_links = links;
     }
-
-    shared_route_sections.push(current_shared_route_section);
   }
 
   callback(null, shared_route_sections);

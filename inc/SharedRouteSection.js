@@ -1,9 +1,10 @@
-function SharedRouteSection() {
-}
+var shared_route_sections = [];
+var shared_route_sections_ways = {};
 
-SharedRouteSection.prototype.init = function(id) {
-  this.id = id;
+function SharedRouteSection() {
   this.ways = [];
+  this.id = shared_route_sections.length;
+  shared_route_sections.push(this);
 }
 
 SharedRouteSection.prototype.add_way = function(way, links, dir) {
