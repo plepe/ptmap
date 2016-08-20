@@ -1,4 +1,4 @@
-function get_routes(callback) {
+function get_routes(feature_callback, final_callback) {
   var query = [];
   for(var type in conf.routes) {
     query.push(overpass_regexp_escape(type));
@@ -11,11 +11,13 @@ function get_routes(callback) {
     bounds,
     {},
     function(err, route) {
-      if(route.is_visible(bounds))
+      if(route.is_visible(bounds)) {
+        feature_callback(null, route);
         routes.push(route);
+      }
     },
     function(err, results) {
-      callback(null, routes);
+      final_callback(null, routes);
     }
   );
 }
