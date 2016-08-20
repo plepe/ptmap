@@ -38,7 +38,8 @@ OSMRoute.prototype.route_parts = function(callback) {
   }
 
   overpass_get(way_list, {
-      call_ordered: true
+      call_ordered: true,
+      priority: 1
     }, function(way_roles, err, ob, route_index) {
     var dir = null;
     var connected = true;
@@ -139,7 +140,8 @@ OSMRoute.prototype._route_parts_stops = function(route_parts, route_parts_index,
   }
 
   overpass_get(node_list, {
-      call_ordered: true
+      call_ordered: true,
+      priority: 0
     }, function(node_roles, err, ob, route_index) {
       var node_ref;
 

@@ -9,7 +9,10 @@ function get_routes(feature_callback, final_callback) {
   overpass_bbox_query(
     'relation[type=route][route~"^(' + query.join('|') + ')$"];',
     bounds,
-    {},
+    {
+      priority: 2,
+      order_approx_route_length: true
+    },
     function(err, route) {
       if(route.is_visible(bounds)) {
         feature_callback(null, route);
