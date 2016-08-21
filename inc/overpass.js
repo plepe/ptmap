@@ -8,6 +8,7 @@ var overpass_request_active = false;
  * @param {object} options
  * @param {number} [options.priority=0] - Priority for loading these objects. The lower the sooner they will be requested.
  * @param {boolean} [options.call_ordered=false] - When set to true, the function feature_callback will be called in the order of the array ids.
+ * @param {L.latLngBounds} options.bbox - Only include objects which intersect the given bbox. The feature_callback will be called anyway, but boolean false will be passed.
  * @param {function} feature_callback - Will be called for each object in the order of the IDs in parameter 'ids'. Will be passed: 1. err (if an error occured, otherwise null), 2. the object or null, 3. the index in the array ids.
  * @param {function} final_callback - Will be called after the last feature. Will be passed: 1. err (if an error occured, otherwise null).
  */
@@ -16,6 +17,10 @@ function overpass_get(ids, options, feature_callback, final_callback) {
     ids = [ ids ];
   if(options === null)
     options = {};
+
+  for(var i = 0; i < ids.length; i++)
+    if(ids[i] in overpass_elements && overpass_elements[ids[i]] === false)
+      delete(overpass_elements[ids[i]]);
 
   overpass_requests.push({
     ids: ids,
@@ -43,6 +48,7 @@ function _overpass_process() {
   var node_query = '';
   var way_query = '';
   var rel_query = '';
+  var bbox_todo = {};
 
   for(var j = 0; j < overpass_requests.length; j++) {
     if(overpass_requests[j] === null)
@@ -50,6 +56,14 @@ function _overpass_process() {
     var request = overpass_requests[j];
     var ids = request.ids;
     var all_found_until_now = true;
+    var bbox_query = '';
+
+    if(request.options.bbox) {
+      bbox_query = request.options.bbox.toBBoxString();
+      bbox_query = bbox_query.split(/,/);
+      bbox_query = '(' + bbox_query[1] + ',' + bbox_query[0] + ',' +
+                    bbox_query[3] + ',' + bbox_query[2] + ')';
+    }
 
     for(var i = 0; i < ids.length; i++) {
       if(ids[i] === null)
@@ -74,17 +88,19 @@ function _overpass_process() {
         continue;
 
       todo[ids[i]] = true;
+      if(request.options.bbox)
+        bbox_todo[ids[i]] = true;
       switch(ids[i].substr(0, 1)) {
         case 'n':
-          node_query += 'node(' + ids[i].substr(1) + ');\n';
+          node_query += 'node(' + ids[i].substr(1) + ')' + bbox_query + ';\n';
           effort += 1;
           break;
         case 'w':
-          way_query += 'way(' + ids[i].substr(1) + ');\n';
+          way_query += 'way(' + ids[i].substr(1) + ')' + bbox_query + ';\n';
           effort += 4;
           break;
         case 'r':
-          rel_query += 'relation(' + ids[i].substr(1) + ');\n';
+          rel_query += 'relation(' + ids[i].substr(1) + ')' + bbox_query + ';\n';
           effort += 16;
           break;
       }
@@ -135,8 +151,12 @@ function _overpass_process() {
       }
 
       for(var id in todo) {
-        if(!(id in overpass_elements))
-          overpass_elements[id] = null;
+        if(!(id in overpass_elements)) {
+          if(id in bbox_todo)
+            overpass_elements[id] = false;
+          else
+            overpass_elements[id] = null;
+        }
       }
 
       overpass_request_active = false;
