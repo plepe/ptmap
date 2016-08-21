@@ -40,7 +40,10 @@ function _overpass_process() {
   overpass_request_active = true;
   var todo = {};
   var effort = 0;
-  var query = '';
+  var node_query = '';
+  var way_query = '';
+  var rel_query = '';
+
   for(var j = 0; j < overpass_requests.length; j++) {
     if(overpass_requests[j] === null)
       continue;
@@ -73,15 +76,15 @@ function _overpass_process() {
       todo[ids[i]] = true;
       switch(ids[i].substr(0, 1)) {
         case 'n':
-          query += 'node(' + ids[i].substr(1) + ');out body;\n';
+          node_query += 'node(' + ids[i].substr(1) + ');\n';
           effort += 1;
           break;
         case 'w':
-          query += 'way(' + ids[i].substr(1) + ');out body geom;\n';
+          way_query += 'way(' + ids[i].substr(1) + ');\n';
           effort += 4;
           break;
         case 'r':
-          query += 'relation(' + ids[i].substr(1) + ');out body bb;\n';
+          rel_query += 'relation(' + ids[i].substr(1) + ');\n';
           effort += 16;
           break;
       }
@@ -99,15 +102,31 @@ function _overpass_process() {
   while((p = overpass_requests.indexOf(null)) != -1)
     overpass_requests.splice(p, 1);
 
-  if(query == '') {
+  if(node_query == '' && way_query == '' && rel_query == '') {
     overpass_request_active = false;
     return;
+  }
+
+  var query = '';
+  if(node_query != '') {
+    query += '((' + node_query + ');)->.n;\n';
+    query += '.n out body;\n';
+  }
+
+  if(way_query != '') {
+    query += '((' + way_query + ');)->.w;\n';
+    query += '.w out body geom;\n';
+  }
+
+  if(rel_query != '') {
+    query += '((' + rel_query + ');)->.r;\n';
+    query += '.r out body bb;\n';
   }
 
   http_load(
     conf.overpass.url,
     null,
-    "[out:json];" + query,
+    "[out:json];\n" + query,
     function(err, results) {
       for(var i = 0; i < results.elements.length; i++) {
         var el = results.elements[i];
