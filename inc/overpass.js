@@ -21,25 +21,23 @@ function overpass_get(ids, options, feature_callback, final_callback) {
   if(options === null)
     options = {};
 
-  for(var i = 0; i < ids.length; i++)
-    if(ids[i] in overpass_elements && overpass_elements[ids[i]] === false)
-      delete(overpass_elements[ids[i]]);
-
   if(options.bbox) {
     var bbox = latLngBounds_to_turf(options.bbox);
     ids_possible = [];
 
     for(var i = 0; i < ids.length; i++) {
       // has been loaded anyway
-      if(ids[i] in overpass_elements) {
+      if(ids[i] in overpass_elements && overpass_elements[ids[i]] !== false) {
         ids_possible[i] = false;
         continue;
       }
 
       if(ids[i] in overpass_elements_bbox_checked) {
         var possible_bounds = overpass_elements_bbox_checked[ids[i]];
-        if(ids_possible[i] = possible_bounds.is_possible(bbox))
+        if(ids_possible[i] = possible_bounds.is_possible(bbox)) {
           possible_bounds.add_inner_bounds(bbox);
+          delete(overpass_elements[ids[i]]);
+        }
       }
       else {
         ids_possible[i] = true;
