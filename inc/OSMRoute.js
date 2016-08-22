@@ -18,14 +18,19 @@ OSMRoute.prototype.route_parts = function(callback) {
   this.node_index = {};
   this.route_parts_index = {};
 
-  if(this._route_parts)
-    return async.setImmediate(function() {
-      callback(null, this._route_parts);
-    }.bind(this));
-
   var way_list = [];
-  this.route_parts_roles = [];
-  this._route_parts = [];
+  var index_list = [];
+  var index = 0;
+  var init = false;
+  if(!this._route_parts) {
+    this.route_parts_roles = [];
+    this.route_parts_way = [];
+    this._route_parts = [];
+    init = true;
+  }
+  else
+    console.log('update route parts');
+
   for(var i = 0; i < this.data.members.length; i++) {
     var member = this.data.members[i];
 
@@ -34,30 +39,39 @@ OSMRoute.prototype.route_parts = function(callback) {
     if([ '', 'forward', 'backward'].indexOf(member.role) == -1)
       continue;
 
-    way_list.push('w' + member.ref);
-    this.route_parts_roles.push(member.role);
-    this._route_parts.push(false);
+    if(init) {
+      this.route_parts_roles.push(member.role);
+      this.route_parts_way.push(undefined);
+      this._route_parts.push(false);
+    }
+
+    if(!this._route_parts[index]) {
+      way_list.push('w' + member.ref);
+      index_list.push(index);
+    }
+
+    index++;
   }
 
-  this.route_parts_way = [];
+  if(!way_list.length)
+    return async.setImmediate(function() {
+      callback(null, this._route_parts);
+    }.bind(this));
 
   overpass_get(way_list, {
       bbox: map.getBounds(),
       priority: 1
     },
-    function(err, ob, route_index) {
+    function(index_list, err, ob, i) {
+      var route_index = index_list[i];
       this.route_parts_way[route_index] = ob;
 
       if(ob === false)
         return;
 
       this.route_part_check_way(route_index);
-    }.bind(this),
+    }.bind(this, index_list),
   function() {
-
-    if(last_dir === null)
-      result[result.length - 1].dir = 'unknown';
-
 //    this._route_parts_stops(result, this.route_parts_index, function(err, result) {
 //      this._route_parts = result;
 //
