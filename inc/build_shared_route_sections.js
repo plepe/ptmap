@@ -1,4 +1,5 @@
 function build_shared_route_sections(routes, callback) {
+  return;
   var ways = {};
   var route_parts = {};
 

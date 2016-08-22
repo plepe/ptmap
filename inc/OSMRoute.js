@@ -116,7 +116,9 @@ OSMRoute.prototype.route_parts = function(callback) {
     this._route_parts_stops(result, route_parts_index, node_index, function(err, result) {
       this._route_parts = result;
 
-      callback(null, result);
+      shared_route_sections_add_route(this, this._route_parts, function() {
+        callback(null, this._route_parts);
+      });
     }.bind(this));
   }.bind(this));
 }

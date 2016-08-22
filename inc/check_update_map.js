@@ -32,9 +32,9 @@ function check_update_map() {
 
   get_routes(
     function(err, route) {
-      route.route_parts(function(route, err, result) {
-        console.log(route.tags.ref, result);
-      }.bind(this, route));
+      route.route_parts(function() {
+        console.log('update done');
+      });
     }
     ,
     function(err, routes) {

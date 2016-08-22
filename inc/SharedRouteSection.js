@@ -7,13 +7,128 @@ function SharedRouteSection() {
   shared_route_sections.push(this);
 }
 
-SharedRouteSection.prototype.add_way = function(way, links, dir) {
+SharedRouteSection.prototype.add_way = function(way, link) {
   this.ways.push({
     id: way.id,
     way: way,
-    links: links,
-    dir: dir
+    links: [ link ],
+    dir: link.dir
   });
+
+  shared_route_sections_ways[way.id] = this;
+}
+
+SharedRouteSection.prototype.set_parts = function(remaining_parts) {
+  var way = remaining_parts[0].member;
+
+  this.remove();
+
+  for(var i = 0; i < remaining_parts.length; i++) {
+    var way = remaining_parts[i].member;
+    var link = remaining_parts[i].link;
+
+    if(way.id in shared_route_sections_ways) {
+      console.log('end found');
+      return i;
+    }
+    else {
+      this.ways.push({
+        id: way.id,
+        way: way,
+        links: [ link ],
+        dir: link.dir
+      });
+
+      shared_route_sections_ways[way.id] = this;
+    }
+  }
+
+  this.render();
+
+  return i;
+}
+
+SharedRouteSection.prototype.set_ways = function(ways) {
+  this.ways = ways;
+
+  this.remove();
+
+  for(var i = 0; i < this.ways.length; i++) {
+    way = this.ways[i].way;
+    shared_route_sections_ways[way.id] = this;
+  }
+
+  this.render();
+}
+
+SharedRouteSection.prototype.add_parts = function(remaining_parts) {
+  var way = remaining_parts[0].member;
+  var dir = null;
+  var count = null;
+
+  this.remove();
+
+  for(var start = 0; start < this.ways.length; start++) {
+    if(way == this.ways[start].way) {
+
+      if(remaining_parts[0].link.dir == 'unknown')
+        dir = null;
+      else if(remaining_parts[0].link.dir == this.ways[start].links[0].dir)
+        dir = 1;
+      else
+        dir = -1;
+
+      count = 0;
+
+      if(dir === null) {
+        if(this.ways.length > 1)
+          console.log('UNKNOWN -> split');
+        // check if ways is longer? -> split
+        this.render();
+        return 1;
+      }
+
+      var j = start;
+      while(j >= 0 && j < this.ways.length && count < remaining_parts.length) {
+        if(this.ways[j].way == remaining_parts[count].member) {
+          this.ways[j].links.push(remaining_parts[count].link);
+        }
+        else
+          break;
+
+        j += dir;
+        count ++;
+      }
+
+      var end = j;
+
+      if(start + count < this.ways.length) {
+        var section = new SharedRouteSection();
+
+        section.set_ways(this.ways.splice(start + count, this.ways.length - start - count));
+      }
+
+      if(start != 0) {
+        var section = new SharedRouteSection();
+
+        section.set_ways(this.ways.splice(0, start));
+      }
+
+      this.render();
+      return count;
+    }
+  }
+}
+
+SharedRouteSection.prototype.add_way_link = function(way, link) {
+  for(var i = 0; i < this.ways.length; i++) {
+    if(this.ways[i].way == way) {
+      this.ways[i].links.push(link);
+    }
+  }
+}
+
+SharedRouteSection.prototype.end_section = function() {
 }
 
 SharedRouteSection.prototype.routes = function() {
@@ -190,16 +305,71 @@ SharedRouteSection.prototype.render = function() {
     opacity: 1
   }).addTo(map).bindPopup(this.build_popup());
 
-  this.feature.setText(this.build_label(), {
-    repeat: true,
-    offset: 12,
-    attributes: {
-      fill: route_conf.color
-    }
-  });
+//  this.feature.setText(this.build_label(), {
+//    repeat: true,
+//    offset: 12,
+//    attributes: {
+//      fill: route_conf.color
+//    }
+//  });
 }
 
 SharedRouteSection.prototype.remove = function() {
   if(this.feature)
     map.removeLayer(this.feature);
+}
+
+function shared_route_sections_add_route(route, parts, callback) {
+    console.log('start ', route.tags.ref, route.id);
+    var sections = [];
+    var current_section = null;
+    var current_section_index = null;
+    var current_section_dir = null;
+    var next_unconnected = 0;
+
+    for(var j = 0; j < parts.length; ) {
+      var part = parts[j];
+
+      if((next_unconnected !== null) && (next_unconnected <= j)) {
+        next_unconnected = parts.length;
+
+        for(i  = j + 1; i < parts.length; i++)
+          if(!parts[i].link.connected) {
+            next_unconnected = i;
+            break;
+          }
+
+        console.log('next_unconnected', next_unconnected);
+      }
+
+      var remaining_parts = parts.slice(j, next_unconnected);
+
+      if(!(part.member.id in shared_route_sections_ways)) {
+          current_section = new SharedRouteSection();
+
+          var r = current_section.set_parts(
+            remaining_parts
+          );
+
+          console.log(r);
+          j += r;
+      }
+      else {
+        current_section = shared_route_sections_ways[part.member.id];
+        console.log('shared route section found', current_section.id);
+
+        var r = current_section.add_parts(
+          remaining_parts
+        );
+
+        console.log(r);
+        j += r;
+      }
+    }
+
+    console.log(shared_route_sections);
+
+    async.setImmediate(function() {
+      callback();
+    });
 }
