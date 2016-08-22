@@ -1,4 +1,5 @@
 var overpass_elements = {};
+var overpass_elements_bbox_checked = {};
 var overpass_tiles = {};
 var overpass_requests = [];
 var overpass_request_active = false;
@@ -13,6 +14,8 @@ var overpass_request_active = false;
  * @param {function} final_callback - Will be called after the last feature. Will be passed: 1. err (if an error occured, otherwise null).
  */
 function overpass_get(ids, options, feature_callback, final_callback) {
+  var ids_possible = null;
+
   if(typeof ids == 'string')
     ids = [ ids ];
   if(options === null)
@@ -22,8 +25,34 @@ function overpass_get(ids, options, feature_callback, final_callback) {
     if(ids[i] in overpass_elements && overpass_elements[ids[i]] === false)
       delete(overpass_elements[ids[i]]);
 
+  if(options.bbox) {
+    var bbox = latLngBounds_to_turf(options.bbox);
+    ids_possible = [];
+
+    for(var i = 0; i < ids.length; i++) {
+      // has been loaded anyway
+      if(ids[i] in overpass_elements) {
+        ids_possible[i] = false;
+        continue;
+      }
+
+      if(ids[i] in overpass_elements_bbox_checked) {
+        var possible_bounds = overpass_elements_bbox_checked[ids[i]];
+        if(ids_possible[i] = possible_bounds.is_possible(bbox))
+          possible_bounds.add_inner_bounds(bbox);
+      }
+      else {
+        ids_possible[i] = true;
+        var possible_bounds = new PossibleBounds();
+        possible_bounds.add_inner_bounds(bbox);
+        overpass_elements_bbox_checked[ids[i]] = possible_bounds;
+      }
+    }
+  }
+
   overpass_requests.push({
     ids: ids,
+    ids_possible: ids_possible,
     options: options,
     priority: 'priority' in options ? options.priority : 0,
     feature_callback: feature_callback,
@@ -55,6 +84,7 @@ function _overpass_process() {
       continue;
     var request = overpass_requests[j];
     var ids = request.ids;
+    var ids_possible = request.ids_possible;
     var all_found_until_now = true;
     var bbox_query = '';
 
@@ -81,6 +111,9 @@ function _overpass_process() {
 
       all_found_until_now = false;
       if(ids[i] in todo)
+        continue;
+
+      if(ids_possible && !ids_possible[i])
         continue;
 
       // too much data - delay for next iteration
@@ -148,6 +181,7 @@ function _overpass_process() {
         var el = results.elements[i];
         var id = el.type.substr(0, 1) + el.id;
         overpass_elements[id] = create_osm_object(el);
+        delete(overpass_elements_bbox_checked[id]);
       }
 
       for(var id in todo) {
