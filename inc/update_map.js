@@ -1,15 +1,15 @@
 function update_map(routes, callback) {
-  build_shared_route_sections(routes, function(err, sections) {
-    var stops = [];
-    for(var i = 0; i < sections.length; i++) {
-      stops = stops.concat(sections[i].stops());
-    }
-    stops = build_stops(stops);
-
-    update_map_render_all(sections, stops, function() {
-      callback(null, sections, stops);
-    });
-  });
+//  build_shared_route_sections(routes, function(err, sections) {
+//    var stops = [];
+//    for(var i = 0; i < sections.length; i++) {
+//      stops = stops.concat(sections[i].stops());
+//    }
+//    stops = build_stops(stops);
+//
+//    update_map_render_all(sections, stops, function() {
+//      callback(null, sections, stops);
+//    });
+//  });
 }
 
 function update_map_render_all(sections, stops, callback) {

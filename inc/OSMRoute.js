@@ -15,8 +15,8 @@ OSMRoute.prototype.route_parts = function(callback) {
   var route_index = 0;
   var last_route_part = null;
   var last_dir;
-  var node_index = {};
-  var route_parts_index = {};
+  this.node_index = {};
+  this.route_parts_index = {};
 
   if(this._route_parts)
     return async.setImmediate(function() {
@@ -24,7 +24,8 @@ OSMRoute.prototype.route_parts = function(callback) {
     }.bind(this));
 
   var way_list = [];
-  var way_roles = [];
+  this.route_parts_roles = [];
+  this._route_parts = [];
   for(var i = 0; i < this.data.members.length; i++) {
     var member = this.data.members[i];
 
@@ -34,96 +35,151 @@ OSMRoute.prototype.route_parts = function(callback) {
       continue;
 
     way_list.push('w' + member.ref);
-    way_roles.push(member.role);
+    this.route_parts_roles.push(member.role);
+    this._route_parts.push(false);
   }
 
+  this.route_parts_way = [];
+
   overpass_get(way_list, {
-      call_ordered: true,
+      bbox: map.getBounds(),
       priority: 1
-    }, function(way_roles, err, ob, route_index) {
-    var dir = null;
-    var connected = true;
-    var role = way_roles[i];
+    },
+    function(err, ob, route_index) {
+      this.route_parts_way[route_index] = ob;
 
-      for(var i = 0; i < ob.nodes.length; i++) {
-	var node = ob.nodes[i];
+      if(ob === false)
+        return;
 
-	// only for the first matching way
-	if(!(node.id in node_index)) {
-	  node_index[node] = {
-	    way: ob,
-	    index: i
-	  };
-	}
-      }
-
-      if([ 'forward', 'backward'].indexOf(role) != -1) {
-	dir = role;
-      }
-      else if(last_route_part) {
-	if(last_route_part.nodes[0] == ob.nodes[0] ||
-	   last_route_part.nodes[last_route_part.nodes.length - 1] == ob.nodes[0])
-	  dir = 'forward';
-
-	else if(last_route_part.nodes[0] == ob.nodes[ob.nodes.length - 1] ||
-	   last_route_part.nodes[last_route_part.nodes.length - 1] == ob.nodes[ob.nodes.length - 1])
-	  dir = 'backward';
-
-	else if(route_parts_index != 0) {
-	  this.errors.push('Way ' + ob.id + ' not connected to previous way');
-	  connected = false;
-	}
-      }
-
-      if(last_dir === null) {
-	if(last_route_part.nodes[0] == ob.nodes[0] ||
-	   last_route_part.nodes[0] == ob.nodes[ob.nodes.length - 1])
-	  result[result.length - 1].link.dir = 'backward';
-
-	else if(last_route_part.nodes[last_route_part.nodes.length - 1] == ob.nodes[0] ||
-	   last_route_part.nodes[last_route_part.nodes.length - 1] == ob.nodes[ob.nodes.length - 1])
-	  result[result.length - 1].link.dir = 'forward';
-	else {
-	  this.errors.push('Way ' + last_route_part.id + ' not connected to next way');
-	  connected = false;
-	}
-      }
-
-      if(!(ob.id in route_parts_index))
-	route_parts_index[ob.id] = [];
-      route_parts_index[ob.id].push(route_index);
-
-      result.push({
-	member: ob,
-	link: {
-	  route: this,
-	  member_id: ob.id,
-	  role: role,
-	  dir: dir,
-	  connected: connected,
-	  stops: [],
-	  route_index: route_index
-	},
-      });
-
-      last_route_part = ob;
-      last_dir = dir;
-  }.bind(this, way_roles),
+      this.route_part_check_way(route_index);
+    }.bind(this),
   function() {
+
     if(last_dir === null)
       result[result.length - 1].dir = 'unknown';
 
-    this._route_parts_stops(result, route_parts_index, node_index, function(err, result) {
-      this._route_parts = result;
-
-      shared_route_sections_add_route(this, this._route_parts, function() {
+//    this._route_parts_stops(result, this.route_parts_index, function(err, result) {
+//      this._route_parts = result;
+//
+//      shared_route_sections_add_route(this, this._route_parts, function() {
         callback(null, this._route_parts);
-      });
-    }.bind(this));
+//      });
+//    }.bind(this));
   }.bind(this));
 }
 
-OSMRoute.prototype._route_parts_stops = function(route_parts, route_parts_index, node_index, callback) {
+OSMRoute.prototype.route_part_check_way = function(route_index) {
+  var role = this.route_parts_roles[route_index];
+  var ob = this.route_parts_way[route_index];
+
+  for(var i = 0; i < ob.nodes.length; i++) {
+    var node = ob.nodes[i];
+
+    // only for the first matching way
+    if(!(node.id in this.node_index)) {
+      this.node_index[node] = {
+	way: ob,
+	index: i
+      };
+    }
+  }
+
+  var shared_route_way = ob.id in shared_route_ways ? shared_route_ways[ob.id] : new SharedRouteWay(ob);
+
+  var result;
+  if(this._route_parts[route_index]) {
+    // eh schon da? sollen wir noch was ueberpruefen?
+    result = this._route_parts[route_index];
+  }
+  else {
+    result = {
+      way: ob,
+      shared_route_way: shared_route_way,
+      route: this,
+      route_index: route_index,
+      prev_part: null,
+      next_part: null,
+      member_id: ob.id,
+      role: role,
+      dir: null,
+      prev_connected: null,
+      next_connected: null,
+      stops: []
+    };
+
+    if(!(ob.id in this.route_parts_index))
+      this.route_parts_index[ob.id] = [];
+    this.route_parts_index[ob.id].push(route_index);
+
+    this._route_parts[route_index] = result;
+
+    result.shared_route_way.add_route_link(result);
+  }
+
+  var check_prev_part = false;
+  if(!result.prev_part && route_index > 0) {
+    result.prev_part = this._route_parts[route_index - 1];
+    if(result.prev_part)
+      check_prev_part = true;
+  }
+
+  var check_next_part = false;
+  if(!result.next_part && route_index < this._route_parts.length - 1) {
+    result.next_part = this._route_parts[route_index + 1];
+    if(result.next_part)
+      check_next_part = true;
+  }
+
+  dir = 'forward';
+  connected = true;
+  if([ 'forward', 'backward'].indexOf(role) != -1) {
+    result.dir = role;
+  }
+
+  if(check_prev_part) {
+    result.prev_connected = true;
+
+    if(result.prev_part.way.nodes[0] == ob.nodes[0] ||
+       result.prev_part.way.nodes[result.prev_part.way.nodes.length - 1] == ob.nodes[0])
+      result.dir = 'forward';
+
+    else if(result.prev_part.way.nodes[0] == ob.nodes[ob.nodes.length - 1] ||
+       result.prev_part.way.nodes[result.prev_part.way.nodes.length - 1] == ob.nodes[ob.nodes.length - 1])
+      result.dir = 'backward';
+
+    else if(route_index != 0) {
+      this.errors.push('Way ' + ob.id + ' not connected to previous way');
+      result.prev_connected = false;
+    }
+
+    // recurse!
+    this.route_part_check_way(route_index - 1);
+  }
+
+  if(check_next_part) {
+    result.next_connected = true;
+
+    if(result.next_part.way.nodes[0] == ob.nodes[0] ||
+       result.next_part.way.nodes[result.next_part.way.nodes.length - 1] == ob.nodes[0])
+      result.dir = 'backward';
+
+    else if(result.next_part.way.nodes[0] == ob.nodes[ob.nodes.length - 1] ||
+       result.next_part.way.nodes[result.next_part.way.nodes.length - 1] == ob.nodes[ob.nodes.length - 1])
+      result.dir = 'forward';
+
+    else if(route_index != this._route_parts.length - 1) {
+      this.errors.push('Way ' + ob.id + ' not connected to next way');
+      result.next_connected = false;
+    }
+
+    // recurse!
+    this.route_part_check_way(route_index + 1);
+  }
+
+  result.shared_route_way.update();
+}
+
+OSMRoute.prototype._route_parts_stops = function(route_parts, route_parts_index, callback) {
   var last_route_part_index = 0;
   this._stops = [];
 
@@ -147,7 +203,7 @@ OSMRoute.prototype._route_parts_stops = function(route_parts, route_parts_index,
     }, function(node_roles, err, ob, route_index) {
       var node_ref;
 
-      if(node_ref = node_index[ob.id.substr(1)]) {
+      if(node_ref = this.node_index[ob.id.substr(1)]) {
 	var matching_route_parts_index = null;
 	var matching_route_parts_indexes = route_parts_index[node_ref.way.id];
 	for(var i = 0; i < matching_route_parts_indexes.length; i++) {
