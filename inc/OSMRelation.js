@@ -6,6 +6,20 @@ OSMRelation.prototype.init = function(data) {
   this.parent("OSMRelation").init.call(this, data);
 }
 
+OSMRelation.prototype.member_ids = function() {
+  if(this._member_ids)
+    return this._member_ids;
+
+  this._member_ids = [];
+  for(var i = 0; i < this.data.members.length; i++) {
+    var member = this.data.members[i];
+
+    this._member_ids.push(member.type.substr(0, 1) + member.ref);
+  }
+
+  return this._member_ids;
+}
+
 OSMRelation.prototype.data = function(callback) {
   callback(null, this.data);
 }

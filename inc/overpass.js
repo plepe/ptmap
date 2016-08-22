@@ -1,5 +1,6 @@
 var overpass_elements = {};
 var overpass_elements_bbox_checked = {};
+var overpass_elements_member_of = {};
 var overpass_tiles = {};
 var overpass_requests = [];
 var overpass_request_active = false;
@@ -180,6 +181,14 @@ function _overpass_process() {
         var id = el.type.substr(0, 1) + el.id;
         overpass_elements[id] = create_osm_object(el);
         delete(overpass_elements_bbox_checked[id]);
+
+        var members = overpass_elements[id].member_ids();
+        for(var j = 0; j < members.length; j++) {
+          if(!(members[j] in overpass_elements_member_of))
+            overpass_elements_member_of[members[j]] = [ overpass_elements[id] ];
+          else
+            overpass_elements_member_of[members[j]].push(overpass_elements[id]);
+        }
       }
 
       for(var id in todo) {

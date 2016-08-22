@@ -9,6 +9,20 @@ OSMWay.prototype.init = function(data) {
   this.geometry = data.geometry;
 }
 
+OSMWay.prototype.member_ids = function() {
+  if(this._member_ids)
+    return this._member_ids;
+
+  this._member_ids = [];
+  for(var i = 0; i < this.data.nodes.length; i++) {
+    var member = this.data.nodes[i];
+
+    this._member_ids.push('n' + member);
+  }
+
+  return this._member_ids;
+}
+
 OSMWay.prototype.GeoJSON = function() {
   var coordinates = [];
   for(var i = 0; i < this.geometry.length; i++)

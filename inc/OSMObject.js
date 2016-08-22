@@ -39,6 +39,17 @@ OSMObject.prototype.init = function(data) {
   }
 }
 
+OSMObject.prototype.member_ids = function() {
+  return [];
+}
+
+OSMObject.prototype.member_of = function() {
+  if(this.id in overpass_elements_member_of)
+    return overpass_elements_member_of[this.id];
+
+  return [];
+}
+
 OSMObject.prototype.GeoJSON = function() {
   return {
     type: 'Feature',
