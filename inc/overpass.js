@@ -23,7 +23,7 @@ function overpass_get(ids, options, feature_callback, final_callback) {
     options = {};
 
   if(options.bbox) {
-    var bbox = latLngBounds_to_turf(options.bbox);
+    var bbox = convert_to_turf(options.bbox);
     ids_possible = [];
 
     for(var i = 0; i < ids.length; i++) {

@@ -1,4 +1,4 @@
-function latLngBounds_to_turf(bounds) {
+function convert_to_turf(bounds) {
   var sw = bounds.getSouthWest();
   var ne = bounds.getNorthEast();
 
