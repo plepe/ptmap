@@ -4,6 +4,8 @@ function PossibleBounds() {
 }
 
 PossibleBounds.prototype.add_outer_bounds = function(bounds) {
+  bounds = convert_to_turf(bounds);
+
   if(!this.outer_bounds)
     return this.outer_bounds = bounds;
 
@@ -11,6 +13,8 @@ PossibleBounds.prototype.add_outer_bounds = function(bounds) {
 }
 
 PossibleBounds.prototype.add_inner_bounds = function(bounds) {
+  bounds = convert_to_turf(bounds);
+
   if(!this.inner_bounds)
     return this.inner_bounds = bounds;
 
@@ -18,6 +22,8 @@ PossibleBounds.prototype.add_inner_bounds = function(bounds) {
 }
 
 PossibleBounds.prototype.is_possible = function(bounds) {
+  bounds = convert_to_turf(bounds);
+
   if(this.outer_bounds)
     if(!turf.intersect(this.outer_bounds, bounds))
       return false;

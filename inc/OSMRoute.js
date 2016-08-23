@@ -28,8 +28,6 @@ OSMRoute.prototype.route_parts = function(callback) {
     this._route_parts = [];
     init = true;
   }
-  else
-    console.log('update route parts');
 
   for(var i = 0; i < this.data.members.length; i++) {
     var member = this.data.members[i];
