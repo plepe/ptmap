@@ -1,5 +1,6 @@
 var shared_route_ways = {};
 var shared_route_ways_ways = {};
+var shared_route_ways_need_update = {};
 
 function SharedRouteWay(way) {
   this.way = way;
@@ -13,8 +14,7 @@ SharedRouteWay.prototype.add_route_link = function(link) {
 }
 
 SharedRouteWay.prototype.update = function() {
-  this.remove();
-  this.render();
+  shared_route_ways_need_update[this.id] = true;
 }
 
 SharedRouteWay.prototype.routes = function() {
@@ -151,8 +151,8 @@ SharedRouteWay.prototype.build_label = function() {
 SharedRouteWay.prototype.render = function() {
   var line = [];
 
-//  if(!this.way.is_visible(map.getBounds()))
-//    return;
+  if(!this.way.is_visible(map.getBounds()))
+    return;
 
   for(var k = 0; k < this.way.geometry.length; k++) {
     var g = this.way.geometry[k];
@@ -185,4 +185,20 @@ SharedRouteWay.prototype.render = function() {
 SharedRouteWay.prototype.remove = function() {
   if(this.feature)
     map.removeLayer(this.feature);
+}
+
+function shared_route_way_rerender_all() {
+  for(var id in shared_route_ways) {
+    shared_route_ways[id].remove();
+    shared_route_ways[id].render();
+  }
+  shared_route_ways_need_update = {};
+}
+
+function shared_route_way_rerender_update() {
+  for(var id in shared_route_ways_need_update) {
+    shared_route_ways[id].remove();
+    shared_route_ways[id].render();
+  }
+  shared_route_ways_need_update = {};
 }

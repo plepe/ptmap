@@ -4,6 +4,10 @@ var current_sections = [];
 var current_stops = [];
 var check_update_map_active = false;
 var check_update_map_requested = false;
+var check_update_map_rerender = false;
+
+function re_render_map() {
+}
 
 function check_update_map() {
   if(map.getZoom() < 14) {
@@ -15,12 +19,16 @@ function check_update_map() {
     return;
   }
 
-  async.setImmediate(function(sections, stops) {
-    update_map_remove_all(sections, stops, function() {
-      update_map_render_all(sections, stops, function() {
-      })
-    });
-  }.bind(this, current_sections, current_stops));
+  if(!check_update_map_rerender) {
+    check_update_map_rerender = true;
+    async.setImmediate(function() {
+      update_map_remove_all(function() {
+        update_map_render_all(function() {
+          check_update_map_rerender = false;
+        })
+      });
+    }.bind(this));
+  }
 
   if(check_update_map_active) {
     check_update_map_requested = true;
@@ -32,52 +40,17 @@ function check_update_map() {
 
   get_routes(
     function(err, route) {
-      route.route_parts(function() {
-        console.log('update done');
+      route.route_parts(bounds, function() {
+        async.setImmediate(function() {
+          update_map_render_update_needed(function() {});
+        });
       });
     }
     ,
     function(err, routes) {
-      if(routes.length != current_route_count) {
-        current_route_ids = {};
-
-        for(var i = 0; i < routes.length; i++) {
-          current_route_ids[routes[i].id] = true;
-        }
-
-        current_route_count = routes.length;
-      }
-      else {
-        var new_route_ids = {};
-        var change = false;
-
-        for(var i = 0 ; i < routes.length; i++) {
-          new_route_ids[routes[i].id] = true;
-          if(!(routes[i].id in current_route_ids))
-            change = true;
-        }
-
-        if(!change) {
-          check_update_map_active = false;
-          if(check_update_map_requested)
-            check_update_map();
-
-          return;
-        }
-
-        current_route_count = routes.length;
-      }
-
-      update_map(routes, function(err, sections, stops) {
-        update_map_remove_all(current_sections, current_stops, function() {});
-
-        current_sections = sections;
-        current_stops = stops;
-
-        check_update_map_active = false;
-        if(check_update_map_requested)
-          check_update_map();
-      });
+      check_update_map_active = false;
+      if(check_update_map_requested)
+        check_update_map();
     }
   );
 }
