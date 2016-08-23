@@ -1,10 +1,9 @@
-function get_routes(feature_callback, final_callback) {
+function get_routes(bounds, feature_callback, final_callback) {
   var query = [];
   for(var type in conf.routes) {
     query.push(overpass_regexp_escape(type));
   }
 
-  var bounds = map.getBounds();
   var routes = [];
   overpass_bbox_query(
     'relation[type=route][route~"^(' + query.join('|') + ')$"];',

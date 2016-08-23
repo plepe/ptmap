@@ -4,13 +4,15 @@ function OSMRoute() {
 
 OSMRoute.prototype.init = function(data) {
   this.parent("OSMRoute").init.call(this, data);
+  this.possible_bounds = new PossibleBounds();
+  this.possible_bounds.add_outer_bounds(this.bounds);
 }
 
 OSMRoute.prototype.title = function() {
   return this.tags.ref + " " + this.tags.to;
 }
 
-OSMRoute.prototype.route_parts = function(callback) {
+OSMRoute.prototype.route_parts = function(bounds, callback) {
   var result = [];
   var route_index = 0;
   var last_route_part = null;
@@ -56,8 +58,15 @@ OSMRoute.prototype.route_parts = function(callback) {
       callback(null, this._route_parts);
     }.bind(this));
 
+  if(!this.possible_bounds.is_possible(bounds))
+    return async.setImmediate(function() {
+      callback(null, this._route_parts);
+    }.bind(this));
+
+  this.possible_bounds.add_inner_bounds(bounds);
+
   overpass_get(way_list, {
-      bbox: map.getBounds(),
+      bbox: bounds,
       priority: 1
     },
     function(index_list, err, ob, i) {
