@@ -54,6 +54,7 @@ function _overpass_process() {
   var way_query = '';
   var rel_query = '';
   var bbox_todo = {};
+  var todo_callbacks = [];
 
   for(var j = 0; j < overpass_requests.length; j++) {
     if(overpass_requests[j] === null)
@@ -76,9 +77,7 @@ function _overpass_process() {
       if(ids[i] in overpass_elements) {
         if(!('call_ordered' in request.options) ||
            (request.options.call_ordered && all_found_until_now)) {
-          async.setImmediate(function(ob, i, callback) {
-            callback(null, ob, i);
-          }.bind(this, overpass_elements[ids[i]], i, request.feature_callback));
+          todo_callbacks.push([ request.feature_callback, overpass_elements[ids[i]], i ]);
           request.ids[i] = null;
         }
         continue;
@@ -112,12 +111,18 @@ function _overpass_process() {
     }
 
     if(all_found_until_now) {
-      async.setImmediate(function(callback) {
-        callback(null);
-      }.bind(this, request.final_callback));
+      todo_callbacks.push([ request.final_callback, null, null ]);
       overpass_requests[j] = null;
     }
   }
+
+  async.setImmediate(function() {
+    for(var i = 0; i < todo_callbacks.length; i++) {
+      var c = todo_callbacks[i];
+
+      c[0](null, c[1], c[2]);
+    }
+  });
 
   var p;
   while((p = overpass_requests.indexOf(null)) != -1)
