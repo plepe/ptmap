@@ -1,5 +1,6 @@
 var stops = [];
 var stops_name_index = {};
+var stops_need_update = {};
 
 function Stop() {
   this.id = stops.length;
@@ -13,6 +14,8 @@ Stop.prototype.init = function(data) {
     L.latLng(data.ob.geometry.lat, data.ob.geometry.lon),
     L.latLng(data.ob.geometry.lat, data.ob.geometry.lon)
   );
+
+  this.update();
 }
 
 Stop.prototype.add_stop = function(data) {
@@ -21,6 +24,12 @@ Stop.prototype.add_stop = function(data) {
   this.bounds.extend(
     L.latLng(data.ob.geometry.lat, data.ob.geometry.lon)
   );
+
+  this.update();
+}
+
+Stop.prototype.update = function() {
+  stops_need_update[this.id] = true;
 }
 
 Stop.prototype.name = function() {
@@ -116,4 +125,20 @@ function build_stops(stops) {
   }
 
   return result;
+}
+
+function stops_rerender_all() {
+  for(var id = 0; id < stops.length; id++) {
+    stops[id].remove();
+    stops[id].render();
+  }
+  stops_need_update = {};
+}
+
+function stops_rerender_update() {
+  for(var id in stops_need_update) {
+    stops[id].remove();
+    stops[id].render();
+  }
+  stops_need_update = {};
 }

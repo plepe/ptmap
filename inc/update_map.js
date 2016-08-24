@@ -14,6 +14,7 @@ function update_map(routes, callback) {
 
 function update_map_render_update_needed(callback) {
   shared_route_way_rerender_update();
+  stops_rerender_update();
 
   async.setImmediate(function() {
     callback();
@@ -22,6 +23,7 @@ function update_map_render_update_needed(callback) {
 
 function update_map_render_all(callback) {
   shared_route_way_rerender_all();
+  stops_rerender_all();
 
   async.setImmediate(function() {
     callback();
