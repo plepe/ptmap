@@ -3,6 +3,7 @@ var overpass_elements_member_of = {};
 var overpass_tiles = {};
 var overpass_requests = [];
 var overpass_request_active = false;
+var overpass_elements_bounds = {};
 
 /**
  * @param {(string|string[])} ids - One or more IDs, e.g. [ 'n123', 'w2345', 'n123' ]
@@ -92,20 +93,30 @@ function _overpass_process() {
       if(effort > 256)
         continue;
 
-      todo[ids[i]] = true;
-      if(request.options.bbox)
+      if(request.options.bbox) {
+        // check if we already know the bbox of the element; if yes, don't try
+        // to load object if it does not intersect bounds
+        if(ids[i] in overpass_elements_bounds)
+          if(!request.options.bbox.intersects(overpass_elements_bounds[ids[i]]))
+            continue;
+
+        todo[ids[i]] = true;
         bbox_todo[ids[i]] = true;
+      }
+      else
+        todo[ids[i]] = true;
+
       switch(ids[i].substr(0, 1)) {
         case 'n':
-          node_query += 'node(' + ids[i].substr(1) + ')' + bbox_query + ';\n';
+          node_query += 'node(' + ids[i].substr(1) + ');\n';
           effort += 1;
           break;
         case 'w':
-          way_query += 'way(' + ids[i].substr(1) + ')' + bbox_query + ';\n';
+          way_query += 'way(' + ids[i].substr(1) + ');\n';
           effort += 4;
           break;
         case 'r':
-          rel_query += 'relation(' + ids[i].substr(1) + ')' + bbox_query + ';\n';
+          rel_query += 'relation(' + ids[i].substr(1) + ');\n';
           effort += 16;
           break;
       }
@@ -118,16 +129,22 @@ function _overpass_process() {
 
     if(node_query != '') {
       query += '((' + node_query + ');)->.n;\n';
-      query += '.n out body;\n';
+      if(bbox_query)
+        query += 'node.n' + bbox_query + ';\n';
+      query += 'out body;\n';
     }
 
     if(way_query != '') {
       query += '((' + way_query + ');)->.w;\n';
-      query += '.w out body geom;\n';
+      if(bbox_query)
+        query += '.w out ids bb;\nway.w' + bbox_query + ';\n';
+      query += 'out body geom;\n';
     }
 
     if(rel_query != '') {
       query += '((' + rel_query + ');)->.r;\n';
+      if(bbox_query)
+        query += '.r out ids bb;\nrelation.r' + bbox_query + ';\n';
       query += '.r out body bb;\n';
     }
   }
@@ -157,7 +174,23 @@ function _overpass_process() {
       for(var i = 0; i < results.elements.length; i++) {
         var el = results.elements[i];
         var id = el.type.substr(0, 1) + el.id;
+
+        // bounding box only result -> save to overpass_elements_bounds
+        if((el.type == 'relation' && !('members' in el)) ||
+           (el.type == 'way' && !('geometry' in el))) {
+          overpass_elements_bounds[id] = L.latLngBounds(
+            L.latLng(el.bounds.minlat, el.bounds.minlon),
+            L.latLng(el.bounds.maxlat, el.bounds.maxlon)
+          );
+
+          continue;
+        }
+
         overpass_elements[id] = create_osm_object(el);
+
+        // if element is loaded, when can remove from overpass_elements_bounds
+        if(id in overpass_elements_bounds)
+          delete(overpass_elements_bounds[id]);
 
         var members = overpass_elements[id].member_ids();
         for(var j = 0; j < members.length; j++) {
