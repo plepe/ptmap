@@ -39,7 +39,6 @@ function check_update_map() {
   check_update_map_requested = false;
 
   var bounds = map.getBounds();
-  bounds = bounds_to_tile(bounds);
 
   get_routes(
     bounds,
