@@ -1,4 +1,9 @@
+var stops = [];
+var stops_name_index = {};
+
 function Stop() {
+  this.id = stops.length;
+  stops.push(this);
 }
 
 Stop.prototype.init = function(data) {
@@ -29,9 +34,7 @@ Stop.prototype.build_popup = function() {
   var ret = "<b>" + this.name() + "</b><ul>\n";
 
   for(var i = 0; i < this.links.length; i++) {
-    for(var j = 0; j < this.links[i].routes.length; j++) {
-      ret += "<li>" + this.links[i].routes[j].title() + "</li>";
-    }
+    ret += "<li>" + this.links[i].route.title() + "</li>";
   }
 
   ret += "</ul>";
@@ -75,33 +78,41 @@ Stop.prototype.remove = function() {
   delete(this.feature_label);
 }
 
-function build_stops(stops) {
-  var result = [];
-  var name_index = [];
+function add_stop(stop) {
+  var name = null;
 
-  for(var i = 0; i < stops.length; i++) {
-    var stop = stops[i];
-    var name = null;
+  if('name' in stop.ob.tags)
+    name = stop.ob.tags.name;
 
-    if('name' in stop.ob.tags)
-      name = stop.ob.tags.name;
+  if(name) {
+    if(name in stops_name_index) {
+      stops_name_index[name].add_stop(stop);
 
-    if(name) {
-      if(name in name_index) {
-	name_index[name].add_stop(stop);
-      }
-      else {
-	var stop_ob = new Stop();
-	stop_ob.init(stop);
-	name_index[name] = stop_ob;
-	result.push(stop_ob);
-      }
+      return stops_name_index[name];
     }
     else {
       var stop_ob = new Stop();
       stop_ob.init(stop);
-      result.push(stop_ob);
+      stops_name_index[name] = stop_ob;
+
+      return stops_name_index[name];
     }
+  }
+  else {
+    var stop_ob = new Stop();
+    stop_ob.init(stop);
+
+    return stop_ob;
+  }
+}
+
+function build_stops(stops) {
+  var result = [];
+  var stops_name_index = [];
+
+  for(var i = 0; i < stops.length; i++) {
+    var stop = stops[i];
+
   }
 
   return result;

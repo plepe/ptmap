@@ -92,7 +92,7 @@ OSMRoute.prototype.route_parts = function(bounds, callback) {
 
   if(node_list.length)
   overpass_get(node_list, {
-      call_ordered: true,
+      bbox: bounds,
       priority: 0 + this.priority
     }, function(node_index_list, err, ob, i) {
       var route_index = node_index_list[i];
@@ -248,12 +248,24 @@ OSMRoute.prototype.route_part_check_stop = function(route_index) {
   var role = this._route_stops_roles[route_index];
   var last_route_part_index = 0; // TODO: read from prev. stop
 
-  if(!ob) {
-    console.log('ob not loaded yet');
+  if(!ob)
     return;
-  }
 
   var node_ref;
+
+  if(!this._stops[route_index]) {
+    this._stops[route_index] = {
+      ob: ob,
+      route: this,
+      route_index: route_index
+    };
+
+    add_stop(this._stops[route_index]);
+  }
+
+  var result = this._stops[route_index];
+
+  // TODO: remove old data from _route_parts ???
 
   if(node_ref = this.node_index[ob.id.substr(1)]) {
     var matching_route_parts_index = null;
@@ -269,11 +281,8 @@ OSMRoute.prototype.route_part_check_stop = function(route_index) {
       node_index: node_ref.index
     });
 
-    this._stops.push({
-      ob: ob,
-      route_parts_index: matching_route_parts_index,
-      node_index: node_ref.index
-    });
+    result.route_parts_index = matching_route_parts_index;
+    result.node_index = node_ref.index;
   }
   else {
     var node_geo = ob.GeoJSON();
@@ -297,14 +306,11 @@ OSMRoute.prototype.route_part_check_stop = function(route_index) {
 
     // matching point on route must be closer than 100m
     if(matching_distance !== null && matching_distance < 0.1) {
-      this._stops.push({
-	ob: ob,
-	route_parts_index: matching_route_parts_index,
-	geometry: {
-	  lon: matching_point.geometry.coordinates[0],
-	  lat: matching_point.geometry.coordinates[1]
-	}
-      });
+      result.route_parts_index = matching_route_parts_index;
+      result.geometry = {
+        lon: matching_point.geometry.coordinates[0],
+        lat: matching_point.geometry.coordinates[1]
+      };
 
       this._route_parts[matching_route_parts_index].stops.push({
 	ob: ob
@@ -313,10 +319,6 @@ OSMRoute.prototype.route_part_check_stop = function(route_index) {
       this.errors.push('Stop ' + ob.id + ' not connected to route way, found nearest location (' + (matching_distance * 1000) + 'm)');
     }
     else {
-      this._stops.push({
-	ob: ob
-      });
-
       this.errors.push('Stop ' + ob.id + ' not connected to route way, could not find nearest location (not rendered!)');
     }
   }
