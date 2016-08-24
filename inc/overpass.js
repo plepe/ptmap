@@ -50,11 +50,9 @@ function _overpass_process() {
   overpass_request_active = true;
   var todo = {};
   var effort = 0;
-  var node_query = '';
-  var way_query = '';
-  var rel_query = '';
   var bbox_todo = {};
   var todo_callbacks = [];
+  var query = '';
 
   for(var j = 0; j < overpass_requests.length; j++) {
     if(overpass_requests[j] === null)
@@ -62,6 +60,9 @@ function _overpass_process() {
     var request = overpass_requests[j];
     var ids = request.ids;
     var all_found_until_now = true;
+    var node_query = '';
+    var way_query = '';
+    var rel_query = '';
     var bbox_query = '';
 
     if(request.options.bbox) {
@@ -114,6 +115,21 @@ function _overpass_process() {
       todo_callbacks.push([ request.final_callback, null, null ]);
       overpass_requests[j] = null;
     }
+
+    if(node_query != '') {
+      query += '((' + node_query + ');)->.n;\n';
+      query += '.n out body;\n';
+    }
+
+    if(way_query != '') {
+      query += '((' + way_query + ');)->.w;\n';
+      query += '.w out body geom;\n';
+    }
+
+    if(rel_query != '') {
+      query += '((' + rel_query + ');)->.r;\n';
+      query += '.r out body bb;\n';
+    }
   }
 
   async.setImmediate(function() {
@@ -128,25 +144,9 @@ function _overpass_process() {
   while((p = overpass_requests.indexOf(null)) != -1)
     overpass_requests.splice(p, 1);
 
-  if(node_query == '' && way_query == '' && rel_query == '') {
+  if(query == '') {
     overpass_request_active = false;
     return;
-  }
-
-  var query = '';
-  if(node_query != '') {
-    query += '((' + node_query + ');)->.n;\n';
-    query += '.n out body;\n';
-  }
-
-  if(way_query != '') {
-    query += '((' + way_query + ');)->.w;\n';
-    query += '.w out body geom;\n';
-  }
-
-  if(rel_query != '') {
-    query += '((' + rel_query + ');)->.r;\n';
-    query += '.r out body bb;\n';
   }
 
   http_load(
