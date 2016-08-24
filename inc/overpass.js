@@ -131,21 +131,21 @@ function _overpass_process() {
       query += '((' + node_query + ');)->.n;\n';
       if(bbox_query)
         query += 'node.n' + bbox_query + ';\n';
-      query += 'out body;\n';
+      query += 'out body qt;\n';
     }
 
     if(way_query != '') {
       query += '((' + way_query + ');)->.w;\n';
       if(bbox_query)
-        query += '.w out ids bb;\nway.w' + bbox_query + ';\n';
-      query += 'out body geom;\n';
+        query += '.w out ids bb qt;\nway.w' + bbox_query + ';\n';
+      query += 'out body geom qt;\n';
     }
 
     if(rel_query != '') {
       query += '((' + rel_query + ');)->.r;\n';
       if(bbox_query)
-        query += '.r out ids bb;\nrelation.r' + bbox_query + ';\n';
-      query += '.r out body bb;\n';
+        query += '.r out ids bb qt;\nrelation.r' + bbox_query + ';\n';
+      query += '.r out body bb qt;\n';
     }
   }
 
@@ -237,7 +237,7 @@ function overpass_bbox_query(query, bounds, options, feature_callback, final_cal
   http_load(
     conf.overpass.url,
     null,
-    "[out:json][bbox:" + bbox_string + "];" + query + "out ids bb;",
+    "[out:json][bbox:" + bbox_string + "];" + query + "out ids bb qt;",
     function(err, results) {
       var todo = [];
       var todo_ids = {};
