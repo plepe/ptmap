@@ -20,8 +20,6 @@ OSMRoute.prototype.route_parts = function(bounds, callback) {
   var route_index = 0;
   var last_route_part = null;
   var last_dir;
-  this.node_index = {};
-  this.route_parts_index = {};
 
   var way_list = [];
   var way_index_list = [];
@@ -32,6 +30,8 @@ OSMRoute.prototype.route_parts = function(bounds, callback) {
   var node_index = 0;
   var init = false;
   if(!this._route_parts) {
+    this.node_index = {};
+    this.route_parts_index = {};
     this.route_parts_roles = [];
     this.route_parts_way = [];
     this._route_parts = [];
