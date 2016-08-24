@@ -6,6 +6,9 @@ OSMRoute.prototype.init = function(data) {
   this.parent("OSMRoute").init.call(this, data);
   this.possible_bounds = new PossibleBounds();
   this.possible_bounds.add_outer_bounds(this.bounds);
+
+  this.approx_route_length = bounds_diagonal_px_length(this.bounds) || 1.0;
+  this.priority = Math.log(this.approx_route_length) / 100.0;
 }
 
 OSMRoute.prototype.title = function() {
@@ -67,7 +70,7 @@ OSMRoute.prototype.route_parts = function(bounds, callback) {
 
   overpass_get(way_list, {
       bbox: bounds,
-      priority: 1
+      priority: 1 + this.priority
     },
     function(index_list, err, ob, i) {
       var route_index = index_list[i];
@@ -220,7 +223,7 @@ OSMRoute.prototype._route_parts_stops = function(route_parts, route_parts_index,
 
   overpass_get(node_list, {
       call_ordered: true,
-      priority: 0
+      priority: 0 + this.priority
     }, function(node_roles, err, ob, route_index) {
       var node_ref;
 
