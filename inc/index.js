@@ -6,4 +6,6 @@ window.onload = function() {
   map.on('moveend', function(e) {
     check_update_map();
   });
+
+  environment = new Environment();
 }

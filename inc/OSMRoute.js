@@ -356,5 +356,5 @@ OSMRoute.prototype.is_active = function() {
     this.opening_hours = new opening_hours(oh);
   }
 
-  return this.opening_hours.getState();
+  return this.opening_hours.getState(environment.date());
 }
