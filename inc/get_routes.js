@@ -17,7 +17,7 @@ function get_routes(bounds, feature_callback, final_callback) {
       var routes = get_routes_cache[cache_id];
 
       for(var i = 0; i < routes.length; i++)
-        if(routes[i].is_visible(bounds)) {
+        if(routes[i].is_visible(bounds) && routes[i].is_active()) {
           visible_routes.push(routes[i]);
           feature_callback(null, routes[i]);
         }
@@ -34,7 +34,7 @@ function get_routes(bounds, feature_callback, final_callback) {
       order_approx_route_length: true
     },
     function(err, route) {
-      if(route.is_visible(bounds)) {
+      if(route.is_visible(bounds) && route.is_active()) {
         visible_routes.push(route);
         feature_callback(null, route);
       }

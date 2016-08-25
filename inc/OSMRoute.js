@@ -338,3 +338,10 @@ OSMRoute.prototype.stops = function(callback) {
     callback(err, this._stops);
   }.bind(this));
 }
+
+/**
+ * @return boolean - Whether route is currently active or not
+ */
+OSMRoute.prototype.is_active = function() {
+  return true;
+}

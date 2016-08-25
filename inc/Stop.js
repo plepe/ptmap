@@ -44,7 +44,9 @@ Stop.prototype.routes = function() {
 
   for(var i = 0; i < this.links.length; i++) {
     var link = this.links[i];
-    ret.push(link.route);
+
+    if(link.route.is_active())
+      ret.push(link.route);
   }
 
   return ret;

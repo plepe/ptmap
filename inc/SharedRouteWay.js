@@ -21,7 +21,9 @@ SharedRouteWay.prototype.routes = function() {
   var ret = [];
   for(var i = 0; i < this.route_links.length; i++) {
     var link = this.route_links[i];
-    ret.push(link.route);
+
+    if(link.route.is_active())
+      ret.push(link.route);
   }
 
   return ret;
@@ -93,6 +95,9 @@ SharedRouteWay.prototype.build_label = function() {
     var link = this.route_links[i];
     var route = link.route;
     var ref = null;
+
+    if(!route.is_active())
+      continue;
 
     if('ref' in route.tags)
       ref = route.tags.ref;
