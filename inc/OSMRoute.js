@@ -343,5 +343,18 @@ OSMRoute.prototype.stops = function(callback) {
  * @return boolean - Whether route is currently active or not
  */
 OSMRoute.prototype.is_active = function() {
-  return true;
+  if(!this.opening_hours) {
+    var oh = '05:00-00:00';
+
+    if('opening_hours' in conf.default_tags)
+      oh = conf.default_tags.opening_hours;
+
+    if(this.tags.opening_hours)
+      oh = this.tags.opening_hours;
+
+    // TODO: also pass nominatim_object to get correct holidays etc
+    this.opening_hours = new opening_hours(oh);
+  }
+
+  return this.opening_hours.getState();
 }

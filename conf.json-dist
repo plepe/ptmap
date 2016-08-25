@@ -2,6 +2,9 @@
     "overpass": {
         "url": "https://www.overpass-api.de/api/interpreter"
     },
+    "default_tags": {
+        "opening_hours": "05:00-00:00"
+    },
     "routes": {
         "bus": {
 	    "weight": 1,

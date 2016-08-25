@@ -21,6 +21,7 @@ html_export_var(array("conf" => $conf));
     <script src="node_modules/leaflet-textpath/leaflet.textpath.js"></script>
     <script src="node_modules/natsort/index.js"></script>
     <script src="node_modules/turf/turf.js"></script>
+    <script src="node_modules/opening_hours/opening_hours.js"></script>
   </head>
   <body>
   <div id='map'></div>

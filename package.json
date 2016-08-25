@@ -5,6 +5,7 @@
 	"async": "*",
 	"natsort": "*",
 	"turf": "*",
-	"twig": "0.8.9"
+	"twig": "0.8.9",
+        "opening_hours": "*"
     }
 }
