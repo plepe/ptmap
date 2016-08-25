@@ -39,11 +39,33 @@ Stop.prototype.name = function() {
   return this.links[0].ob.tags.name;
 }
 
+Stop.prototype.routes = function() {
+  var ret = [];
+
+  for(var i = 0; i < this.links.length; i++) {
+    var link = this.links[i];
+    ret.push(link.route);
+  }
+
+  return ret;
+}
+
+Stop.prototype.top_route = function() {
+  var ret = this.routes();
+
+  if(ret.length)
+    return ret[0];
+
+  return null;
+}
+
 Stop.prototype.build_popup = function() {
   var ret = "<b>" + this.name() + "</b><ul>\n";
 
-  for(var i = 0; i < this.links.length; i++) {
-    ret += "<li>" + this.links[i].route.title() + "</li>";
+  var routes = this.routes();
+
+  for(var i = 0; i < routes.length; i++) {
+    ret += "<li>" + routes[i].title() + "</li>";
   }
 
   ret += "</ul>";
@@ -57,6 +79,10 @@ Stop.prototype.is_visible = function(bounds) {
 
 Stop.prototype.render = function() {
   if(!this.is_visible(map.getBounds()))
+    return;
+
+  var top_route = this.top_route();
+  if(top_route === null)
     return;
 
   this.feature = L.rectangle(this.bounds, {

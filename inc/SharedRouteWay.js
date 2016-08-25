@@ -154,6 +154,10 @@ SharedRouteWay.prototype.render = function() {
   if(!this.way.is_visible(map.getBounds()))
     return;
 
+  var top_route = this.top_route();
+  if(top_route === null)
+    return;
+
   for(var k = 0; k < this.way.geometry.length; k++) {
     var g = this.way.geometry[k];
     line.push([ g.lat, g.lon ]);
@@ -163,7 +167,6 @@ SharedRouteWay.prototype.render = function() {
     color: 'black'
   };
 
-  var top_route = this.top_route();
   if('routes' in conf && top_route.tags.route in conf.routes) {
     route_conf = conf.routes[top_route.tags.route];
   }
