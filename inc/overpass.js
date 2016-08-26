@@ -137,14 +137,14 @@ function _overpass_process() {
     if(way_query != '') {
       query += '((' + way_query + ');)->.w;\n';
       if(bbox_query)
-        query += '.w out ids bb qt;\nway.w' + bbox_query + ';\n';
-      query += 'out body geom qt;\n';
+        query += '(way.w; - way.w' + bbox_query + '->.w);\nout ids bb qt;\n';
+      query += '.w out body geom qt;\n';
     }
 
     if(rel_query != '') {
       query += '((' + rel_query + ');)->.r;\n';
       if(bbox_query)
-        query += '.r out ids bb qt;\nrelation.r' + bbox_query + ';\n';
+        query += '(relation.r; - relation.r' + bbox_query + '->.r);\nout ids bb qt;\n';
       query += '.r out body bb qt;\n';
     }
   }
