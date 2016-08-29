@@ -5,6 +5,7 @@ var overpass_requests = [];
 var overpass_request_active = false;
 var overpass_elements_bounds = {};
 
+var OVERPASS_ID_ONLY = 0
 var OVERPASS_TAGS = 1
 var OVERPASS_META = 2
 var OVERPASS_MEMBERS = 4
@@ -20,6 +21,7 @@ var OVERPASS_DEFAULT = 13
  * @param {number} [options.priority=0] - Priority for loading these objects. The lower the sooner they will be requested.
  * @param {boolean} [options.call_ordered=false] - When set to true, the function feature_callback will be called in the order of the array ids.
  * @param {L.latLngBounds} options.bbox - Only include objects which intersect the given bbox. The feature_callback will be called anyway, but boolean false will be passed.
+ * @param {boolean} [options.properties=OVERPASS_BBOX | OVERPASS_TAGS | OVERPASS_MEMBERS] - Which features should be downloaded: OVERPASS_ID_ONLY, OVERPASS_BBOX, OVERPASS_TAGS, OVERPASS_GEOM, OVERPASS_META. Combine by binary OR: OVERPASS_ID | OVERPASS_BBOX.
  * @param {function} feature_callback - Will be called for each object in the order of the IDs in parameter 'ids'. Will be passed: 1. err (if an error occured, otherwise null), 2. the object or null, 3. the index in the array ids.
  * @param {function} final_callback - Will be called after the last feature. Will be passed: 1. err (if an error occured, otherwise null).
  */
@@ -28,6 +30,8 @@ function overpass_get(ids, options, feature_callback, final_callback) {
     ids = [ ids ];
   if(options === null)
     options = {};
+  if(typeof options.properties == 'undefined')
+    options.properties = OVERPASS_DEFAULT;
 
   for(var i = 0; i < ids.length; i++)
     if(ids[i] in overpass_elements && overpass_elements[ids[i]] === false)
@@ -86,12 +90,23 @@ function _overpass_process() {
       if(ids[i] === null)
         continue;
       if(ids[i] in overpass_elements) {
-        if(!('call_ordered' in request.options) ||
-           (request.options.call_ordered && all_found_until_now)) {
-          todo_callbacks.push([ request.feature_callback, overpass_elements[ids[i]], i ]);
+        var ob = overpass_elements[ids[i]];
+        var ready = true;
+
+        // not fully loaded
+        if((ob !== false && ob !== null) && (request.options.properties & ob.properties) != request.options.properties) {
+          ready = false;
+        }
+
+        // if call_ordered is set in options maybe defer calling feature_callback
+        if((!('call_ordered' in request.options) ||
+           (request.options.call_ordered && all_found_until_now)) && ready) {
+          todo_callbacks.push([ request.feature_callback, ob, i ]);
           request.ids[i] = null;
         }
-        continue;
+
+        if(ready)
+          continue;
       }
 
       all_found_until_now = false;
@@ -136,25 +151,49 @@ function _overpass_process() {
       overpass_requests[j] = null;
     }
 
+    var out_options = '';
+
+    if(request.options.properties & OVERPASS_META)
+      out_options += 'meta ';
+    else if(request.options.properties & OVERPASS_TAGS) {
+      if(request.options.properties & OVERPASS_MEMBERS)
+        out_options += 'body ';
+      else
+        out_options += 'tags ';
+    }
+    else if(request.options.properties & OVERPASS_MEMBERS)
+      out_options += 'skel ';
+    else
+      out_options += 'ids ';
+
+    if(request.options.properties & OVERPASS_GEOM)
+      out_options += 'geom ';
+    else if(request.options.properties & OVERPASS_BBOX)
+      out_options += 'bb ';
+    else if(request.options.properties & OVERPASS_CENTER)
+      out_options += 'center ';
+
+    out_options += 'qt';
+
     if(node_query != '') {
       query += '((' + node_query + ');)->.n;\n';
       if(bbox_query)
         query += 'node.n' + bbox_query + ';\n';
-      query += 'out body qt;\n';
+      query += 'out ' + out_options + ';\n';
     }
 
     if(way_query != '') {
       query += '((' + way_query + ');)->.w;\n';
       if(bbox_query)
         query += '(way.w; - way.w' + bbox_query + '->.w);\nout ids bb qt;\n';
-      query += '.w out body geom qt;\n';
+      query += '.w out ' + out_options + ';\n';
     }
 
     if(rel_query != '') {
       query += '((' + rel_query + ');)->.r;\n';
       if(bbox_query)
         query += '(relation.r; - relation.r' + bbox_query + '->.r);\nout ids bb qt;\n';
-      query += '.r out body bb qt;\n';
+      query += '.r out ' + out_options + ';\n';
     }
   }
 
@@ -195,7 +234,10 @@ function _overpass_process() {
           continue;
         }
 
-        overpass_elements[id] = create_osm_object(el);
+        if(id in overpass_elements)
+          overpass_elements[id].set_data(el);
+        else
+          overpass_elements[id] = create_osm_object(el);
 
         // if element is loaded, when can remove from overpass_elements_bounds
         if(id in overpass_elements_bounds)

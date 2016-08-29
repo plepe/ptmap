@@ -2,8 +2,8 @@ OSMWay.inherits_from(OSMObject);
 function OSMWay() {
 }
 
-OSMWay.prototype.init = function(data) {
-  this.parent("OSMWay").init.call(this, data);
+OSMWay.prototype.set_data = function(data) {
+  this.parent("OSMWay").set_data.call(this, data);
 
   if(data.nodes) {
     this.nodes = data.nodes;

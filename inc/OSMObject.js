@@ -28,7 +28,14 @@ OSMObject.prototype.init = function(data) {
   this.id = data.type.substr(0, 1) + data.id;
   this.type = data.type;
   this.osm_id = data.id;
-  this.data = data;
+
+  this.data = {};
+  this.set_data(data);
+}
+
+OSMObject.prototype.set_data = function(data) {
+  for(var k in data)
+    this.data[k] = data[k];
 
   if(typeof data.tags != 'undefined') {
     this.tags = data.tags;

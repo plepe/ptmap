@@ -2,8 +2,8 @@ OSMRelation.inherits_from(OSMObject);
 function OSMRelation() {
 }
 
-OSMRelation.prototype.init = function(data) {
-  this.parent("OSMRelation").init.call(this, data);
+OSMRelation.prototype.set_data = function(data) {
+  this.parent("OSMRelation").set_data.call(this, data);
 
   if(data.members) {
     this.properties |= OVERPASS_MEMBERS;
