@@ -267,6 +267,17 @@ function overpass_bbox_query(query, bounds, options, feature_callback, final_cal
   );
 }
 
+function overpass_abort_all_requests() {
+  for(var j = 0; j < overpass_requests.length; j++) {
+    if(overpass_requests[j] === null)
+      continue;
+
+    overpass_requests[j].final_callback('abort');
+  }
+
+  overpass_requests = [];
+}
+
 function overpass_regexp_escape(s) {
   return s.replace('\\', '\\\\')
        .replace('.', '\\.')

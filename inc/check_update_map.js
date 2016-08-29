@@ -40,6 +40,8 @@ function check_update_map() {
 
   var bounds = map.getBounds();
 
+  overpass_abort_all_requests();
+
   get_routes(
     bounds,
     function(err, route) {
