@@ -42,6 +42,7 @@ function overpass_get(ids, options, feature_callback, final_callback) {
   }
 
   overpass_requests.push({
+    type: 'get',
     ids: ids,
     options: options,
     priority: 'priority' in options ? options.priority : 0,
@@ -62,17 +63,22 @@ function _overpass_process() {
     return;
 
   overpass_request_active = true;
-  var todo = {};
   var effort = 0;
-  var bbox_todo = {};
-  var todo_callbacks = [];
+  var context = {
+    todo: {},
+    bbox_todo: {},
+    todo_requests: {},
+  };
+  var  todo_callbacks = [];
   var todo_requests = {};
   var query = '';
 
   for(var j = 0; j < overpass_requests.length; j++) {
-    if(overpass_requests[j] === null)
-      continue;
     var request = overpass_requests[j];
+
+    if(request.type != 'get')
+      continue;
+
     var ids = request.ids;
     var all_found_until_now = true;
     var node_query = '';
@@ -87,7 +93,7 @@ function _overpass_process() {
                     bbox_query[3] + ',' + bbox_query[2] + ')';
     }
 
-    for(var i = 0; i < ids.length; i++) {
+    if(ids) for(var i = 0; i < ids.length; i++) {
       if(ids[i] === null)
         continue;
       if(ids[i] in overpass_elements) {
@@ -111,7 +117,7 @@ function _overpass_process() {
       }
 
       all_found_until_now = false;
-      if(ids[i] in todo)
+      if(ids[i] in context.todo)
         continue;
 
       // too much data - delay for next iteration
@@ -125,13 +131,13 @@ function _overpass_process() {
           if(!request.options.bbox.intersects(overpass_elements_bounds[ids[i]]))
             continue;
 
-        todo[ids[i]] = true;
-        todo_requests[ids[i]] = request;
-        bbox_todo[ids[i]] = true;
+        context.todo[ids[i]] = true;
+        context.todo_requests[ids[i]] = request;
+        context.bbox_todo[ids[i]] = true;
       }
       else {
-        todo[ids[i]] = true;
-        todo_requests[ids[i]] = request;
+        context.todo[ids[i]] = true;
+        context.todo_requests[ids[i]] = request;
       }
 
       switch(ids[i].substr(0, 1)) {
@@ -222,54 +228,56 @@ function _overpass_process() {
     conf.overpass.url,
     null,
     "[out:json];\n" + query,
-    function(err, results) {
-      for(var i = 0; i < results.elements.length; i++) {
-        var el = results.elements[i];
-        var id = el.type.substr(0, 1) + el.id;
+    _overpass_handle_result.bind(this, context)
+  );
+}
 
-        // bounding box only result -> save to overpass_elements_bounds
-        if((el.type == 'relation' && !('members' in el)) ||
-           (el.type == 'way' && !('geometry' in el))) {
-          overpass_elements_bounds[id] = L.latLngBounds(
-            L.latLng(el.bounds.minlat, el.bounds.minlon),
-            L.latLng(el.bounds.maxlat, el.bounds.maxlon)
-          );
+function _overpass_handle_result(context, err, results) {
+  for(var i = 0; i < results.elements.length; i++) {
+    var el = results.elements[i];
+    var id = el.type.substr(0, 1) + el.id;
 
-          continue;
-        }
+    // bounding box only result -> save to overpass_elements_bounds
+    if((el.type == 'relation' && !('members' in el)) ||
+       (el.type == 'way' && !('geometry' in el))) {
+      overpass_elements_bounds[id] = L.latLngBounds(
+        L.latLng(el.bounds.minlat, el.bounds.minlon),
+        L.latLng(el.bounds.maxlat, el.bounds.maxlon)
+      );
 
-        if(id in overpass_elements)
-          overpass_elements[id].set_data(el, todo_requests[id]);
-        else
-          overpass_elements[id] = create_osm_object(el, todo_requests[id]);
+      continue;
+    }
 
-        // if element is loaded, when can remove from overpass_elements_bounds
-        if(id in overpass_elements_bounds)
-          delete(overpass_elements_bounds[id]);
+    if(id in overpass_elements)
+      overpass_elements[id].set_data(el, context.todo_requests[id]);
+    else
+      overpass_elements[id] = create_osm_object(el, context.todo_requests[id]);
 
-        var members = overpass_elements[id].member_ids();
-        for(var j = 0; j < members.length; j++) {
-          if(!(members[j] in overpass_elements_member_of))
-            overpass_elements_member_of[members[j]] = [ overpass_elements[id] ];
-          else
-            overpass_elements_member_of[members[j]].push(overpass_elements[id]);
-        }
-      }
+    // if element is loaded, when can remove from overpass_elements_bounds
+    if(id in overpass_elements_bounds)
+      delete(overpass_elements_bounds[id]);
 
-      for(var id in todo) {
-        if(!(id in overpass_elements)) {
-          if(id in bbox_todo)
-            overpass_elements[id] = false;
-          else
-            overpass_elements[id] = null;
-        }
-      }
+    var members = overpass_elements[id].member_ids();
+    for(var j = 0; j < members.length; j++) {
+      if(!(members[j] in overpass_elements_member_of))
+        overpass_elements_member_of[members[j]] = [ overpass_elements[id] ];
+      else
+        overpass_elements_member_of[members[j]].push(overpass_elements[id]);
+    }
+  }
 
-      overpass_request_active = false;
+  for(var id in context.todo) {
+    if(!(id in overpass_elements)) {
+      if(id in context.bbox_todo)
+        overpass_elements[id] = false;
+      else
+        overpass_elements[id] = null;
+    }
+  }
 
-      _overpass_process();
-   }
- );
+  overpass_request_active = false;
+
+  _overpass_process();
 }
 
 /**
