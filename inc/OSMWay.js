@@ -3,17 +3,15 @@ function OSMWay() {
 }
 
 OSMWay.prototype.set_data = function(data, request) {
-  this.parent("OSMWay").set_data.call(this, data, request);
-
   if(data.nodes) {
     this.nodes = data.nodes;
-    this.properties |= OVERPASS_MEMBERS;
   }
 
   if(data.geometry) {
     this.geometry = data.geometry;
-    this.properties |= OVERPASS_GEOM;
   }
+
+  this.parent("OSMWay").set_data.call(this, data, request);
 }
 
 OSMWay.prototype.member_ids = function() {

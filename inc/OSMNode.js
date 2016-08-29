@@ -3,8 +3,6 @@ function OSMNode() {
 }
 
 OSMNode.prototype.set_data = function(data, request) {
-  this.parent("OSMNode").set_data.call(this, data, request);
-
   if(data.lat) {
     this.geometry = {
       lat: data.lat,
@@ -16,12 +14,9 @@ OSMNode.prototype.set_data = function(data, request) {
         L.latLng(data.lat, data.lon)
       );
     this.center = L.latLng(data.lat, data.lon);
-
-    this.properties |= OVERPASS_BBOX | OVERPASS_CENTER | OVERPASS_GEOM;
   }
 
-  // can't have members; make sure it won't get reloaded again
-  this.properties |= OVERPASS_MEMBERS;
+  this.parent("OSMNode").set_data.call(this, data, request);
 }
 
 OSMNode.prototype.GeoJSON = function() {

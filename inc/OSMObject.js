@@ -37,26 +37,34 @@ OSMObject.prototype.set_data = function(data, request) {
   for(var k in data)
     this.data[k] = data[k];
 
-  if(typeof data.tags != 'undefined') {
-    this.tags = data.tags;
-    this.properties |= OVERPASS_TAGS;
-  }
-  this.errors = [];
-
   if(data.bounds) {
     this.bounds = L.latLngBounds(
       L.latLng(data.bounds.minlat, data.bounds.minlon),
       L.latLng(data.bounds.maxlat, data.bounds.maxlon)
     );
     this.center = this.bounds.getCenter();
-
-    this.properties |= OVERPASS_BBOX | OVERPASS_CENTER;
   }
   else if(data.center) {
     this.bounds = L.latLng(data.center.lat, data.center.lon);
-
-    this.properties |= OVERPASS_CENTER;
   }
+
+  if(request.options.bbox) {
+    if(!this.bounds || request.options.bbox.intersects(this.bounds))
+      this.properties = this.properties | request.options.properties;
+    else
+      this.properties = this.properties | OVERPASS_BBOX | OVERPASS_CENTER;
+  }
+  else {
+    this.properties = this.properties | request.options.properties;
+  }
+
+  if(request.options.properties & OVERPASS_TAGS) {
+    if(typeof data.tags == 'undefined')
+      this.tags = {};
+    else
+      this.tags = data.tags;
+  }
+  this.errors = [];
 
   if(data.timestamp) {
     this.meta = {
@@ -66,8 +74,6 @@ OSMObject.prototype.set_data = function(data, request) {
       user: data.user,
       uid: data.uid
     };
-
-    this.properties |= OVERPASS_META;
   }
 }
 
