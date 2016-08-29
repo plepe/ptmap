@@ -2,8 +2,8 @@ OSMNode.inherits_from(OSMObject);
 function OSMNode() {
 }
 
-OSMNode.prototype.set_data = function(data) {
-  this.parent("OSMNode").set_data.call(this, data);
+OSMNode.prototype.set_data = function(data, request) {
+  this.parent("OSMNode").set_data.call(this, data, request);
 
   if(data.lat) {
     this.geometry = {

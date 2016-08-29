@@ -2,8 +2,9 @@ OSMRoute.inherits_from(OSMRelation);
 function OSMRoute() {
 }
 
-OSMRoute.prototype.init = function(data) {
-  this.parent("OSMRoute").init.call(this, data);
+OSMRoute.prototype.set_data = function(data, request) {
+  this.parent("OSMRoute").set_data.call(this, data, request);
+
   this.possible_bounds = new PossibleBounds();
   this.possible_bounds.add_outer_bounds(this.bounds);
 

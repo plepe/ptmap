@@ -66,6 +66,7 @@ function _overpass_process() {
   var effort = 0;
   var bbox_todo = {};
   var todo_callbacks = [];
+  var todo_requests = {};
   var query = '';
 
   for(var j = 0; j < overpass_requests.length; j++) {
@@ -125,10 +126,13 @@ function _overpass_process() {
             continue;
 
         todo[ids[i]] = true;
+        todo_requests[ids[i]] = request;
         bbox_todo[ids[i]] = true;
       }
-      else
+      else {
         todo[ids[i]] = true;
+        todo_requests[ids[i]] = request;
+      }
 
       switch(ids[i].substr(0, 1)) {
         case 'n':
@@ -235,9 +239,9 @@ function _overpass_process() {
         }
 
         if(id in overpass_elements)
-          overpass_elements[id].set_data(el);
+          overpass_elements[id].set_data(el, todo_requests[id]);
         else
-          overpass_elements[id] = create_osm_object(el);
+          overpass_elements[id] = create_osm_object(el, todo_requests[id]);
 
         // if element is loaded, when can remove from overpass_elements_bounds
         if(id in overpass_elements_bounds)

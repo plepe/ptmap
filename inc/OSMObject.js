@@ -1,4 +1,4 @@
-function create_osm_object(data) {
+function create_osm_object(data, request) {
   if(data.type == 'relation') {
     if(data.tags.type && (data.tags.type == 'route'))
       var ret = new OSMRoute();
@@ -15,7 +15,7 @@ function create_osm_object(data) {
     var ret = new OSMObject();
   }
 
-  ret.init(data);
+  ret.init(data, request);
 
   return ret;
 }
@@ -23,17 +23,17 @@ function create_osm_object(data) {
 function OSMObject() {
 }
 
-OSMObject.prototype.init = function(data) {
+OSMObject.prototype.init = function(data, request) {
   this.properties = 0;
   this.id = data.type.substr(0, 1) + data.id;
   this.type = data.type;
   this.osm_id = data.id;
 
   this.data = {};
-  this.set_data(data);
+  this.set_data(data, request);
 }
 
-OSMObject.prototype.set_data = function(data) {
+OSMObject.prototype.set_data = function(data, request) {
   for(var k in data)
     this.data[k] = data[k];
 
