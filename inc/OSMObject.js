@@ -24,11 +24,16 @@ function OSMObject() {
 }
 
 OSMObject.prototype.init = function(data) {
+  this.properties = 0;
   this.id = data.type.substr(0, 1) + data.id;
+  this.type = data.type;
+  this.osm_id = data.id;
   this.data = data;
-  this.tags = data.tags;
-  if(typeof this.tags != 'object')
-    this.tags = {};
+
+  if(typeof data.tags != 'undefined') {
+    this.tags = data.tags;
+    this.properties |= OVERPASS_TAGS;
+  }
   this.errors = [];
 
   if(data.bounds) {
@@ -36,6 +41,26 @@ OSMObject.prototype.init = function(data) {
       L.latLng(data.bounds.minlat, data.bounds.minlon),
       L.latLng(data.bounds.maxlat, data.bounds.maxlon)
     );
+    this.center = this.bounds.getCenter();
+
+    this.properties |= OVERPASS_BBOX | OVERPASS_CENTER;
+  }
+  else if(data.center) {
+    this.bounds = L.latLng(data.center.lat, data.center.lon);
+
+    this.properties |= OVERPASS_CENTER;
+  }
+
+  if(data.timestamp) {
+    this.meta = {
+      timestamp: data.timestamp,
+      version: data.version,
+      changeset: data.changeset,
+      user: data.user,
+      uid: data.uid
+    };
+
+    this.properties |= OVERPASS_META;
   }
 }
 

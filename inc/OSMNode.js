@@ -5,10 +5,23 @@ function OSMNode() {
 OSMNode.prototype.init = function(data) {
   this.parent("OSMNode").init.call(this, data);
 
-  this.geometry = {
-    lat: data.lat,
-    lon: data.lon
-  };
+  if(data.lat) {
+    this.geometry = {
+      lat: data.lat,
+      lon: data.lon
+    };
+
+    this.bounds = L.latLngBounds(
+        L.latLng(data.lat, data.lon),
+        L.latLng(data.lat, data.lon)
+      );
+    this.center = L.latLng(data.lat, data.lon);
+
+    this.properties |= OVERPASS_BBOX | OVERPASS_CENTER | OVERPASS_GEOM;
+  }
+
+  // can't have members; make sure it won't get reloaded again
+  this.properties |= OVERPASS_MEMBERS;
 }
 
 OSMNode.prototype.GeoJSON = function() {

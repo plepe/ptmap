@@ -5,17 +5,27 @@ function OSMWay() {
 OSMWay.prototype.init = function(data) {
   this.parent("OSMWay").init.call(this, data);
 
-  this.nodes = data.nodes;
-  this.geometry = data.geometry;
+  if(data.nodes) {
+    this.nodes = data.nodes;
+    this.properties |= OVERPASS_MEMBERS;
+  }
+
+  if(data.geometry) {
+    this.geometry = data.geometry;
+    this.properties |= OVERPASS_GEOM;
+  }
 }
 
 OSMWay.prototype.member_ids = function() {
   if(this._member_ids)
     return this._member_ids;
 
+  if(!this.nodes)
+    return null;
+
   this._member_ids = [];
-  for(var i = 0; i < this.data.nodes.length; i++) {
-    var member = this.data.nodes[i];
+  for(var i = 0; i < this.nodes.length; i++) {
+    var member = this.nodes[i];
 
     this._member_ids.push('n' + member);
   }

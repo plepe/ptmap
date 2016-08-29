@@ -5,6 +5,15 @@ var overpass_requests = [];
 var overpass_request_active = false;
 var overpass_elements_bounds = {};
 
+var OVERPASS_TAGS = 1
+var OVERPASS_META = 2
+var OVERPASS_MEMBERS = 4
+var OVERPASS_BBOX = 8
+var OVERPASS_GEOM = 16
+var OVERPASS_CENTER = 32
+var OVERPASS_ALL = 63
+var OVERPASS_DEFAULT = 13
+
 /**
  * @param {(string|string[])} ids - One or more IDs, e.g. [ 'n123', 'w2345', 'n123' ]
  * @param {object} options
