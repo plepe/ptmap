@@ -92,7 +92,8 @@ Stop.prototype.render = function() {
     opacity: 0.8,
     fill: true,
     fillOpacity: 0.0,
-    weight: 5
+    weight: 5,
+    zIndex: 200
   }).addTo(map).bindPopup(this.build_popup());
 
   var label = L.divIcon({
@@ -102,7 +103,10 @@ Stop.prototype.render = function() {
   });
 
   this.feature_label =
-    L.marker(L.latLng(this.bounds.getNorth(), this.bounds.getCenter().lng), { icon: label }).addTo(map);
+    L.marker(L.latLng(this.bounds.getNorth(), this.bounds.getCenter().lng), {
+      icon: label,
+      zIndex: 201
+   }).addTo(map);
 }
 
 Stop.prototype.remove = function() {

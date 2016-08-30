@@ -174,7 +174,8 @@ SharedRouteWay.prototype.render = function() {
   }
 
   var route_conf = {
-    color: 'black'
+    color: 'black',
+    priority: 0
   };
 
   if('routes' in conf && top_route.tags.route in conf.routes) {
@@ -183,6 +184,7 @@ SharedRouteWay.prototype.render = function() {
 
   this.feature = L.polyline(line, {
     color: route_conf.color,
+    zIndex: 100 + route_conf.priority,
     opacity: 1
   }).addTo(map).bindPopup(this.build_popup());
 
