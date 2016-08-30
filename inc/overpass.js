@@ -4,6 +4,8 @@ var overpass_tiles = {};
 var overpass_requests = [];
 var overpass_request_active = false;
 var overpass_elements_bounds = {};
+var overpass_bbox_query_cache = {};
+
 
 var OVERPASS_ID_ONLY = 0
 var OVERPASS_TAGS = 1
@@ -281,10 +283,30 @@ function overpass_bbox_query(query, bbox, options, feature_callback, final_callb
     order_approx_route_length: options.order_approx_route_length
   };
 
+  var tile_bounds = bounds_to_tile(bbox);
+  var cache_id = tile_bounds.toBBoxString();
+
+  // check if we have a result for this tile
+  if(query in overpass_bbox_query_cache) {
+    if(cache_id in overpass_bbox_query_cache[query]) {
+      var todo = _overpass_process_query_bbox_grep(overpass_bbox_query_cache[query][cache_id], bbox);
+
+      if(options.order_approx_route_length)
+        todo = weight_sort(todo);
+
+      return overpass_get(array_keys(todo), options, feature_callback, final_callback);
+    }
+  }
+  else {
+    overpass_bbox_query_cache[query] = {};
+  }
+
   overpass_requests.push({
     type: 'bbox_query',
     query: query,
     bbox: bbox,
+    tile_bbox: tile_bounds,
+    cache_id: cache_id,
     options: bbox_options,
     get_options: options,
     priority: 'priority' in options ? options.priority : 0,
@@ -298,7 +320,7 @@ function overpass_bbox_query(query, bbox, options, feature_callback, final_callb
 }
 
 function _overpass_process_query(request) {
-  var bbox_string = request.bbox.toBBoxString();
+  var bbox_string = request.tile_bbox.toBBoxString();
   bbox_string = bbox_string.split(/,/);
   bbox_string = bbox_string[1] + ',' + bbox_string[0] + ',' +
                 bbox_string[3] + ',' + bbox_string[2];
@@ -319,32 +341,32 @@ function _overpass_process_query(request) {
 }
 
 function _overpass_handle_process_query(context, err, results) {
-  var todo = [];
-  var todo_ids = {};
-
   var request = context.request;
+
+  overpass_bbox_query_cache[request.query][request.cache_id] = {};
 
   for(var i = 0; i < results.elements.length; i++) {
     var el = results.elements[i];
     var id = el.type.substr(0, 1) + el.id;
 
-    if(request.options.order_approx_route_length) {
-      var ob_bbox = L.latLngBounds(
-        L.latLng(el.bounds.minlat, el.bounds.minlon),
-        L.latLng(el.bounds.maxlat, el.bounds.maxlon)
-      );
-      var approx_route_length = bounds_diagonal_px_length(ob_bbox);
+    var ob_bbox = L.latLngBounds(
+      L.latLng(el.bounds.minlat, el.bounds.minlon),
+      L.latLng(el.bounds.maxlat, el.bounds.maxlon)
+    );
+    var approx_route_length = bounds_diagonal_px_length(ob_bbox);
 
-      todo.push([ bounds_diagonal_px_length(ob_bbox), id ]);
-    }
-    else
-      todo.push(id);
+    overpass_bbox_query_cache[request.query][request.cache_id][id] = {
+      bbox: ob_bbox,
+      approx_route_length: approx_route_length
+    };
   }
+
+  var todo = _overpass_process_query_bbox_grep(overpass_bbox_query_cache[request.query][request.cache_id], request.bbox);
 
   if(request.options.order_approx_route_length)
     todo = weight_sort(todo, 'approx_route_length');
 
-  overpass_get(todo, request.get_options, request.feature_callback, request.final_callback);
+  overpass_get(array_keys(todo), request.get_options, request.feature_callback, request.final_callback);
 
   overpass_request_active = false;
 
@@ -405,4 +427,15 @@ function overpass_out_options(options) {
   out_options += 'qt';
 
   return out_options;
+}
+
+function _overpass_process_query_bbox_grep(elements, bbox) {
+  var ret = {};
+
+  for(var id in elements) {
+    if(bbox.intersects(elements[id].bbox))
+      ret[id] = elements[id];
+  }
+
+  return ret;
 }
