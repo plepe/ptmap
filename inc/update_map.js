@@ -31,6 +31,9 @@ function update_map_render_all(callback) {
 }
 
 function update_map_remove_all(callback) {
+  shared_route_way_remove_all();
+  stops_remove_all();
+
   async.setImmediate(function() {
     callback();
   });

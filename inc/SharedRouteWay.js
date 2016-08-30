@@ -215,3 +215,10 @@ function shared_route_way_rerender_update() {
   }
   shared_route_ways_need_update = {};
 }
+
+function shared_route_way_remove_all() {
+  for(var id in shared_route_ways) {
+    shared_route_ways[id].remove();
+  }
+  shared_route_ways_need_update = {};
+}

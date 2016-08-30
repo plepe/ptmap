@@ -170,3 +170,10 @@ function stops_rerender_update() {
   }
   stops_need_update = {};
 }
+
+function stops_remove_all() {
+  for(var id = 0; id < stops.length; id++) {
+    stops[id].remove();
+  }
+  stops_need_update = {};
+}

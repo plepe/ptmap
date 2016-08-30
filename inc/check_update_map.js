@@ -11,10 +11,11 @@ function re_render_map() {
 
 function check_update_map() {
   if(map.getZoom() < 14) {
-    async.setImmediate(function(sections, stops) {
-      update_map_remove_all(sections, stops, function() {
-      });
-    }.bind(this, current_sections, current_stops));
+    overpass_abort_all_requests();
+
+    async.setImmediate(function() {
+      update_map_remove_all(function() {});
+    });
 
     return;
   }
@@ -54,6 +55,10 @@ function check_update_map() {
     ,
     function(err, routes) {
       check_update_map_active = false;
+
+      if(err == 'abort')
+        return;
+
       if(check_update_map_requested)
         check_update_map();
     }

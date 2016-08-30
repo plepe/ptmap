@@ -24,7 +24,7 @@ function get_routes(bounds, feature_callback, final_callback) {
       routes.push(route);
     },
     function(err, results) {
-      final_callback(null, visible_routes);
+      final_callback(err, visible_routes);
     }
   );
 }
