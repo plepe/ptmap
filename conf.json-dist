@@ -1,6 +1,10 @@
 {
     "overpass": {
-        "url": "https://www.overpass-api.de/api/interpreter"
+        "url": "https://www.overpass-api.de/api/interpreter",
+        "effort_per_query": 1023,
+        "effort_node": 1,
+        "effort_way": 4,
+        "effort_relation": 64
     },
     "default_tags": {
         "opening_hours": "05:00-00:00"

@@ -128,7 +128,7 @@ function _overpass_process() {
         continue;
 
       // too much data - delay for next iteration
-      if(effort > 256)
+      if(effort >= conf.overpass.effort_per_query)
         continue;
 
       if(request.options.bbox) {
@@ -150,15 +150,15 @@ function _overpass_process() {
       switch(ids[i].substr(0, 1)) {
         case 'n':
           node_query += 'node(' + ids[i].substr(1) + ');\n';
-          effort += 1;
+          effort += conf.overpass.effort_node;
           break;
         case 'w':
           way_query += 'way(' + ids[i].substr(1) + ');\n';
-          effort += 4;
+          effort += conf.overpass.effort_way;
           break;
         case 'r':
           rel_query += 'relation(' + ids[i].substr(1) + ');\n';
-          effort += 16;
+          effort += conf.overpass.effort_relation;
           break;
       }
     }
