@@ -5,6 +5,11 @@
     "default_tags": {
         "opening_hours": "05:00-00:00"
     },
+    "nominatim_address": {
+      "": "Temporary; will be removed when auto-load is implemented",
+      "country_code": "at",
+      "state": "Wien"
+    },
     "routes": {
         "bus": {
 	    "weight": 1,
