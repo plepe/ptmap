@@ -161,29 +161,7 @@ function _overpass_process() {
       overpass_requests[j] = null;
     }
 
-    var out_options = '';
-
-    if(request.options.properties & OVERPASS_META)
-      out_options += 'meta ';
-    else if(request.options.properties & OVERPASS_TAGS) {
-      if(request.options.properties & OVERPASS_MEMBERS)
-        out_options += 'body ';
-      else
-        out_options += 'tags ';
-    }
-    else if(request.options.properties & OVERPASS_MEMBERS)
-      out_options += 'skel ';
-    else
-      out_options += 'ids ';
-
-    if(request.options.properties & OVERPASS_GEOM)
-      out_options += 'geom ';
-    else if(request.options.properties & OVERPASS_BBOX)
-      out_options += 'bb ';
-    else if(request.options.properties & OVERPASS_CENTER)
-      out_options += 'center ';
-
-    out_options += 'qt';
+    var out_options = overpass_out_options(request.options);
 
     if(node_query != '') {
       query += '((' + node_query + ');)->.n;\n';
@@ -356,4 +334,32 @@ function overpass_regexp_escape(s) {
        .replace('*', '\\*')
        .replace('^', '\\^')
        .replace('$', '\\$');
+}
+
+function overpass_out_options(options) {
+  var out_options = '';
+
+  if(options.properties & OVERPASS_META)
+    out_options += 'meta ';
+  else if(options.properties & OVERPASS_TAGS) {
+    if(options.properties & OVERPASS_MEMBERS)
+      out_options += 'body ';
+    else
+      out_options += 'tags ';
+  }
+  else if(options.properties & OVERPASS_MEMBERS)
+    out_options += 'skel ';
+  else
+    out_options += 'ids ';
+
+  if(options.properties & OVERPASS_GEOM)
+    out_options += 'geom ';
+  else if(options.properties & OVERPASS_BBOX)
+    out_options += 'bb ';
+  else if(options.properties & OVERPASS_CENTER)
+    out_options += 'center ';
+
+  out_options += 'qt';
+
+  return out_options;
 }
