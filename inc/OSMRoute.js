@@ -94,6 +94,7 @@ OSMRoute.prototype.route_parts = function(bounds, callback) {
   if(node_list.length)
   overpass_get(node_list, {
       bbox: bounds,
+      properties: OVERPASS_TAGS | OVERPASS_GEOM,
       priority: 0 + this.priority
     }, function(node_index_list, err, ob, i) {
       var route_index = node_index_list[i];
@@ -109,6 +110,7 @@ OSMRoute.prototype.route_parts = function(bounds, callback) {
   if(way_list.length)
   overpass_get(way_list, {
       bbox: bounds,
+      properties: OVERPASS_MEMBERS | OVERPASS_GEOM,
       priority: 1 + this.priority
     },
     function(index_list, err, ob, i) {

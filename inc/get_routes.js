@@ -12,6 +12,7 @@ function get_routes(bounds, feature_callback, final_callback) {
     bounds,
     {
       priority: 2,
+      properties: OVERPASS_TAGS | OVERPASS_MEMBERS | OVERPASS_BBOX,
       order_approx_route_length: true
     },
     function(err, route) {
