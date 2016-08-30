@@ -73,6 +73,11 @@ function _overpass_process() {
   var todo_requests = {};
   var query = '';
 
+  if(overpass_requests[0].type == 'bbox_query') {
+    var request = overpass_requests.splice(0, 1);
+    return _overpass_process_query(request[0]);
+  }
+
   for(var j = 0; j < overpass_requests.length; j++) {
     var request = overpass_requests[j];
 
@@ -268,44 +273,82 @@ function _overpass_handle_result(context, err, results) {
  * @param {function} feature_callback Will be called for each object in the order of the IDs in parameter 'ids'. Will be passed: 1. err (if an error occured, otherwise null), 2. the object or null.
  * @param {function} final_callback Will be called after the last feature. Will be passed: 1. err (if an error occured, otherwise null).
  */
-function overpass_bbox_query(query, bounds, options, feature_callback, final_callback) {
+function overpass_bbox_query(query, bbox, options, feature_callback, final_callback) {
   var ret = [];
-  var bbox_string = bounds.toBBoxString();
+
+  var bbox_options = {
+    properties: OVERPASS_ID_ONLY | OVERPASS_BBOX,
+    order_approx_route_length: options.order_approx_route_length
+  };
+
+  overpass_requests.push({
+    type: 'bbox_query',
+    query: query,
+    bbox: bbox,
+    options: bbox_options,
+    get_options: options,
+    priority: 'priority' in options ? options.priority : 0,
+    feature_callback: feature_callback,
+    final_callback: final_callback
+  });
+
+  overpass_requests = weight_sort(overpass_requests, 'priority');
+
+  _overpass_process();
+}
+
+function _overpass_process_query(request) {
+  var bbox_string = request.bbox.toBBoxString();
   bbox_string = bbox_string.split(/,/);
   bbox_string = bbox_string[1] + ',' + bbox_string[0] + ',' +
                 bbox_string[3] + ',' + bbox_string[2];
 
+  query_options = '[bbox:' + bbox_string + ']';
+  query = request.query;
+
+  var context = {
+    request: request
+  };
+
   http_load(
     conf.overpass.url,
     null,
-    "[out:json][bbox:" + bbox_string + "];" + query + "out ids bb qt;",
-    function(err, results) {
-      var todo = [];
-      var todo_ids = {};
-
-      for(var i = 0; i < results.elements.length; i++) {
-	var el = results.elements[i];
-	var id = el.type.substr(0, 1) + el.id;
-
-        if(options.order_approx_route_length) {
-          var ob_bbox = L.latLngBounds(
-            L.latLng(el.bounds.minlat, el.bounds.minlon),
-            L.latLng(el.bounds.maxlat, el.bounds.maxlon)
-          );
-          var approx_route_length = bounds_diagonal_px_length(ob_bbox);
-
-          todo.push([ bounds_diagonal_px_length(ob_bbox), id ]);
-        }
-        else
-          todo.push(id);
-      }
-
-      if(options.order_approx_route_length)
-        todo = weight_sort(todo);
-
-      overpass_get(todo, options, feature_callback, final_callback);
-    }
+    '[out:json]' + query_options + ';\n' + query + '\nout ' + overpass_out_options(request.options) + ';',
+    _overpass_handle_process_query.bind(this, context)
   );
+}
+
+function _overpass_handle_process_query(context, err, results) {
+  var todo = [];
+  var todo_ids = {};
+
+  var request = context.request;
+
+  for(var i = 0; i < results.elements.length; i++) {
+    var el = results.elements[i];
+    var id = el.type.substr(0, 1) + el.id;
+
+    if(request.options.order_approx_route_length) {
+      var ob_bbox = L.latLngBounds(
+        L.latLng(el.bounds.minlat, el.bounds.minlon),
+        L.latLng(el.bounds.maxlat, el.bounds.maxlon)
+      );
+      var approx_route_length = bounds_diagonal_px_length(ob_bbox);
+
+      todo.push([ bounds_diagonal_px_length(ob_bbox), id ]);
+    }
+    else
+      todo.push(id);
+  }
+
+  if(request.options.order_approx_route_length)
+    todo = weight_sort(todo, 'approx_route_length');
+
+  overpass_get(todo, request.get_options, request.feature_callback, request.final_callback);
+
+  overpass_request_active = false;
+
+  _overpass_process();
 }
 
 function overpass_abort_all_requests() {
