@@ -73,7 +73,12 @@ SharedRouteWay.prototype.build_popup = function() {
   var routes = this.routes();
 
   for(var i = 0; i < routes.length; i++) {
-    ret += twig_render_custom("<div>{{ref}} {{to}}</div>", routes[i].tags);
+    ret += twig_render_custom(
+      "<div><a href='{{ route.id }}'>{{ route.tags.ref }} {{ route.tags.to }}</div>",
+      {
+        route: routes[i]
+      }
+    );
   }
 
   return ret;

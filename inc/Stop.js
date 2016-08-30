@@ -67,7 +67,7 @@ Stop.prototype.build_popup = function() {
   var routes = this.routes();
 
   for(var i = 0; i < routes.length; i++) {
-    ret += "<li>" + routes[i].title() + "</li>";
+    ret += "<li><a href='" + routes[i].id + "'>" + routes[i].title() + "</a></li>";
   }
 
   ret += "</ul>";
