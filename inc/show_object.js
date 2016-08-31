@@ -2,26 +2,18 @@ function show_object(id, param) {
   if(!param)
     param = {};
 
-  var div = document.createElement('div');
-  div.innerHTML = 'Loading ...';
-
   if(param.latLng)
     ;
   else if(param.popup)
     param.latLng = param.popup.getLatLng();
 
   var popup = L.popup()
-    .setContent(div);
-
+    .setContent('Loading ...');
 
   if(param.latLng) {
     popup
       .setLatLng(param.latLng)
       .openOn(map);
-  }
-
-  div.update = function() {
-    popup.update();
   }
 
   var properties = OVERPASS_TAGS | OVERPASS_META | OVERPASS_MEMBERS | OVERPASS_BBOX | OVERPASS_CENTER;
@@ -44,7 +36,11 @@ function show_object(id, param) {
         return;
       }
 
-      feature.highlight(div, param, function() {});
+      var content = feature.highlight(param);
+      content.onupdate = function() {
+        popup.update();
+      };
+      popup.setContent(content.render());
     },
     function(err) {
     }

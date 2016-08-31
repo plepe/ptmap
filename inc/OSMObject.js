@@ -111,5 +111,17 @@ OSMObject.prototype.is_visible = function(bounds) {
   return this.bounds.intersects(bounds);
 }
 
-OSMObject.prototype.highlight = function(div, param) {
+OSMObject.prototype.highlight = function(param) {
+  var content = new Content();
+
+  content.set_title(this.tags.name || this.tags.operator || this.tags.ref);
+
+  content.add_chapter({
+    title: 'Tags',
+    weight: 5,
+    content: '<pre wrap>' + escape_html(JSON.stringify(this.tags, null, '     '))
+      .replace('\n', '<br/>\n') + '</pre>'
+  });
+
+  return content;
 }

@@ -374,3 +374,19 @@ OSMRoute.prototype.is_active = function() {
 
   return this.opening_hours.getState(environment.date());
 }
+
+OSMRoute.prototype.highlight = function(param) {
+  var content = this.parent("OSMRoute").highlight.call(this, param);
+
+  var stops_chapter = content.add_chapter({
+    title: 'Stops',
+    weight: 0,
+    content: ''
+  });
+
+  this.route_parts(null, function(err, route_parts) {
+    stops_chapter.set_content('Test');
+  }.bind(this));
+
+  return content;
+}
