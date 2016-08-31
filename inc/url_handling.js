@@ -14,6 +14,16 @@ function url_handling_follow_link(ob) {
 
   var param = {};
 
+  var ob1 = ob;
+  while(ob1 != document.body) {
+    if(ob1.popup) {
+      param.popup = ob1.popup;
+      break;
+    }
+
+    ob1 = ob1.parentNode;
+  }
+
   show_object(href, param);
 
   window.history.pushState(null, null, href);

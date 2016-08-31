@@ -10,6 +10,10 @@ register_hook('init', function() {
     }
   );
   osm_mapnik.addTo(map);
+
+  map.on('popupopen', function(e) {
+    e.popup._container.popup = e.popup;
+  });
 });
 
 function map_order_features_by_zindex() {
