@@ -110,3 +110,6 @@ OSMObject.prototype.is_visible = function(bounds) {
 
   return this.bounds.intersects(bounds);
 }
+
+OSMObject.prototype.highlight = function(div, param) {
+}
