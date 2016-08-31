@@ -84,19 +84,25 @@ OSMRoute.prototype.route_parts = function(bounds, callback) {
     }.bind(this));
   }
 
-  if(!this.possible_bounds.is_possible(bounds))
-    return async.setImmediate(function() {
-      callback(null, this._route_parts);
-    }.bind(this));
-
-  this.possible_bounds.add_inner_bounds(bounds);
-
-  if(node_list.length)
-  overpass_get(node_list, {
-      bbox: bounds,
+  var get_options = {
       properties: OVERPASS_TAGS | OVERPASS_GEOM,
       priority: 0 + this.priority
-    }, function(node_index_list, err, ob, i) {
+  };
+
+  if(bounds) {
+    get_options.bbox = bounds;
+
+    if(!this.possible_bounds.is_possible(bounds))
+      return async.setImmediate(function() {
+        callback(null, this._route_parts);
+      }.bind(this));
+
+    this.possible_bounds.add_inner_bounds(bounds);
+  }
+
+  if(node_list.length)
+  overpass_get(node_list, get_options,
+    function(node_index_list, err, ob, i) {
       var route_index = node_index_list[i];
       this._route_stops_ob[route_index] = ob;
 
@@ -107,12 +113,17 @@ OSMRoute.prototype.route_parts = function(bounds, callback) {
     }.bind(this)
   );
 
-  if(way_list.length)
-  overpass_get(way_list, {
-      bbox: bounds,
+  var get_options = {
       properties: OVERPASS_MEMBERS | OVERPASS_GEOM,
       priority: 1 + this.priority
-    },
+    };
+
+  if(bounds) {
+    get_options.bbox = bounds;
+  }
+
+  if(way_list.length)
+  overpass_get(way_list, get_options,
     function(index_list, err, ob, i) {
       var route_index = way_index_list[i];
       this.route_parts_way[route_index] = ob;
