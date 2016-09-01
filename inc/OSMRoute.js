@@ -385,7 +385,16 @@ OSMRoute.prototype.highlight = function(param) {
   });
 
   this.route_parts(null, function(err, route_parts) {
-    stops_chapter.set_content('Test');
+    var ret = '<ul>\n';
+
+    for(var i = 0; i < this._stops.length; i++) {
+      var stop = this._stops[i];
+
+      ret += '<li><a href="' + stop.ob.id + '">' + stop.ob.title() + '</a></li>\n';
+    }
+
+    ret += '</ul>\n';
+    stops_chapter.set_content(ret);
   }.bind(this));
 
   return content;
