@@ -23,6 +23,10 @@ function create_osm_object(data, request) {
 function OSMObject() {
 }
 
+OSMObject.prototype.title = function() {
+  return this.tags.name || this.tags.operator || this.tags.ref;
+}
+
 OSMObject.prototype.init = function(data, request) {
   this.properties = 0;
   this.id = data.type.substr(0, 1) + data.id;
@@ -114,7 +118,7 @@ OSMObject.prototype.is_visible = function(bounds) {
 OSMObject.prototype.highlight = function(param) {
   var content = new Content();
 
-  content.set_title(this.tags.name || this.tags.operator || this.tags.ref);
+  content.set_title(this.title());
 
   content.add_chapter({
     title: 'Tags',
