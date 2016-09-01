@@ -12,6 +12,11 @@ function url_handling_follow_link(ob) {
   if(href.match(/^\/\//))
     return true;
 
+  if(href.match(/#close$/)) {
+    window.history.pushState(null, null, '.');
+    return false;
+  }
+
   var param = {};
 
   var ob1 = ob;
