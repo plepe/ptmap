@@ -40,3 +40,13 @@ function update_map_remove_all(callback) {
     callback();
   });
 }
+
+function update_map_check_visibility(callback) {
+  shared_route_way_check_visibility();
+  stops_check_visibility();
+  map_order_features_by_zindex();
+
+  async.setImmediate(function() {
+    callback();
+  });
+}

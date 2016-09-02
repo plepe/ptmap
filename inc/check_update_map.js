@@ -23,10 +23,8 @@ function check_update_map() {
   if(!check_update_map_rerender) {
     check_update_map_rerender = true;
     async.setImmediate(function() {
-      update_map_remove_all(function() {
-        update_map_render_all(function() {
-          check_update_map_rerender = false;
-        })
+      update_map_check_visibility(function() {
+        check_update_map_rerender = false;
       });
     }.bind(this));
   }

@@ -107,6 +107,8 @@ Stop.prototype.render = function() {
       icon: label,
       zIndex: 201
    }).addTo(map);
+
+  this.rendered = true;
 }
 
 Stop.prototype.remove = function() {
@@ -117,6 +119,28 @@ Stop.prototype.remove = function() {
 
   delete(this.feature);
   delete(this.feature_label);
+
+  this.rendered = false;
+}
+
+Stop.prototype.check_visibility = function() {
+  var visible = true;
+
+  if(!this.is_visible(map.getBounds()))
+    visible = false;
+
+  var top_route = this.top_route();
+  if(top_route === null)
+    visible = false;
+
+  if(visible) {
+    if(!this.rendered)
+      this.render();
+  }
+  else {
+    if(this.rendered)
+      this.remove();
+  }
 }
 
 function add_stop(stop) {
@@ -180,4 +204,10 @@ function stops_remove_all() {
     stops[id].remove();
   }
   stops_need_update = {};
+}
+
+function stops_check_visibility() {
+  for(var id = 0; id < stops.length; id++) {
+    stops[id].check_visibility();
+  }
 }

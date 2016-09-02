@@ -195,11 +195,35 @@ SharedRouteWay.prototype.render = function() {
       fill: route_conf.color
     }
   });
+
+  this.rendered = true;
 }
 
 SharedRouteWay.prototype.remove = function() {
   if(this.feature)
     map.removeLayer(this.feature);
+
+  this.rendered = false;
+}
+
+SharedRouteWay.prototype.check_visibility = function() {
+  var visible = true;
+
+  if(!this.way.is_visible(map.getBounds()))
+    visible = false;
+
+  var top_route = this.top_route();
+  if(top_route === null)
+    visible = false;
+
+  if(visible) {
+    if(!this.rendered)
+      this.render();
+  }
+  else {
+    if(this.rendered)
+      this.remove();
+  }
 }
 
 function shared_route_way_rerender_all() {
@@ -223,4 +247,10 @@ function shared_route_way_remove_all() {
     shared_route_ways[id].remove();
   }
   shared_route_ways_need_update = {};
+}
+
+function shared_route_way_check_visibility() {
+  for(var id in shared_route_ways) {
+    shared_route_ways[id].check_visibility();
+  }
 }
