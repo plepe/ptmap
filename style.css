@@ -18,3 +18,7 @@
 .label-stop div span {
   background: rgba(255, 255, 255, 0.3);
 }
+.leaflet-popup-content {
+  max-height: 250px;
+  overflow: auto;
+}
