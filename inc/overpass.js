@@ -209,12 +209,14 @@ function _overpass_process() {
     return;
   }
 
-  http_load(
-    conf.overpass.url,
-    null,
-    "[out:json];\n" + query,
-    _overpass_handle_result.bind(this, context)
-  );
+  window.setTimeout(function() {
+    http_load(
+      conf.overpass.url,
+      null,
+      "[out:json];\n" + query,
+      _overpass_handle_result.bind(this, context)
+    );
+  }, conf.overpass.time_gap);
 }
 
 function _overpass_handle_result(context, err, results) {

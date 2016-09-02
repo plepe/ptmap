@@ -4,7 +4,8 @@
         "effort_per_query": 1023,
         "effort_node": 1,
         "effort_way": 4,
-        "effort_relation": 64
+        "effort_relation": 64,
+        "time_gap": 100
     },
     "default_tags": {
         "opening_hours": "05:00-00:00"
