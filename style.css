@@ -22,3 +22,12 @@
   max-height: 250px;
   overflow: auto;
 }
+
+#clock {
+  position: absolute;
+  z-index: 10000;
+  bottom: 5px;
+  left: 5px;
+  border: 1px solid black;
+  background: white;
+}
