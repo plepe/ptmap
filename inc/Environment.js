@@ -1,9 +1,10 @@
 function Environment() {
-  window.setInterval(this.update.bind(this), 2000);
-
   this.div_clock = document.createElement('div');
   this.div_clock.id = 'clock';
   document.body.appendChild(this.div_clock);
+
+  this.update();
+  window.setInterval(this.update.bind(this), 2000);
 }
 
 Environment.prototype.update = function() {
