@@ -22,6 +22,7 @@ html_export_var(array("conf" => $conf));
     <script src="node_modules/natsort/index.js"></script>
     <script src="node_modules/turf/turf.js"></script>
     <script src="node_modules/opening_hours/opening_hours.js"></script>
+    <script src="node_modules/moment/moment.js"></script>
   </head>
   <body>
   <div id='map'></div>

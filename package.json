@@ -6,6 +6,7 @@
 	"natsort": "*",
 	"turf": "*",
 	"twig": "0.8.9",
-        "opening_hours": "*"
+        "opening_hours": "*",
+        "moment": "*"
     }
 }

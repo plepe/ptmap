@@ -10,7 +10,7 @@ function Environment() {
 Environment.prototype.update = function() {
   this.current_date = new Date();
 
-  this.div_clock.innerHTML = this.current_date.toISOString().slice(0, 16).replace('T', ' ');
+  this.div_clock.innerHTML = moment(this.current_date).format('llll');
 
   update_map_render_update_needed(function() {});
 }
