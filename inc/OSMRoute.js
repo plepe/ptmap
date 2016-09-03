@@ -367,9 +367,15 @@ OSMRoute.prototype.is_active = function() {
       oh = this.tags.opening_hours;
 
     // TODO: also pass nominatim_object to get correct holidays etc
-    this.opening_hours = new opening_hours(oh, {
-      address: conf.nominatim_address
-    });
+    try {
+      this.opening_hours = new opening_hours(oh, {
+        address: conf.nominatim_address
+      });
+    }
+    catch (e) {
+      this.errors.push("Error parsing opening hours string: " + e);
+      return true;
+    }
   }
 
   return this.opening_hours.getState(environment.date());
