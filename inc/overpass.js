@@ -3,7 +3,6 @@ var overpass_elements_member_of = {};
 var overpass_tiles = {};
 var overpass_requests = [];
 var overpass_request_active = false;
-var overpass_elements_bounds = {};
 var overpass_bbox_query_cache = {};
 
 
@@ -134,8 +133,8 @@ function _overpass_process() {
       if(request.options.bbox) {
         // check if we already know the bbox of the element; if yes, don't try
         // to load object if it does not intersect bounds
-        if(ids[i] in overpass_elements_bounds)
-          if(!request.options.bbox.intersects(overpass_elements_bounds[ids[i]]))
+        if(ids[i] in overpass_elements && (overpass_elements[ids[i]].properties & OVERPASS_BBOX))
+          if(!request.options.bbox.intersects(overpass_elements[ids[i]].bounds))
             continue;
 
         context.todo[ids[i]] = true;
@@ -224,13 +223,19 @@ function _overpass_handle_result(context, err, results) {
     var el = results.elements[i];
     var id = el.type.substr(0, 1) + el.id;
 
-    // bounding box only result -> save to overpass_elements_bounds
+    // bounding box only result -> save to overpass_elements with bounds only
     if((el.type == 'relation' && !('members' in el)) ||
        (el.type == 'way' && !('geometry' in el))) {
-      overpass_elements_bounds[id] = L.latLngBounds(
-        L.latLng(el.bounds.minlat, el.bounds.minlon),
-        L.latLng(el.bounds.maxlat, el.bounds.maxlon)
-      );
+      var bbox_request = {
+        options: {
+          properties: OVERPASS_BBOX
+        }
+      };
+
+      if(id in overpass_elements)
+        overpass_elements[id].set_data(el, bbox_request);
+      else
+        overpass_elements[id] = create_osm_object(el, bbox_request);
 
       continue;
     }
@@ -239,10 +244,6 @@ function _overpass_handle_result(context, err, results) {
       overpass_elements[id].set_data(el, context.todo_requests[id]);
     else
       overpass_elements[id] = create_osm_object(el, context.todo_requests[id]);
-
-    // if element is loaded, when can remove from overpass_elements_bounds
-    if(id in overpass_elements_bounds)
-      delete(overpass_elements_bounds[id]);
 
     var members = overpass_elements[id].member_ids();
     for(var j = 0; j < members.length; j++) {
