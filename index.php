@@ -17,12 +17,8 @@ html_export_var(array("conf" => $conf));
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="node_modules/leaflet/dist/leaflet.css" />
     <script src="node_modules/leaflet/dist/leaflet.js"></script>
-    <script src="node_modules/async/dist/async.min.js"></script>
     <script src="node_modules/leaflet-textpath/leaflet.textpath.js"></script>
-    <script src="node_modules/natsort/index.js"></script>
-    <script src="node_modules/turf/turf.js"></script>
-    <script src="node_modules/opening_hours/opening_hours.js"></script>
-    <script src="node_modules/moment/moment.js"></script>
+    <script src="dist/ptmap.js"></script>
   </head>
   <body>
   <div id='map'></div>
