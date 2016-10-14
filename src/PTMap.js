@@ -1,7 +1,7 @@
-function PTMap() {
+function PTMap () {
 }
 
-PTMap.prototype.checkUpdateMap = function(map) {
+PTMap.prototype.checkUpdateMap = function (map) {
   this.map = map
 }
 
