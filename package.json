@@ -5,20 +5,27 @@
   "main": "index.js",
   "dependencies": {
     "async": "*",
+    "eslint": "^3.7.1",
+    "moment": "*",
     "natsort": "*",
-    "turf": "*",
-    "twig": "0.8.9",
     "opening_hours": "*",
-    "moment": "*"
+    "overpass-frontend": "*",
+    "turf": "*",
+    "twig": "0.8.9"
   },
   "devDependencies": {
+    "browserify": "*",
+    "eslint": "^3.7.1",
+    "eslint-config-standard": "^6.2.0",
+    "eslint-plugin-promise": "^3.0.0",
+    "eslint-plugin-standard": "^2.0.1",
     "leaflet": "^0.7.0",
-    "leaflet-textpath": "^1.0.0",
-    "browserify": "*"
+    "leaflet-textpath": "^1.0.0"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "mkdir -p dist && browserify src/index.js -o dist/ptmap.js"
+    "build": "mkdir -p dist && browserify src/index.js -o dist/ptmap.js",
+    "lint": "eslint src/*.js"
   },
   "repository": {
     "type": "git",
