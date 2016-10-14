@@ -1,21 +1,3 @@
-var map;
-
-register_hook('init', function() {
-  map = L.map('map').setView([48.202, 16.338], 15);
-
-  var osm_mapnik = L.tileLayer('//{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-    {
-      maxZoom: 19,
-      attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-    }
-  );
-  osm_mapnik.addTo(map);
-
-  map.on('popupopen', function(e) {
-    e.popup._container.popup = e.popup;
-  });
-});
-
 function map_order_features_by_zindex() {
   var layer_list = [];
 

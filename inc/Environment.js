@@ -57,3 +57,5 @@ Environment.prototype.open_config = function() {
     this.update();
   }.bind(this);
 }
+
+module.exports = Environment

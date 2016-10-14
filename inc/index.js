@@ -1,11 +1,30 @@
-window.onload = function() {
+var Environment = require('./Environment')
+var PTMap = require('./PTMap')
+
+window.onload = function () {
   call_hooks("init");
 
-  check_update_map();
+  var map = L.map('map').setView([48.202, 16.338], 15);
 
-  map.on('moveend', function(e) {
-    check_update_map();
-  });
+  var osmMapnik = L.tileLayer('//{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+    {
+      maxZoom: 19,
+      attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+    }
+  );
+  osmMapnik.addTo(map)
 
-  environment = new Environment();
+  map.on('popupopen', function (e) {
+    e.popup._container.popup = e.popup;
+  })
+
+  var ptmap = new PTMap(map)
+
+  ptmap.checkUpdateMap()
+
+  map.on('moveend', function (e) {
+    ptmap.checkUpdateMap()
+  })
+
+  environment = new Environment()
 }
