@@ -20,12 +20,13 @@
     "eslint-plugin-promise": "^3.0.0",
     "eslint-plugin-standard": "^2.0.1",
     "leaflet": "^0.7.0",
-    "leaflet-textpath": "^1.0.0"
+    "leaflet-textpath": "^1.0.0",
+    "mocha": "^3.1.2"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "mocha --bail",
     "build": "mkdir -p dist && browserify src/index.js -o dist/ptmap.js",
-    "lint": "eslint src/*.js"
+    "lint": "eslint src/*.js test/*.js"
   },
   "repository": {
     "type": "git",
