@@ -6,6 +6,9 @@ var assert = require('assert')
 var OverpassFrontend = require('overpass-frontend')
 var overpassFrontend = new OverpassFrontend(conf.url)
 
+var Route = require('../src/Route')
+var routes = {}
+
 /* global describe it */
 
 describe('Route', function () {
@@ -18,6 +21,8 @@ describe('Route', function () {
         if (err) {
           assert(false, 'There should be no error: ' + err)
         }
+
+        routes[result.id] = new Route(result)
       },
       function (err) {
         done(err)
