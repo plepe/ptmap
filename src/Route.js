@@ -1,5 +1,6 @@
 /* global overpassFrontend:false */
 var OverpassFrontend = require('overpass-frontend')
+var SharedRouteWay = require('./SharedRouteWay')
 
 function Route (object) {
   this.object = object
@@ -27,6 +28,7 @@ Route.prototype.routeWays = function (bbox, callback) {
           role: member.role,
           wayId: member.id,
           way: false,
+          sharedRouteWay: null,
           routeId: this.id,
           route: this,
           dir: null,
@@ -70,6 +72,11 @@ Route.prototype.routeWayCheck = function (wayIndex) {
 
   if (link.prevWay && link.nextWay) {
     return // already checked
+  }
+
+  if (!link.sharedRouteWay) {
+    link.sharedRouteWay = SharedRouteWay.get(link.way)
+    link.sharedRouteWay.addLink(link)
   }
 
   var checkPrevWay = false
@@ -117,6 +124,8 @@ Route.prototype.routeWayCheck = function (wayIndex) {
       this.routeWayCheck(wayIndex + 1)
     }
   }
+
+  link.sharedRouteWay.update()
 }
 
 module.exports = Route

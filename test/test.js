@@ -9,9 +9,10 @@ var OverpassFrontend = require('overpass-frontend')
 GLOBAL.overpassFrontend = new OverpassFrontend(conf.url)
 
 var Route = require('../src/Route')
+var SharedRouteWay = require('../src/SharedRouteWay')
 var routes = {}
 
-/* global describe it */
+/* global describe it overpassFrontend */
 
 describe('Route', function () {
   it('load object', function (done) {
@@ -99,5 +100,16 @@ describe('Route', function () {
         done(err)
       }
     )
+  })
+})
+
+describe('SharedRouteWay', function () {
+  it('all', function (done) {
+    var all = SharedRouteWay.all()
+
+    var l = all['w179646923'].links
+    assert.deepEqual(2, l.length, 'w179646923: should have two links')
+
+    done()
   })
 })
