@@ -25,8 +25,15 @@ Route.prototype.routeWays = function (bbox, callback) {
       if (init) {
         this._routeWays.push({
           role: member.role,
+          wayId: member.id,
           way: false,
-          link: false
+          routeId: this.id,
+          route: this,
+          dir: null,
+          prevWay: null,
+          prevConnected: null,
+          nextWay: null,
+          nextConnected: null
         })
       }
 
@@ -42,17 +49,74 @@ Route.prototype.routeWays = function (bbox, callback) {
   overpassFrontend.get(wayIds,
     {
       bbox: bbox,
-      properties: OverpassFrontend.GEOM
+      properties: OverpassFrontend.GEOM | OverpassFrontend.MEMBERS
     },
     function (wayIndexList, err, result, index) {
       wayIndex = wayIndexList[index]
 
-      this._routeWays[wayIndex].way = result
+      if (result !== false) {
+        this._routeWays[wayIndex].way = result
+        this.routeWayCheck(wayIndex)
+      }
     }.bind(this, wayIndexList),
     function (err) {
       callback(err, this._routeWays)
     }.bind(this)
   )
+}
+
+Route.prototype.routeWayCheck = function (wayIndex) {
+  var link = this._routeWays[wayIndex]
+
+  if (link.prevWay && link.nextWay) {
+    return // already checked
+  }
+
+  var checkPrevWay = false
+  if (!link.prevWay && wayIndex > 0) {
+    link.prevWay = this._routeWays[wayIndex - 1].way
+    checkPrevWay = !!link.prevWay
+  }
+
+  var checkNextWay = false
+  if (!link.nextWay && wayIndex < this._routeWays.length - 1) {
+    link.nextWay = this._routeWays[wayIndex + 1].way
+    checkNextWay = !!link.nextWay
+  }
+
+  if (checkPrevWay) {
+    link.prevConnected = true
+    if (link.prevWay.members[0].id === link.way.members[0].id ||
+        link.prevWay.members[link.prevWay.members.length - 1].id === link.way.members[0].id) {
+      link.dir = 'forward'
+    } else if (link.prevWay.members[0].id === link.way.members[link.way.members.length - 1].id ||
+        link.prevWay.members[link.prevWay.members.length - 1].id === link.way.members[link.way.members.length - 1].id) {
+      link.dir = 'backward'
+    } else {
+      link.prevConnected = false
+    }
+
+    if (link.prevConnected) {
+      this.routeWayCheck(wayIndex - 1)
+    }
+  }
+
+  if (checkNextWay) {
+    link.nextConnected = true
+    if (link.nextWay.members[0].id === link.way.members[0].id ||
+        link.nextWay.members[link.nextWay.members.length - 1].id === link.way.members[0].id) {
+      link.dir = 'backward'
+    } else if (link.nextWay.members[0].id === link.way.members[link.way.members.length - 1].id ||
+        link.nextWay.members[link.nextWay.members.length - 1].id === link.way.members[link.way.members.length - 1].id) {
+      link.dir = 'forward'
+    } else {
+      link.nextConnected = false
+    }
+
+    if (link.nextConnected) {
+      this.routeWayCheck(wayIndex + 1)
+    }
+  }
 }
 
 module.exports = Route
