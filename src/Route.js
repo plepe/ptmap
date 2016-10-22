@@ -56,7 +56,7 @@ Route.prototype.routeWays = function (bbox, callback) {
     function (wayIndexList, err, result, index) {
       wayIndex = wayIndexList[index]
 
-      if (result !== false) {
+      if (result !== false && result !== null) {
         this._routeWays[wayIndex].way = result
         this.routeWayCheck(wayIndex)
       }
