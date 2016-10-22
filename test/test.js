@@ -33,7 +33,124 @@ describe('Route', function () {
     )
   })
 
-  it('load way members', function (done) {
+  it('load way members (small bbox)', function (done) {
+    var expectedRouteWays = {
+      'r79466': {
+        32: {
+          dir: 'forward',
+          nextConnected: true
+        },
+        33: {
+          dir: 'backward',
+          prevConnected: true,
+          nextConnected: true
+        },
+        34: {
+          dir: 'backward',
+          prevConnected: true
+        }
+      }
+    }
+
+    async.each(routes,
+      function (route, callback) {
+        route.routeWays(new BoundingBox({
+          minlon: 16.336,
+          minlat: 48.200,
+          maxlon: 16.338,
+          maxlat: 48.201
+        }),
+        function (err, result) {
+          if (!(route.id in expectedRouteWays)) {
+            return callback(err) // ignore
+          }
+
+          for (var i in expectedRouteWays[route.id]) {
+            var exp = expectedRouteWays[route.id][i]
+
+            for (var k in exp) {
+              assert.deepEqual(exp[k], result[i][k], result[i].wayId + '/' + k + ': Expected: ' + exp[k] + ', Actual: ' + result[i][k])
+            }
+          }
+
+          callback(err)
+        })
+      },
+      function (err) {
+        done(err)
+      }
+    )
+  })
+
+  it('load way members (larger bbox)', function (done) {
+    var expectedRouteWays = {
+      'r79466': {
+        28: {
+          dir: 'backward',
+          nextConnected: true
+        },
+        29: {
+          dir: 'backward',
+          prevConnected: true,
+          nextConnected: true
+        },
+        30: {
+          dir: 'backward',
+          prevConnected: true,
+          nextConnected: true
+        },
+        31: {
+          dir: 'backward',
+          prevConnected: true,
+          nextConnected: true
+        },
+        32: {
+          dir: 'forward',
+          prevConnected: true,
+          nextConnected: true
+        },
+        33: {
+          dir: 'backward',
+          prevConnected: true,
+          nextConnected: true
+        },
+        34: {
+          dir: 'backward',
+          prevConnected: true
+        }
+      }
+    }
+
+    async.each(routes,
+      function (route, callback) {
+        route.routeWays(new BoundingBox({
+          minlon: 16.336,
+          minlat: 48.195,
+          maxlon: 16.342,
+          maxlat: 48.202
+        }),
+        function (err, result) {
+          if (!(route.id in expectedRouteWays)) {
+            return callback(err) // ignore
+          }
+
+          for (var i in expectedRouteWays[route.id]) {
+            var exp = expectedRouteWays[route.id][i]
+
+            for (var k in exp) {
+              assert.deepEqual(exp[k], result[i][k], result[i].wayId + '/' + k + ': Expected: ' + exp[k] + ', Actual: ' + result[i][k])
+            }
+          }
+
+          callback(err)
+        })
+      },
+      function (err) {
+        done(err)
+      }
+    )
+  })
+  it('load way members (remaining)', function (done) {
     var expectedRouteWays = {
       'r79466': {
         28: {
