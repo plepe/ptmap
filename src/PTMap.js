@@ -2,6 +2,7 @@ var OverpassFrontend = require('overpass-frontend')
 /* global overpassFrontend */
 
 var Route = require('./Route')
+var BoundingBox = require('boundingbox')
 
 function PTMap () {
   this.routes = {}
@@ -49,6 +50,45 @@ PTMap.prototype._loadRoute = function (featureCallback, err, result) {
   }
 
   featureCallback(null, this.routes[result.id])
+}
+
+PTMap.prototype.getSharedRouteWays = function (filter, featureCallback, finalCallback) {
+  var done = {}
+  var bbox = new BoundingBox(filter.bbox)
+  var stackRoutes = 0
+  var finishedRoutes = false
+
+  this.getRoutes(
+    filter,
+    function (err, route) {
+      stackRoutes++
+
+      route.routeWays(
+        filter.bbox,
+        function (err, routeWays) {
+          for (var i = 0; i < routeWays.length; i++) {
+            if (routeWays[i].wayId in done) {
+              continue
+            }
+
+            if (routeWays[i].way && routeWays[i].way.intersects(bbox)) {
+              done[routeWays[i].wayId] = true
+              featureCallback(null, routeWays[i].sharedRouteWay)
+            }
+          }
+
+
+          stackRoutes--
+          if (stackRoutes === 0 && finishedRoutes) {
+            finalCallback(err)
+          }
+        }
+      )
+    }.bind(this),
+    function (err) {
+      finishedRoutes = true
+    }
+  )
 }
 
 module.exports = PTMap

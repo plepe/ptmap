@@ -282,4 +282,90 @@ describe('PTMap', function () {
       }
     )
   })
+
+  it('getSharedRouteWays', function (done) {
+    var expected = [ 'w179646923', 'w42799329', 'w147402943', 'w28318684', 'w37540941', 'w147402933', 'w356347989', 'w31275231', 'w272672835', 'w272672836', 'w26738909', 'w183723744', 'w272672834', 'w26738933', 'w31275228', 'w239911077', 'w26738920', 'w162373026', 'w26738389', 'w31275229', 'w4583442', 'w26739449', 'w27950566', 'w27950571', 'w31275230' ]
+    var returned = []
+    var returnedIds = []
+    var bbox = {
+      'minlat': 48.190,
+      'minlon': 16.330,
+      'maxlat': 48.205,
+      'maxlon': 16.350
+    }
+
+    ptmap.getSharedRouteWays(
+      {
+        bbox: bbox
+      },
+      function (err, sharedRouteWay) {
+        assert.equal(err, null)
+        returned.push(sharedRouteWay)
+        returnedIds.push(sharedRouteWay.id)
+      },
+      function (err) {
+        assert.equal(err, null)
+
+        // process list in the end, because the sharedRouteWays may have been
+        // modified (more routes added)
+        var ids = []
+        for (var i = 0; i < returned.length; i++) {
+          ids.push(returned[i].id)
+          var sharedRouteWay = returned[i]
+          var info = []
+
+          var routes = sharedRouteWay.routes()
+          for (var j = 0; j < routes.length; j++)
+            info.push(routes[j].id + ' ' + routes[j].object.tags.ref)
+
+          console.log(sharedRouteWay.id, info)
+        }
+        console.log(JSON.stringify(ids))
+
+        assert.equal(returned.length, expected.length, 'Wrong count of routes returned')
+        done()
+      }
+    )
+  })
+
+  it('getSharedRouteWays (2nd try)', function (done) {
+    var expected = [ 'r1306478', 'r5333483', 'r79466', 'r207109', 'r207110', 'r2446126', 'r5275276' ]
+    var returned = []
+    var bbox = {
+      'minlat': 48.190,
+      'minlon': 16.330,
+      'maxlat': 48.205,
+      'maxlon': 16.350
+    }
+
+    ptmap.getSharedRouteWays(
+      {
+        bbox: bbox
+      },
+      function (err, sharedRouteWay) {
+        assert.equal(err, null)
+        returned.push(sharedRouteWay)
+        // console.log('  ', sharedRouteWay.id)
+      },
+      function (err) {
+        assert.equal(err, null)
+
+        // process list in the end, because the sharedRouteWays may have been
+        // modified (more routes added)
+        for (var i = 0; i < returned.length; i++) {
+          var sharedRouteWay = returned[i]
+          var info = []
+
+          var routes = sharedRouteWay.routes()
+          for (var j = 0; j < routes.length; j++)
+            info.push(routes[j].id + ' ' + routes[j].object.tags.ref)
+
+          console.log(sharedRouteWay.id, info)
+        }
+
+        assert.equal(returned.length, expected.length, 'Wrong count of routes returned')
+        done()
+      }
+    )
+  })
 })
