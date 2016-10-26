@@ -8,6 +8,9 @@ var BoundingBox = require('boundingbox')
 var OverpassFrontend = require('overpass-frontend')
 GLOBAL.overpassFrontend = new OverpassFrontend(conf.url)
 
+var PTMap = require('../src/PTMap')
+var ptmap = new PTMap()
+
 var Route = require('../src/Route')
 var SharedRouteWay = require('../src/SharedRouteWay')
 var routes = {}
@@ -228,5 +231,55 @@ describe('SharedRouteWay', function () {
     assert.deepEqual(2, l.length, 'w179646923: should have two links')
 
     done()
+  })
+})
+
+describe('PTMap', function () {
+  it('getRouteById', function (done) {
+    var items = ['r1306478', 'r5333483', 'r79466']
+    var returned = []
+
+    ptmap.getRouteById(
+      items,
+      function (err, route) {
+        assert.equal(err, null)
+        assert.notEqual(items.indexOf(route.id), -1, 'ID should appear in items array')
+        assert.equal(returned.indexOf(route.id), -1, 'ID should not have been returned before')
+        returned.push(route.id)
+      },
+      function (err) {
+        assert.equal(err, null)
+        assert.equal(returned.length, items.length, 'Wrong count of routes returned')
+        done()
+      }
+    )
+  })
+
+  it('getRoutes', function (done) {
+    var expected = [ 'r1306478', 'r5333483', 'r79466', 'r207109', 'r207110', 'r2446126', 'r5275276' ]
+    var returned = []
+    var bbox = {
+      'minlat': 48.190,
+      'minlon': 16.330,
+      'maxlat': 48.205,
+      'maxlon': 16.350
+    }
+
+    ptmap.getRoutes(
+      {
+        bbox: bbox
+      },
+      function (err, route) {
+        assert.equal(err, null)
+        assert.notEqual(expected.indexOf(route.id), -1, 'Route ' + route.id + ' not expected')
+        assert.equal(returned.indexOf(route.id), -1, 'ID should not have been returned before')
+        returned.push(route.id)
+      },
+      function (err) {
+        assert.equal(err, null)
+        assert.equal(returned.length, expected.length, 'Wrong count of routes returned')
+        done()
+      }
+    )
   })
 })
