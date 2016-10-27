@@ -5,7 +5,6 @@ var Route = require('./Route')
 var BoundingBox = require('boundingbox')
 
 function PTMap () {
-  this.routes = {}
 }
 
 PTMap.prototype.checkUpdateMap = function (map) {
@@ -45,11 +44,7 @@ PTMap.prototype._loadRoute = function (featureCallback, err, result) {
     return
   }
 
-  if (!(result.id in this.routes)) {
-    this.routes[result.id] = new Route(result)
-  }
-
-  featureCallback(null, this.routes[result.id])
+  featureCallback(null, Route.get(result))
 }
 
 PTMap.prototype.getSharedRouteWays = function (filter, featureCallback, finalCallback) {

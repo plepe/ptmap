@@ -2,6 +2,8 @@
 var OverpassFrontend = require('overpass-frontend')
 var SharedRouteWay = require('./SharedRouteWay')
 
+var routes = {}
+
 function Route (object) {
   this.object = object
 
@@ -126,6 +128,19 @@ Route.prototype.routeWayCheck = function (wayIndex) {
   }
 
   link.sharedRouteWay.update()
+}
+
+// global functions
+Route.get = function (object) {
+  if (!(object.id in routes)) {
+    routes[object.id] = new Route(object)
+  }
+
+  return routes[object.id]
+}
+
+Route.all = function () {
+  return routes
 }
 
 module.exports = Route

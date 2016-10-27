@@ -28,7 +28,7 @@ describe('Route', function () {
           assert(false, 'There should be no error: ' + err)
         }
 
-        routes[result.id] = new Route(result)
+        routes[result.id] = Route.get(result)
       },
       function (err) {
         done(err)
