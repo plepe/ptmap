@@ -256,7 +256,7 @@ describe('PTMap', function () {
   })
 
   it('getRoutes', function (done) {
-    var expected = [ 'r1306478', 'r5333483', 'r79466', 'r207109', 'r207110', 'r2446126', 'r5275276' ]
+    var expected = [ 'r79466', 'r910885', 'r910886', 'r1306478', 'r1800603', 'r1306732', 'r1306733', 'r1809913', 'r1990861', 'r207109', 'r207110', 'r1306966', 'r1306967', 'r1800604', 'r1809912', 'r1990860', 'r2005432', 'r2005433', 'r2446126', 'r5275276', 'r5333483' ]
     var returned = []
     var bbox = {
       'minlat': 48.190,
@@ -284,86 +284,166 @@ describe('PTMap', function () {
   })
 
   it('getSharedRouteWays', function (done) {
-    var expected = [ 'w179646923', 'w42799329', 'w147402943', 'w28318684', 'w37540941', 'w147402933', 'w356347989', 'w31275231', 'w272672835', 'w272672836', 'w26738909', 'w183723744', 'w272672834', 'w26738933', 'w31275228', 'w239911077', 'w26738920', 'w162373026', 'w26738389', 'w31275229', 'w4583442', 'w26739449', 'w27950566', 'w27950571', 'w31275230' ]
+    var expected = {
+      'w356347989': [ 'r79466', 'r1306478' ],
+      'w220270696': [ 'r910885', 'r1306733' ],
+      'w220270713': [ 'r910886', 'r1306732' ],
+      'w31275231': [ 'r1306478', 'r5333483' ],
+      'w272672835': [ 'r1306478', 'r5333483' ],
+      'w272672836': [ 'r1306478', 'r5333483' ],
+      'w26738909': [ 'r1306478', 'r207109', 'r5333483' ],
+      'w183723744': [ 'r1306478', 'r207109', 'r2446126', 'r5333483' ],
+      'w272672834': [ 'r1306478', 'r207109', 'r2446126', 'r5333483' ],
+      'w26738933': [ 'r1306478', 'r207109', 'r2446126', 'r5333483' ],
+      'w31275228': [ 'r1306478' ],
+      'w239911077': [ 'r1306478', 'r207110', 'r5275276' ],
+      'w26738920': [ 'r1306478', 'r207109', 'r207110', 'r5275276' ],
+      'w162373026': [ 'r1306478', 'r207110' ],
+      'w380110863': [ 'r1800603', 'r1306966' ],
+      'w380110865': [ 'r1800603', 'r1306966' ],
+      'w380110867': [ 'r1800603', 'r1306966' ],
+      'w42799339': [ 'r1800603', 'r1306966' ],
+      'w31107436': [ 'r1800603' ],
+      'w24877453': [ 'r1306732', 'r1809912', 'r1990860' ],
+      'w141233631': [ 'r1306732', 'r1809912', 'r1990860' ],
+      'w146678770': [ 'r1306732', 'r1809912', 'r1990860' ],
+      'w26231341': [ 'r1306732' ],
+      'w88093287': [ 'r1306733' ],
+      'w210848994': [ 'r1306733', 'r1809913', 'r1990861' ],
+      'w125586439': [ 'r1306733' ],
+      'w210599976': [ 'r1809913', 'r1990861' ],
+      'w26231338': [ 'r1809913', 'r1990861' ],
+      'w4583442': [ 'r207109' ],
+      'w31275229': [ 'r207109', 'r2446126', 'r5333483' ],
+      'w27950571': [ 'r207110', 'r5275276' ],
+      'w87934166': [ 'r1306966' ],
+      'w88117773': [ 'r1306967' ],
+      'w88117770': [ 'r1306967' ],
+      'w88117767': [ 'r1306967', 'r1800604' ],
+      'w380110866': [ 'r1306967', 'r1800604' ],
+      'w380110864': [ 'r1306967', 'r1800604' ],
+      'w146678768': [ 'r1800604' ],
+      'w26231340': [ 'r1809912', 'r1990860' ],
+      'w42799333': [ 'r1809912', 'r1990860' ],
+      'w42799336': [ 'r1809912', 'r1990860' ],
+      'w125586446': [ 'r2005432' ],
+      'w146678761': [ 'r2005432' ],
+      'w148731068': [ 'r2005433' ]
+    }
+
     var returned = []
     var returnedIds = []
     var bbox = {
-      'minlat': 48.190,
+      'minlat': 48.195,
       'minlon': 16.330,
-      'maxlat': 48.205,
-      'maxlon': 16.350
+      'maxlat': 48.200,
+      'maxlon': 16.340
     }
 
     ptmap.getSharedRouteWays(
       {
         bbox: bbox
       },
-      function (err, sharedRouteWay) {
+      function (err, result) {
         assert.equal(err, null)
-        returned.push(sharedRouteWay)
-        returnedIds.push(sharedRouteWay.id)
+        returned.push(result)
+        returnedIds.push(result.id)
+
+        assert.equal(result.id in expected, true, 'Route ' + result.id + ' should be in list of expected routes')
       },
       function (err) {
         assert.equal(err, null)
+        assert.equal(returned.length, Object.keys(expected).length)
 
         // process list in the end, because the sharedRouteWays may have been
         // modified (more routes added)
-        var ids = []
         for (var i = 0; i < returned.length; i++) {
-          ids.push(returned[i].id)
-          var sharedRouteWay = returned[i]
-          var info = []
-
-          var routes = sharedRouteWay.routes()
-          for (var j = 0; j < routes.length; j++)
-            info.push(routes[j].id + ' ' + routes[j].object.tags.ref)
-
-          console.log(sharedRouteWay.id, info)
+          assert.equal(returned[i].routes().length, expected[returnedIds[i]].length, 'Way ' + returnedIds[i] + ' has wrong count of routes')
         }
-        console.log(JSON.stringify(ids))
 
-        assert.equal(returned.length, expected.length, 'Wrong count of routes returned')
         done()
       }
     )
   })
 
   it('getSharedRouteWays (2nd try)', function (done) {
-    var expected = [ 'r1306478', 'r5333483', 'r79466', 'r207109', 'r207110', 'r2446126', 'r5275276' ]
+    var expected = {
+      'w356347989': [ 'r79466', 'r1306478' ],
+      'w220270696': [ 'r910885', 'r1306733' ],
+      'w220270713': [ 'r910886', 'r1306732' ],
+      'w31275231': [ 'r1306478', 'r5333483' ],
+      'w272672835': [ 'r1306478', 'r5333483' ],
+      'w272672836': [ 'r1306478', 'r5333483' ],
+      'w26738909': [ 'r1306478', 'r207109', 'r5333483' ],
+      'w183723744': [ 'r1306478', 'r207109', 'r2446126', 'r5333483' ],
+      'w272672834': [ 'r1306478', 'r207109', 'r2446126', 'r5333483' ],
+      'w26738933': [ 'r1306478', 'r207109', 'r2446126', 'r5333483' ],
+      'w31275228': [ 'r1306478' ],
+      'w239911077': [ 'r1306478', 'r207110', 'r5275276' ],
+      'w26738920': [ 'r1306478', 'r207109', 'r207110', 'r5275276' ],
+      'w162373026': [ 'r1306478', 'r207110' ],
+      'w380110863': [ 'r1800603', 'r1306966' ],
+      'w380110865': [ 'r1800603', 'r1306966' ],
+      'w380110867': [ 'r1800603', 'r1306966' ],
+      'w42799339': [ 'r1800603', 'r1306966' ],
+      'w31107436': [ 'r1800603' ],
+      'w24877453': [ 'r1306732', 'r1809912', 'r1990860' ],
+      'w141233631': [ 'r1306732', 'r1809912', 'r1990860' ],
+      'w146678770': [ 'r1306732', 'r1809912', 'r1990860' ],
+      'w26231341': [ 'r1306732' ],
+      'w88093287': [ 'r1306733' ],
+      'w210848994': [ 'r1306733', 'r1809913', 'r1990861' ],
+      'w125586439': [ 'r1306733' ],
+      'w210599976': [ 'r1809913', 'r1990861' ],
+      'w26231338': [ 'r1809913', 'r1990861' ],
+      'w4583442': [ 'r207109' ],
+      'w31275229': [ 'r207109', 'r2446126', 'r5333483' ],
+      'w27950571': [ 'r207110', 'r5275276' ],
+      'w87934166': [ 'r1306966' ],
+      'w88117773': [ 'r1306967' ],
+      'w88117770': [ 'r1306967' ],
+      'w88117767': [ 'r1306967', 'r1800604' ],
+      'w380110866': [ 'r1306967', 'r1800604' ],
+      'w380110864': [ 'r1306967', 'r1800604' ],
+      'w146678768': [ 'r1800604' ],
+      'w26231340': [ 'r1809912', 'r1990860' ],
+      'w42799333': [ 'r1809912', 'r1990860' ],
+      'w42799336': [ 'r1809912', 'r1990860' ],
+      'w125586446': [ 'r2005432' ],
+      'w146678761': [ 'r2005432' ],
+      'w148731068': [ 'r2005433' ]
+    }
+
     var returned = []
+    var returnedIds = []
     var bbox = {
-      'minlat': 48.190,
+      'minlat': 48.195,
       'minlon': 16.330,
-      'maxlat': 48.205,
-      'maxlon': 16.350
+      'maxlat': 48.200,
+      'maxlon': 16.340
     }
 
     ptmap.getSharedRouteWays(
       {
         bbox: bbox
       },
-      function (err, sharedRouteWay) {
+      function (err, result) {
         assert.equal(err, null)
-        returned.push(sharedRouteWay)
-        // console.log('  ', sharedRouteWay.id)
+        returned.push(result)
+        returnedIds.push(result.id)
+
+        assert.equal(result.id in expected, true, 'Route ' + result.id + ' should be in list of expected routes')
       },
       function (err) {
         assert.equal(err, null)
+        assert.equal(returned.length, Object.keys(expected).length)
 
         // process list in the end, because the sharedRouteWays may have been
         // modified (more routes added)
         for (var i = 0; i < returned.length; i++) {
-          var sharedRouteWay = returned[i]
-          var info = []
-
-          var routes = sharedRouteWay.routes()
-          for (var j = 0; j < routes.length; j++)
-            info.push(routes[j].id + ' ' + routes[j].object.tags.ref)
-
-          console.log(sharedRouteWay.id, info)
+          assert.equal(returned[i].routes().length, expected[returnedIds[i]].length, 'Way ' + returnedIds[i] + ' has wrong count of routes')
         }
 
-        assert.equal(returned.length, expected.length, 'Wrong count of routes returned')
         done()
       }
     )
