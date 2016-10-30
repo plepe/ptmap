@@ -130,6 +130,64 @@ Route.prototype.routeWayCheck = function (wayIndex) {
   link.sharedRouteWay.update()
 }
 
+Route.prototype.stops = function (bbox, callback) {
+  var i
+
+  if (!this._stops) {
+    this._stops = []
+
+    for (i = 0; i < this.object.members.length; i++) {
+      var member = this.object.members[i]
+
+      if (member.type === 'node' && member.role === 'stop') {
+        this._stops.push({
+          role: member.role,
+          nodeId: member.id,
+          node: false
+        })
+      }
+    }
+  }
+
+  var nodeIds = []
+  var nodeIndexList = []
+  for (i = 0; i < this._stops.length; i++) {
+    if (this._stops[i].node === false) {
+      nodeIds.push(this._stops[i].nodeId)
+      nodeIndexList.push(i)
+    }
+  }
+
+  var param = {
+    properties: OverpassFrontend.GEOM | OverpassFrontend.TAGS
+  }
+  if (bbox) {
+    param.bbox = bbox
+  }
+
+  overpassFrontend.get(
+    nodeIds,
+    param,
+    function (nodeIndexList, err, result, index) {
+      var nodeIndex = nodeIndexList[index]
+
+      if (result !== false && result !== null) {
+        this._stops[nodeIndex].node = result
+        this.stopCheck(nodeIndex)
+      }
+    }.bind(this, nodeIndexList),
+    function (err) {
+      callback(err, this._stops)
+    }.bind(this)
+  )
+}
+
+Route.prototype.stopCheck = function (nodeIndex) {
+  var link = this._stops[nodeIndex]
+
+  // analyze stop; add to stop area
+}
+
 // global functions
 Route.get = function (object) {
   if (!(object.id in routes)) {

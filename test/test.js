@@ -221,6 +221,85 @@ describe('Route', function () {
       }
     )
   })
+
+  it('load stops (small bbox)', function (done) {
+    var expected = {
+      'r79466': {
+        7: {
+          role: 'stop',
+          nodeId: 'n3622336675'
+        },
+      }
+    }
+
+    async.each(routes,
+      function (route, callback) {
+        route.stops(new BoundingBox({
+          minlon: 16.336,
+          minlat: 48.200,
+          maxlon: 16.338,
+          maxlat: 48.201
+        }),
+        function (err, result) {
+          if (!(route.id in expected)) {
+            return callback(err) // ignore
+          }
+
+          for (var i in expected[route.id]) {
+            var exp = expected[route.id][i]
+
+            assert.ok(result[i].node, route.id + ':' + result[i].nodeId + '(' + i + '): Stop should be loaded')
+
+            for (var k in exp) {
+              assert.deepEqual(result[i][k], exp[k], result[i].nodeId + '/' + k + ': Expected: ' + exp[k] + ', Actual: ' + result[i][k])
+            }
+          }
+
+          callback(err)
+        })
+      },
+      function (err) {
+        done(err)
+      }
+    )
+  })
+
+  it('load stops (rest)', function (done) {
+    var expected = {
+      'r79466': {
+        7: {
+          role: 'stop',
+          nodeId: 'n3622336675'
+        },
+      }
+    }
+
+    async.each(routes,
+      function (route, callback) {
+        route.stops(null,
+        function (err, result) {
+          if (!(route.id in expected)) {
+            return callback(err) // ignore
+          }
+
+          for (var i in expected[route.id]) {
+            var exp = expected[route.id][i]
+
+            assert.ok(result[i].node, route.id + ':' + result[i].nodeId + '(' + i + '): Stop should be loaded')
+
+            for (var k in exp) {
+              assert.deepEqual(result[i][k], exp[k], result[i].nodeId + '/' + k + ': Expected: ' + exp[k] + ', Actual: ' + result[i][k])
+            }
+          }
+
+          callback(err)
+        })
+      },
+      function (err) {
+        done(err)
+      }
+    )
+  })
 })
 
 describe('SharedRouteWay', function () {
