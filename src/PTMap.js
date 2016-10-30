@@ -26,7 +26,7 @@ PTMap.prototype.getRouteById = function (ids, featureCallback, finalCallback) {
 
 PTMap.prototype.getRoutes = function (filter, featureCallback, finalCallback) {
   overpassFrontend.BBoxQuery(
-    'relation[type=route][route=bus]',
+    'relation[type=route][route~"^bus|tram$"]',
     filter.bbox,
     {
       properties: OverpassFrontend.TAGS | OverpassFrontend.MEMBERS | OverpassFrontend.BBOX
