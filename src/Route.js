@@ -1,6 +1,7 @@
 /* global overpassFrontend:false */
 var OverpassFrontend = require('overpass-frontend')
 var SharedRouteWay = require('./SharedRouteWay')
+var StopArea = require('./StopArea')
 
 var routes = {}
 
@@ -186,6 +187,7 @@ Route.prototype.stopCheck = function (nodeIndex) {
   var link = this._stops[nodeIndex]
 
   // analyze stop; add to stop area
+  StopArea.add(link)
 }
 
 // global functions
