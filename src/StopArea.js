@@ -4,7 +4,7 @@ var stopAreas = []
 var stopAreaNames = {}
 
 function StopArea () {
-  this.id = stopAreas.length
+  this.id = null
   stopAreas.push(this)
 
   this.links = []
@@ -19,6 +19,17 @@ StopArea.prototype.addStop = function (link) {
   } else {
     this.bounds = new BoundingBox(link.node.bounds)
   }
+
+  var name = this.name()
+  var pos = this.bounds.getCenter()
+  if (name) {
+    this.id = this.name() + '|' + pos.lon.toFixed(4) + '|' + pos.lat.toFixed(4)
+  }
+  else {
+    this.id = this.links[0].node.id
+  }
+
+  link.stopArea = this
 }
 
 StopArea.prototype.name = function () {
