@@ -144,7 +144,9 @@ Route.prototype.stops = function (bbox, callback) {
         this._stops.push({
           role: member.role,
           nodeId: member.id,
-          node: false
+          node: false,
+          routeId: this.id,
+          route: this
         })
       }
     }

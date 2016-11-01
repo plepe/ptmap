@@ -527,4 +527,59 @@ describe('PTMap', function () {
       }
     )
   })
+
+  it('getStopAreas', function (done) {
+    var expected = {
+      'Westbahnhof|16.3391|48.1969': [ 'r1306478', 'r5333483', 'r207109', 'r207110', 'r2446126', 'r5275276', 'r1800603', 'r1306732', 'r1306733', 'r1809913', 'r1990861', 'r1306966', 'r1306967', 'r1800604', 'r1809912', 'r1990860', 'r2005432', 'r2005433', 'r5275276' ],
+      'Beingasse|16.3322|48.1994': [ 'r910885', 'r910886', 'r1306732', 'r1306733' ],
+      'Gerstnerstraße/Westbahnhof|16.3383|48.1955': [ 'r1800603', 'r1306966', 'r1306967', 'r1800604' ]
+    }
+
+    var returned = []
+    var returnedIds = []
+    var bbox = {
+      'minlat': 48.195,
+      'minlon': 16.330,
+      'maxlat': 48.200,
+      'maxlon': 16.340
+    }
+
+    ptmap.getStopAreas(
+      {
+        bbox: bbox
+      },
+      function (err, result) {
+        assert.equal(err, null)
+
+        if (returned.indexOf(result) === -1) {
+          returned.push(result)
+        }
+
+        console.log(result.id, result.num)
+      },
+      function (err) {
+        assert.equal(err, null)
+
+        // process list in the end, because the stopAreas may have been
+        // modified (more routes added)
+        for (var k in returned) {
+          var result = returned[k]
+
+          if (k in expected) {
+          }
+          else {
+            assert.equal(result.id in expected, true, 'StopArea ' + result.id + ' should be in list of expected stop areas')
+          }
+        }
+        assert.equal(returned.length, Object.keys(expected).length)
+
+        for (var i = 0; i < returned.length; i++) {
+          assert.equal(returned[i].routes().length,expected[returned[i].id].length, 'Way ' + returnedIds[i] + ' has wrong count of routes')
+        }
+
+        done()
+      }
+    )
+  })
+
 })
