@@ -87,7 +87,7 @@ PTMap.prototype.getSharedRouteWays = function (filter, featureCallback, finalCal
 }
 
 PTMap.prototype.getStopAreas = function (filter, featureCallback, finalCallback) {
-  var done = {}
+  var done = []
   var bbox = new BoundingBox(filter.bbox)
   var stackRoutes = 0
   var finishedRoutes = false
@@ -101,12 +101,12 @@ PTMap.prototype.getStopAreas = function (filter, featureCallback, finalCallback)
         filter.bbox,
         function (err, stops) {
           for (var i = 0; i < stops.length; i++) {
-            if (stops[i].nodeId in done) {
+            if (done.indexOf(stops[i].stopArea) !== -1) {
               continue
             }
 
             if (stops[i].node && stops[i].node.intersects(bbox)) {
-              done[stops[i].nodeId] = true
+              done.push(stops[i].stopArea)
               featureCallback(null, stops[i].stopArea)
             }
           }

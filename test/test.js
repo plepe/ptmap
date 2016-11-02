@@ -551,11 +551,7 @@ describe('PTMap', function () {
       function (err, result) {
         assert.equal(err, null)
 
-        if (returned.indexOf(result) === -1) {
-          returned.push(result)
-        }
-
-        console.log(result.id, result.num)
+	returned.push(result)
       },
       function (err) {
         assert.equal(err, null)
