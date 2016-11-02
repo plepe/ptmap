@@ -3,8 +3,6 @@ var Environment = require('./Environment')
 var PTMap = require('./PTMap')
 
 window.onload = function () {
-  call_hooks('init')
-
   var map = L.map('map').setView([48.202, 16.338], 15)
 
   var osmMapnik = L.tileLayer('//{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
@@ -27,5 +25,5 @@ window.onload = function () {
     ptmap.checkUpdateMap()
   })
 
-  var environment = new Environment()
+//  var environment = new Environment()
 }

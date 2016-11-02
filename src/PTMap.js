@@ -4,11 +4,11 @@ var OverpassFrontend = require('overpass-frontend')
 var Route = require('./Route')
 var BoundingBox = require('boundingbox')
 
-function PTMap () {
+function PTMap (map) {
+  this.map = map
 }
 
-PTMap.prototype.checkUpdateMap = function (map) {
-  this.map = map
+PTMap.prototype.checkUpdateMap = function () {
 }
 
 PTMap.prototype.getRouteById = function (ids, featureCallback, finalCallback) {
