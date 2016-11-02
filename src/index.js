@@ -1,6 +1,8 @@
 /* global call_hooks L:false */
 var Environment = require('./Environment')
 var PTMap = require('./PTMap')
+var OverpassFrontend = require('overpass-frontend')
+window.overpassFrontend = new OverpassFrontend('http://www.overpass-api.de/api/interpreter')
 
 window.onload = function () {
   var map = L.map('map').setView([48.202, 16.338], 15)
