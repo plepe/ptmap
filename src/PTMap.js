@@ -1,4 +1,5 @@
 var OverpassFrontend = require('overpass-frontend')
+var async = require('async')
 /* global overpassFrontend */
 
 var Route = require('./Route')
@@ -9,6 +10,42 @@ function PTMap (map) {
 }
 
 PTMap.prototype.checkUpdateMap = function () {
+  if (this.updateMapActive) {
+    return
+  }
+
+  this.updateMapActive = true
+
+  async.parallel([
+    function (callback) {
+      this.getStopAreas(
+	{
+	  bbox: this.map.getBounds()
+	},
+	function (err, stopArea) {
+	  console.log(stopArea.id)
+	},
+	function (err) {
+	  callback()
+	}.bind(this)
+      )
+    }.bind(this),
+    function (callback) {
+      this.getSharedRouteWays(
+	{
+	  bbox: this.map.getBounds()
+	},
+	function (err, sharedRouteWay) {
+	  console.log(sharedRouteWay.id)
+	},
+	function (err) {
+	  callback()
+	}.bind(this)
+      )
+    }.bind(this)
+  ], function() {
+    this.updateMapActive = false
+  }.bind(this))
 }
 
 PTMap.prototype.getRouteById = function (ids, featureCallback, finalCallback) {
