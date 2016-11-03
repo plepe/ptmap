@@ -19,31 +19,31 @@ PTMap.prototype.checkUpdateMap = function () {
   async.parallel([
     function (callback) {
       this.getStopAreas(
-	{
-	  bbox: this.map.getBounds()
-	},
-	function (err, stopArea) {
-	  console.log(stopArea.id)
-	},
-	function (err) {
-	  callback()
-	}.bind(this)
+        {
+          bbox: this.map.getBounds()
+        },
+        function (err, stopArea) {
+          stopArea.show(this.map)
+        }.bind(this),
+        function (err) {
+          callback()
+        }.bind(this)
       )
     }.bind(this),
     function (callback) {
       this.getSharedRouteWays(
-	{
-	  bbox: this.map.getBounds()
-	},
-	function (err, sharedRouteWay) {
-	  console.log(sharedRouteWay.id)
-	},
-	function (err) {
-	  callback()
-	}.bind(this)
+        {
+          bbox: this.map.getBounds()
+        },
+        function (err, sharedRouteWay) {
+          sharedRouteWay.show(this.map)
+        }.bind(this),
+        function (err) {
+          callback()
+        }.bind(this)
       )
     }.bind(this)
-  ], function() {
+  ], function () {
     this.updateMapActive = false
   }.bind(this))
 }

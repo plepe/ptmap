@@ -56,6 +56,48 @@ StopArea.prototype.routes = function () {
   return ret
 }
 
+StopArea.prototype.show = function(map) {
+  if (this.feature) {
+    this.feature.setBounds(this.bounds.toLeaflet())
+    this.featureLabel.setLatLng(L.latLng(this.bounds.getNorth(), this.bounds.getCenter().lon))
+  } else {
+    this.feature = L.rectangle(this.bounds.toLeaflet(), {
+      color: 'black',
+      opacity: 0.8,
+      fill: true,
+      fillOpacity: 0.0,
+      weight: 5,
+      zIndex: 200
+    }).addTo(map)
+
+    var label = L.divIcon({
+      className: 'label-stop',
+      iconSize: null,
+      html: '<div><span>' + this.name() + '</span></div>'
+    })
+
+    this.featureLabel =
+      L.marker(L.latLng(this.bounds.getNorth(), this.bounds.getCenter().lon), {
+	icon: label
+    }).addTo(map)
+
+    this.shown = true
+  }
+}
+
+StopArea.prototype.hide = function(map) {
+  if (this.feature) {
+    map.removeLayer(this.feature)
+    delete this.feature
+  }
+  if (this.featureLabel) {
+    map.removeLayer(this.featureLabel)
+    delete this.featureLabel
+  }
+
+  this.shown = false
+}
+
 // global functions
 StopArea.add = function (link) {
   var name = null
