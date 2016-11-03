@@ -7,6 +7,9 @@ var BoundingBox = require('boundingbox')
 
 function PTMap (map) {
   this.map = map
+
+  this.currentStopAreas = []
+  this.currentSharedRouteWays = []
 }
 
 PTMap.prototype.checkUpdateMap = function () {
@@ -18,27 +21,47 @@ PTMap.prototype.checkUpdateMap = function () {
 
   async.parallel([
     function (callback) {
+      var newStopAreas = []
+
       this.getStopAreas(
         {
           bbox: this.map.getBounds()
         },
         function (err, stopArea) {
+          newStopAreas.push(stopArea)
           stopArea.show(this.map)
         }.bind(this),
         function (err) {
+          for (var i = 0; i < this.currentStopAreas.length; i++) {
+            if (newStopAreas.indexOf(this.currentStopAreas[i]) === -1) {
+              this.currentStopAreas[i].hide(this.map)
+            }
+          }
+          this.currentStopAreas = newStopAreas
+
           callback()
         }.bind(this)
       )
     }.bind(this),
     function (callback) {
+      var newSharedRouteWays = []
+
       this.getSharedRouteWays(
         {
           bbox: this.map.getBounds()
         },
         function (err, sharedRouteWay) {
+          newSharedRouteWays.push(sharedRouteWay)
           sharedRouteWay.show(this.map)
         }.bind(this),
         function (err) {
+          for (var i = 0; i < this.currentSharedRouteWays.length; i++) {
+            if (newSharedRouteWays.indexOf(this.currentSharedRouteWays[i]) === -1) {
+              this.currentSharedRouteWays[i].hide(this.map)
+            }
+          }
+          this.currentSharedRouteWays = newSharedRouteWays
+
           callback()
         }.bind(this)
       )
