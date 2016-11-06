@@ -1,10 +1,30 @@
 /* global call_hooks L:false */
+var config
+
 var Environment = require('./Environment')
 var PTMap = require('./PTMap')
 var OverpassFrontend = require('overpass-frontend')
-window.overpassFrontend = new OverpassFrontend('http://www.overpass-api.de/api/interpreter')
 
 window.onload = function () {
+  var xhr = new XMLHttpRequest()
+  xhr.open('get', 'conf.json', true)
+  xhr.responseType = 'json'
+  xhr.onreadystatechange = function() {
+    if (xhr.readyState === 4) {
+      if (xhr.status === 200) {
+        config = xhr.response
+        init()
+      } else {
+        alert('Can\'t load configuration from server. Does conf.json exist?')
+      }
+    }
+  };
+  xhr.send()
+}
+
+function init () {
+  window.overpassFrontend = new OverpassFrontend(config.overpass.url, config.overpass)
+
   var map = L.map('map').setView([48.202, 16.338], 15)
 
   var osmMapnik = L.tileLayer('//{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
