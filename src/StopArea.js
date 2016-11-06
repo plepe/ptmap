@@ -56,6 +56,20 @@ StopArea.prototype.routes = function () {
   return ret
 }
 
+StopArea.prototype.buildPopup = function () {
+  var ret = "<b>" + this.name() + "</b><ul>\n"
+
+  var routes = this.routes()
+
+  for (var i = 0; i < routes.length; i++) {
+    ret += "<li><a href='" + routes[i].id + "'>" + routes[i].title() + "</a></li>"
+  }
+
+  ret += "</ul>"
+
+  return ret
+}
+
 StopArea.prototype.show = function(map) {
   if (this.feature) {
     this.feature.setBounds(this.bounds.toLeaflet())
@@ -68,7 +82,7 @@ StopArea.prototype.show = function(map) {
       fillOpacity: 0.0,
       weight: 5,
       zIndex: 200
-    }).addTo(map)
+    }).addTo(map).bindPopup(this.buildPopup())
 
     var label = L.divIcon({
       className: 'label-stop',
