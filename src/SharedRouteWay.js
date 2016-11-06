@@ -1,3 +1,4 @@
+/* global L:false */
 var natsort = require('natsort')
 
 var sharedRouteWays = {}
@@ -24,75 +25,77 @@ SharedRouteWay.prototype.routes = function () {
   return ret
 }
 
-SharedRouteWay.prototype.build_label = function() {
-  var ret = '';
-  var routes = this.routes();
-  var ref_both = [];
-  var ref_forward = [];
-  var ref_backward = [];
-  var ref_unknown = [];
+SharedRouteWay.prototype.build_label = function () {
+  var ret = ''
+  var refBoth = []
+  var refForward = []
+  var refBackward = []
+  var refUnknown = []
 
+  if (!this.links.length) {
+    return ''
+  }
 
-  if(!this.links.length)
-    return '';
+  for (var i = 0; i < this.links.length; i++) {
+    var link = this.links[i]
+    var route = link.route
+    var ref = null
 
-  for(var i = 0; i < this.links.length; i++) {
-    var link = this.links[i];
-    var route = link.route;
-    var ref = null;
+    if ('ref' in route.object.tags) {
+      ref = route.object.tags.ref
+    }
 
-    if('ref' in route.object.tags)
-      ref = route.object.tags.ref;
-
-    if(ref !== null) {
-      if(link.dir == null) {
-	if(ref_unknown.indexOf(ref) == -1)
-	  ref_unknown.push(ref);
-      }
-      else if(ref_both.indexOf(ref) != -1) {
-	// already seen in both directions -> ignore
-      }
-      else if(link.dir == 'backward') {
-	if(ref_forward.indexOf(ref) != -1) {
-	  ref_forward.splice(ref_forward.indexOf(ref), 1);
-	  ref_both.push(ref);
-	}
-	else if(ref_backward.indexOf(ref) == -1) {
-	  ref_backward.push(ref);
-	}
-      }
-      else if(link.dir == 'forward') {
-	if(ref_backward.indexOf(ref) != -1) {
-	  ref_backward.splice(ref_backward.indexOf(ref), 1);
-	  ref_both.push(ref);
-	}
-	else if(ref_forward.indexOf(ref) == -1) {
-	  ref_forward.push(ref);
-	}
+    if (ref !== null) {
+      if (link.dir === null) {
+        if (refUnknown.indexOf(ref) === -1) {
+          refUnknown.push(ref)
+        }
+      } else if (refBoth.indexOf(ref) !== -1) {
+        // already seen in both directions -> ignore
+      } else if (link.dir === 'backward') {
+        if (refForward.indexOf(ref) !== -1) {
+          refForward.splice(refForward.indexOf(ref), 1)
+          refBoth.push(ref)
+        } else if (refBackward.indexOf(ref) === -1) {
+          refBackward.push(ref)
+        }
+      } else if (link.dir === 'forward') {
+        if (refBackward.indexOf(ref) !== -1) {
+          refBackward.splice(refBackward.indexOf(ref), 1)
+          refBoth.push(ref)
+        } else if (refForward.indexOf(ref) === -1) {
+          refForward.push(ref)
+        }
       }
     }
   }
 
-  var sort_param = { insensitive: true };
-  ref_both.sort(natsort(sort_param));
-  ref_forward.sort(natsort(sort_param));
-  ref_backward.sort(natsort(sort_param));
-  ref_unknown.sort(natsort(sort_param));
+  var sortParam = {
+    insensitive: true
+  }
+  refBoth.sort(natsort(sortParam))
+  refForward.sort(natsort(sortParam))
+  refBackward.sort(natsort(sortParam))
+  refUnknown.sort(natsort(sortParam))
 
-  ret = '   ';
-  if(ref_backward.length)
-    ret += ' ← ' + ref_backward.join(', ') + '   ';
+  ret = '   '
+  if (refBackward.length) {
+    ret += ' ← ' + refBackward.join(', ') + '   '
+  }
 
-  if(ref_both.length)
-    ret += ref_both.join(', ') + '   ';
+  if (refBoth.length) {
+    ret += refBoth.join(', ') + '   '
+  }
 
-  if(ref_forward.length)
-    ret += ref_forward.join(', ') + ' → ';
+  if (refForward.length) {
+    ret += refForward.join(', ') + ' → '
+  }
 
-  if(ref_unknown.length)
-    ret += ' ?? ' + ref_unknown.join(', ') + ' ?? ';
+  if (refUnknown.length) {
+    ret += ' ?? ' + refUnknown.join(', ') + ' ?? '
+  }
 
-  return ret + '             ';
+  return ret + '             '
 }
 
 SharedRouteWay.prototype.update = function () {
@@ -106,7 +109,7 @@ SharedRouteWay.prototype.show = function (map) {
     line.push([ g.lat, g.lon ])
   }
 
-  var route_conf = {
+  var routeConf = {
     color: 'black',
     priority: 0
   }
@@ -115,7 +118,7 @@ SharedRouteWay.prototype.show = function (map) {
     this.feature.setLatLngs(line)
   } else {
     this.feature = L.polyline(line, {
-      color: route_conf.color,
+      color: routeConf.color,
       opacity: 1
     }).addTo(map)
   }
@@ -124,9 +127,9 @@ SharedRouteWay.prototype.show = function (map) {
     repeat: true,
     offset: 12,
     attributes: {
-      fill: route_conf.color
+      fill: routeConf.color
     }
-  });
+  })
 
   this.shown = true
 }
