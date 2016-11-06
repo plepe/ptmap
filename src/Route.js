@@ -11,6 +11,30 @@ function Route (object) {
   this.id = this.object.id
 }
 
+Route.prototype.title = function () {
+  if ('name' in this.object.tags) {
+    return this.object.tags.name
+  }
+
+  if ('ref' in this.object.tags && 'to' in this.object.tags) {
+    return this.object.tags.ref + " " + this.object.tags.to
+  }
+
+  if ('ref' in this.object.tags) {
+    return this.object.tags.ref
+  }
+
+  return 'unknown'
+}
+
+Route.prototype.ref = function () {
+  if ('ref' in this.object.tags) {
+    return this.object.tags.ref
+  }
+
+  return 'unknown'
+}
+
 Route.prototype.routeWays = function (bbox, callback) {
   var wayIds = []
   var wayIndexList = []

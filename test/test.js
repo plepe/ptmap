@@ -19,6 +19,17 @@ var routes = {}
 
 describe('Route', function () {
   it('load object', function (done) {
+    var titles = {
+      'r1306478': 'Nachtbus N49: Hütteldorf => Oper (werktags)',
+      'r5333483': 'Nachtbus N64: Handelskai => Alterlaa',
+      'r79466': 'Nachtbus N49: Oper => Hütteldorf (werktags)'
+    }
+    var refs = {
+      'r1306478': 'N49',
+      'r5333483': 'N64',
+      'r79466': 'N49'
+    }
+
     overpassFrontend.get(['r1306478', 'r5333483', 'r79466'],
       {
         properties: OverpassFrontend.TAGS | OverpassFrontend.MEMBERS | OverpassFrontend.BBOX
@@ -28,7 +39,11 @@ describe('Route', function () {
           assert(false, 'There should be no error: ' + err)
         }
 
-        routes[result.id] = Route.get(result)
+        var route = Route.get(result)
+        routes[result.id] = route
+
+        assert.equal(route.title(), titles[result.id], result.id + ': Wrong route title')
+        assert.equal(route.ref(), refs[result.id], result.id + ': Wrong route ref')
       },
       function (err) {
         done(err)
