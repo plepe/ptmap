@@ -39,11 +39,7 @@ SharedRouteWay.prototype.build_label = function () {
   for (var i = 0; i < this.links.length; i++) {
     var link = this.links[i]
     var route = link.route
-    var ref = null
-
-    if ('ref' in route.object.tags) {
-      ref = route.object.tags.ref
-    }
+    var ref = route.ref()
 
     if (ref !== null) {
       if (link.dir === null) {
