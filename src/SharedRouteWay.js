@@ -111,6 +111,7 @@ SharedRouteWay.prototype.show = function (map) {
 
   if (this.feature) {
     this.feature.setLatLngs(line)
+    this.feature.setText(null)
   } else {
     this.feature = L.polyline(line, {
       color: routeConf.color,
