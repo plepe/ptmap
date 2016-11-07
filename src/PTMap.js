@@ -3,6 +3,8 @@ var async = require('async')
 /* global overpassFrontend */
 
 var Route = require('./Route')
+var SharedRouteWay = require('./SharedRouteWay')
+var StopArea = require('./StopArea')
 var BoundingBox = require('boundingbox')
 
 function PTMap (map) {
@@ -10,6 +12,10 @@ function PTMap (map) {
 
   this.currentStopAreas = []
   this.currentSharedRouteWays = []
+
+  this.routes = Route.factory(this)
+  this.sharedRouteWays = SharedRouteWay.factory(this)
+  this.stopAreas = StopArea.factory(this)
 }
 
 PTMap.prototype.checkUpdateMap = function () {
@@ -104,7 +110,7 @@ PTMap.prototype._loadRoute = function (featureCallback, err, result) {
     return
   }
 
-  featureCallback(null, Route.get(result))
+  featureCallback(null, this.routes.get(result))
 }
 
 PTMap.prototype.getSharedRouteWays = function (filter, featureCallback, finalCallback) {

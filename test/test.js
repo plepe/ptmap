@@ -13,9 +13,15 @@ var ptmap = new PTMap()
 
 var Route = require('../src/Route')
 var SharedRouteWay = require('../src/SharedRouteWay')
+var StopArea = require('../src/StopArea')
 var routes = {}
 
 /* global describe it overpassFrontend */
+
+var fakePTMap = {}
+fakePTMap.routes = Route.factory(fakePTMap)
+fakePTMap.sharedRouteWays = SharedRouteWay.factory(fakePTMap)
+fakePTMap.stopAreas = StopArea.factory(fakePTMap)
 
 describe('Route', function () {
   it('load object', function (done) {
@@ -39,7 +45,7 @@ describe('Route', function () {
           assert(false, 'There should be no error: ' + err)
         }
 
-        var route = Route.get(result)
+        var route = fakePTMap.routes.get(result)
         routes[result.id] = route
 
         assert.equal(route.title(), titles[result.id], result.id + ': Wrong route title')
@@ -319,7 +325,7 @@ describe('Route', function () {
 
 describe('SharedRouteWay', function () {
   it('all', function (done) {
-    var all = SharedRouteWay.all()
+    var all = fakePTMap.sharedRouteWays.all()
 
     var l = all['w179646923'].links
     assert.deepEqual(2, l.length, 'w179646923: should have two links')

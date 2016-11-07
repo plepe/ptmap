@@ -1,9 +1,8 @@
 /* global L:false */
 var natsort = require('natsort')
 
-var sharedRouteWays = {}
-
-function SharedRouteWay (way) {
+function SharedRouteWay (ptmap, way) {
+  this.ptmap = ptmap
   this.way = way
   this.id = way.id
   this.links = []
@@ -139,17 +138,22 @@ SharedRouteWay.prototype.hide = function (map) {
   this.shown = false
 }
 
-// global functions
-SharedRouteWay.get = function (way) {
-  if (!(way.id in sharedRouteWays)) {
-    sharedRouteWays[way.id] = new SharedRouteWay(way)
+// Factory
+SharedRouteWay.factory = function (ptmap) {
+  var sharedRouteWays = {}
+
+  return {
+    get: function (way) {
+      if (!(way.id in sharedRouteWays)) {
+        sharedRouteWays[way.id] = new SharedRouteWay(ptmap, way)
+      }
+
+      return sharedRouteWays[way.id]
+    },
+    all: function () {
+      return sharedRouteWays
+    }
   }
-
-  return sharedRouteWays[way.id]
-}
-
-SharedRouteWay.all = function () {
-  return sharedRouteWays
 }
 
 module.exports = SharedRouteWay

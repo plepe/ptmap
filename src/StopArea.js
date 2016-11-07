@@ -1,11 +1,8 @@
 var BoundingBox = require('boundingbox')
 
-var stopAreas = []
-var stopAreaNames = {}
-
-function StopArea () {
+function StopArea (ptmap) {
+  this.ptmap = ptmap
   this.id = null
-  stopAreas.push(this)
 
   this.links = []
   this.bounds = null
@@ -112,38 +109,45 @@ StopArea.prototype.hide = function(map) {
   this.shown = false
 }
 
-// global functions
-StopArea.add = function (link) {
-  var name = null
+// Factory
+StopArea.factory = function (ptmap) {
+  var stopAreas = []
+  var stopAreaNames = {}
 
-  if ('name' in link.node.tags) {
-    name = link.node.tags.name
-  }
+  return {
+    add: function (link) {
+      var name = null
 
-  if (name) {
-    if (name in stopAreaNames) {
-      stopAreaNames[name][0].addStop(link)
+      if ('name' in link.node.tags) {
+        name = link.node.tags.name
+      }
 
-      return stopAreaNames[name]
-    } else {
-      var ob = new StopArea()
-      ob.addStop(link)
-      stopAreaNames[name] = [ ob ]
+      if (name) {
+        if (name in stopAreaNames) {
+          stopAreaNames[name][0].addStop(link)
+
+          return stopAreaNames[name]
+        } else {
+          var ob = new StopArea(ptmap)
+          stopAreas.push(ob)
+          ob.addStop(link)
+          stopAreaNames[name] = [ ob ]
+        }
+      } else {
+        var ob = new StopArea(ptmap)
+        stopAreas.push(ob)
+        ob.addStop(link)
+
+        return ob
+      }
+    },
+    all: function () {
+      return stopAreas
+    },
+    names: function () {
+      return stopAreaNames
     }
-  } else {
-    var ob = new StopArea()
-    ob.addStop(link)
-
-    return ob
   }
-}
-
-StopArea.all = function () {
-  return stopAreas
-}
-
-StopArea.names = function () {
-  return stopAreaNames
 }
 
 module.exports = StopArea

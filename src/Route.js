@@ -3,9 +3,8 @@ var OverpassFrontend = require('overpass-frontend')
 var SharedRouteWay = require('./SharedRouteWay')
 var StopArea = require('./StopArea')
 
-var routes = {}
-
-function Route (object) {
+function Route (ptmap, object) {
+  this.ptmap = ptmap
   this.object = object
 
   this.id = this.object.id
@@ -102,7 +101,7 @@ Route.prototype.routeWayCheck = function (wayIndex) {
   }
 
   if (!link.sharedRouteWay) {
-    link.sharedRouteWay = SharedRouteWay.get(link.way)
+    link.sharedRouteWay = this.ptmap.sharedRouteWays.get(link.way)
     link.sharedRouteWay.addLink(link)
   }
 
@@ -213,20 +212,25 @@ Route.prototype.stopCheck = function (nodeIndex) {
   var link = this._stops[nodeIndex]
 
   // analyze stop; add to stop area
-  StopArea.add(link)
+  this.ptmap.stopAreas.add(link)
 }
 
-// global functions
-Route.get = function (object) {
-  if (!(object.id in routes)) {
-    routes[object.id] = new Route(object)
+// Factory
+Route.factory = function (ptmap) {
+  var routes = {}
+
+  return {
+    get: function (object) {
+      if (!(object.id in routes)) {
+        routes[object.id] = new Route(ptmap, object)
+      }
+
+      return routes[object.id]
+    },
+    all: function () {
+      return routes
+    }
   }
-
-  return routes[object.id]
-}
-
-Route.all = function () {
-  return routes
 }
 
 module.exports = Route
