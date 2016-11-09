@@ -11,7 +11,8 @@
     "opening_hours": "*",
     "overpass-frontend": "*",
     "turf": "*",
-    "twig": "0.8.9"
+    "twig": "0.8.9",
+    "vue": "^2.0.5"
   },
   "devDependencies": {
     "browserify": "*",

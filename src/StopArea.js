@@ -64,6 +64,17 @@ StopArea.prototype.buildPopup = function () {
 
   ret += "</ul>"
 
+  var ret = document.createElement('div')
+
+  var app = new Vue({
+    el: ret,
+    template: '<div>foobar {{ message }}</div>',
+    data: {
+      message: 'Hello Vue!'
+    }
+  })
+
+
   return ret
 }
 
