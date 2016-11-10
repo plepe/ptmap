@@ -79,6 +79,7 @@ PTMap.prototype.checkUpdateMap = function () {
 
 PTMap.prototype.update = function (force) {
   this.stopAreas.update(force)
+  this.sharedRouteWays.update(force)
 }
 
 PTMap.prototype.getRouteById = function (ids, featureCallback, finalCallback) {

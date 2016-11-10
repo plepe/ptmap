@@ -1,11 +1,16 @@
 /* global L:false */
 var natsort = require('natsort')
+var async = require('async')
 
 function SharedRouteWay (ptmap, way) {
   this.ptmap = ptmap
   this.way = way
   this.id = way.id
   this.links = []
+}
+
+SharedRouteWay.prototype.requestUpdate = function () {
+  this.ptmap.sharedRouteWays.requestUpdate(this)
 }
 
 SharedRouteWay.prototype.addLink = function (link) {
@@ -93,7 +98,11 @@ SharedRouteWay.prototype.build_label = function () {
   return ret + '             '
 }
 
-SharedRouteWay.prototype.update = function () {
+SharedRouteWay.prototype.update = function (force) {
+  if (!this.feature) {
+    return
+  }
+
   var routeConf = {
     color: 'black',
     priority: 0
@@ -144,6 +153,7 @@ SharedRouteWay.prototype.hide = function (map) {
 // Factory
 SharedRouteWay.factory = function (ptmap) {
   var sharedRouteWays = {}
+  var updateRequested = []
 
   return {
     get: function (way) {
@@ -155,6 +165,28 @@ SharedRouteWay.factory = function (ptmap) {
     },
     all: function () {
       return sharedRouteWays
+    },
+    requestUpdate: function (sharedRouteWay) {
+      if (!updateRequested.length) {
+        async.setImmediate(this.update.bind(this))
+      }
+
+      updateRequested.push(sharedRouteWay)
+    },
+    update: function (force) {
+      var toUpdate = updateRequested
+      updateRequested = []
+
+      if (force) {
+        toUpdate = []
+        for (var k in sharedRouteWays) {
+          toUpdate.push(sharedRouteWays[k])
+        }
+      }
+
+      for (var i = 0; i < toUpdate.length; i++) {
+        toUpdate[i].update(force)
+      }
     }
   }
 }

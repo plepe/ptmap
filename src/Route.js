@@ -151,7 +151,7 @@ Route.prototype.routeWayCheck = function (wayIndex) {
     }
   }
 
-  link.sharedRouteWay.update()
+  link.sharedRouteWay.requestUpdate()
 }
 
 Route.prototype.stops = function (bbox, callback) {
