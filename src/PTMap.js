@@ -7,8 +7,9 @@ var SharedRouteWay = require('./SharedRouteWay')
 var StopArea = require('./StopArea')
 var BoundingBox = require('boundingbox')
 
-function PTMap (map) {
+function PTMap (map, env) {
   this.map = map
+  this.env = env
 
   this.currentStopAreas = []
   this.currentSharedRouteWays = []
@@ -115,7 +116,13 @@ PTMap.prototype._loadRoute = function (featureCallback, err, result) {
     return
   }
 
-  featureCallback(null, this.routes.get(result))
+  var route = this.routes.get(result)
+
+  if (!route.isActive()) {
+    return
+  }
+
+  featureCallback(null, route)
 }
 
 PTMap.prototype.getSharedRouteWays = function (filter, featureCallback, finalCallback) {

@@ -2,6 +2,7 @@
 var OverpassFrontend = require('overpass-frontend')
 var SharedRouteWay = require('./SharedRouteWay')
 var StopArea = require('./StopArea')
+var OpeningHours = require('opening_hours')
 
 function Route (ptmap, object) {
   this.ptmap = ptmap
@@ -32,6 +33,32 @@ Route.prototype.ref = function () {
   }
 
   return 'unknown'
+}
+
+Route.prototype.isActive = function () {
+  if (!this.openingHours) {
+    var oh = '05:00-00:00'
+
+    if ('opening_hours' in conf.default_tags) {
+      oh = conf.default_tags.opening_hours
+    }
+
+    if (this.object.tags.opening_hours) {
+      oh = this.object.tags.opening_hours
+    }
+
+    // TODO: also pass nominatim_object to get correct holidays etc
+    try {
+      this.openingHours = new OpeningHours(oh, {
+        address: conf.nominatim_address
+      })
+    } catch (e) {
+      this.errors.push("Error parsing opening hours string: " + e)
+      return true
+    }
+  }
+
+  return this.openingHours.getState(this.ptmap.env.date());
 }
 
 Route.prototype.routeWays = function (bbox, callback) {

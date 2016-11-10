@@ -53,10 +53,18 @@ StopArea.prototype.routes = function () {
   for (var i = 0; i < this.links.length; i++) {
     var link = this.links[i]
 
+    if (!link.route.isActive()) {
+      continue
+    }
+
     ret.push(link.route)
   }
 
   return ret
+}
+
+StopArea.prototype.isActive = function () {
+  return !!this.routes().length
 }
 
 StopArea.prototype.buildPopup = function () {

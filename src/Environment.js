@@ -1,3 +1,5 @@
+var moment = require('moment')
+
 /* global moment form */
 function Environment () {
   this.div_clock = document.createElement('div')
@@ -9,7 +11,7 @@ function Environment () {
   this.base_date = new Date()
   this.base_timestamp = new Date()
 
-  this.update()
+  this.needUpdate = true
   window.setInterval(this.update.bind(this), 2000)
 }
 
@@ -18,12 +20,14 @@ Environment.prototype.update = function () {
   this.current_date = new Date(this.base_date.getTime() + new Date().getTime() - this.base_timestamp.getTime())
 
   if (!lastDate || lastDate.toISOString().substr(0, 16) !== this.current_date.toISOString().substr(0, 16)) {
-    checkUpdateMap()
+    this.needUpdate = true
   }
 
   this.div_clock.innerHTML = moment(this.current_date).format('llll')
+}
 
-  update_map_render_update_needed(function () {})
+Environment.prototype.done = function () {
+  this.needUpdate = false
 }
 
 Environment.prototype.date = function () {
@@ -56,7 +60,7 @@ Environment.prototype.open_config = function () {
 
     this.base_date = new Date(data.datetime)
     this.base_timestamp = new Date()
-    this.update()
+    //this.update()
   }.bind(this)
 }
 

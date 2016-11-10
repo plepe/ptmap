@@ -23,10 +23,18 @@ SharedRouteWay.prototype.routes = function () {
   for (var i = 0; i < this.links.length; i++) {
     var link = this.links[i]
 
+    if (!link.route.isActive()) {
+      continue
+    }
+
     ret.push(link.route)
   }
 
   return ret
+}
+
+SharedRouteWay.prototype.isActive = function () {
+  return !!this.routes().length
 }
 
 SharedRouteWay.prototype.build_label = function () {
@@ -43,6 +51,11 @@ SharedRouteWay.prototype.build_label = function () {
   for (var i = 0; i < this.links.length; i++) {
     var link = this.links[i]
     var route = link.route
+
+    if (!route.isActive()) {
+      continue
+    }
+
     var ref = route.ref()
 
     if (ref !== null) {

@@ -39,13 +39,12 @@ function init () {
     e.popup._container.popup = e.popup
   })
 
-  var ptmap = new PTMap(map)
+  var env = new Environment()
+  ptmap = new PTMap(map, env)
 
   ptmap.checkUpdateMap()
 
   map.on('moveend', function (e) {
     ptmap.checkUpdateMap()
   })
-
-//  var environment = new Environment()
 }
