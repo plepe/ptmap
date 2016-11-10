@@ -25,14 +25,16 @@ PTMap.prototype.checkUpdateMap = function () {
 
   this.updateMapActive = true
 
+  var filter = {
+    bbox: this.map.getBounds()
+  }
+
   async.parallel([
     function (callback) {
       var newStopAreas = []
 
       this.getStopAreas(
-        {
-          bbox: this.map.getBounds()
-        },
+        filter,
         function (err, stopArea) {
           newStopAreas.push(stopArea)
           stopArea.show(this.map)
@@ -53,9 +55,7 @@ PTMap.prototype.checkUpdateMap = function () {
       var newSharedRouteWays = []
 
       this.getSharedRouteWays(
-        {
-          bbox: this.map.getBounds()
-        },
+        filter,
         function (err, sharedRouteWay) {
           newSharedRouteWays.push(sharedRouteWay)
           sharedRouteWay.show(this.map)
