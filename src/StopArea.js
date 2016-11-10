@@ -80,12 +80,15 @@ StopArea.prototype.update = function (force) {
 
   this.feature.setBounds(this.bounds.toLeaflet())
   this.featureLabel.setLatLng(L.latLng(this.bounds.getNorth(), this.bounds.getCenter().lon))
+  this.featurePopup.setContent(this.buildPopup())
 }
 
 StopArea.prototype.show = function(map) {
   if (this.shown) {
     return this.update()
   }
+
+  this.featurePopup = L.popup().setContent(this.buildPopup())
 
   this.feature = L.rectangle(this.bounds.toLeaflet(), {
     color: 'black',
@@ -94,7 +97,7 @@ StopArea.prototype.show = function(map) {
     fillOpacity: 0.0,
     weight: 5,
     zIndex: 200
-  }).addTo(map).bindPopup(this.buildPopup())
+  }).addTo(map).bindPopup(this.featurePopup)
 
   var label = L.divIcon({
     className: 'label-stop',
