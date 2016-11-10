@@ -94,31 +94,14 @@ SharedRouteWay.prototype.build_label = function () {
 }
 
 SharedRouteWay.prototype.update = function () {
-}
-
-SharedRouteWay.prototype.show = function (map) {
-  var line = []
-
-  for (var k = 0; k < this.way.geometry.length; k++) {
-    var g = this.way.geometry[k]
-    line.push([ g.lat, g.lon ])
-  }
-
   var routeConf = {
     color: 'black',
     priority: 0
   }
 
-  if (this.feature) {
-    this.feature.setLatLngs(line)
-    this.feature.setText(null)
-  } else {
-    this.feature = L.polyline(line, {
-      color: routeConf.color,
-      opacity: 1
-    }).addTo(map)
-  }
+  this.feature.setLatLngs(this.way.geometry)
 
+  this.feature.setText(null)
   this.feature.setText(this.build_label(), {
     repeat: true,
     offset: 12,
@@ -126,6 +109,25 @@ SharedRouteWay.prototype.show = function (map) {
       fill: routeConf.color
     }
   })
+
+}
+
+SharedRouteWay.prototype.show = function (map) {
+  if (this.shown) {
+    return this.update()
+  }
+
+  var routeConf = {
+    color: 'black',
+    priority: 0
+  }
+
+  this.feature = L.polyline(this.way.geometry, {
+    color: routeConf.color,
+    opacity: 1
+  }).addTo(map)
+
+  this.update()
 
   this.shown = true
 }
