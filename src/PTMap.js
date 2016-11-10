@@ -77,6 +77,10 @@ PTMap.prototype.checkUpdateMap = function () {
   }.bind(this))
 }
 
+PTMap.prototype.update = function (force) {
+  this.stopAreas.update(force)
+}
+
 PTMap.prototype.getRouteById = function (ids, featureCallback, finalCallback) {
   overpassFrontend.get(
     ids,

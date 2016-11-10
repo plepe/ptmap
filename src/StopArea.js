@@ -1,4 +1,5 @@
 var BoundingBox = require('boundingbox')
+var async = require('async')
 
 function StopArea (ptmap) {
   this.ptmap = ptmap
@@ -6,6 +7,10 @@ function StopArea (ptmap) {
 
   this.links = []
   this.bounds = null
+}
+
+StopArea.prototype.requestUpdate = function () {
+  this.ptmap.stopAreas.requestUpdate(this)
 }
 
 StopArea.prototype.addStop = function (link) {
@@ -27,6 +32,7 @@ StopArea.prototype.addStop = function (link) {
   }
 
   link.stopArea = this
+  this.requestUpdate()
 }
 
 StopArea.prototype.name = function () {
@@ -67,33 +73,41 @@ StopArea.prototype.buildPopup = function () {
   return ret
 }
 
-StopArea.prototype.show = function(map) {
-  if (this.feature) {
-    this.feature.setBounds(this.bounds.toLeaflet())
-    this.featureLabel.setLatLng(L.latLng(this.bounds.getNorth(), this.bounds.getCenter().lon))
-  } else {
-    this.feature = L.rectangle(this.bounds.toLeaflet(), {
-      color: 'black',
-      opacity: 0.8,
-      fill: true,
-      fillOpacity: 0.0,
-      weight: 5,
-      zIndex: 200
-    }).addTo(map).bindPopup(this.buildPopup())
-
-    var label = L.divIcon({
-      className: 'label-stop',
-      iconSize: null,
-      html: '<div><span>' + this.name() + '</span></div>'
-    })
-
-    this.featureLabel =
-      L.marker(L.latLng(this.bounds.getNorth(), this.bounds.getCenter().lon), {
-	icon: label
-    }).addTo(map)
-
-    this.shown = true
+StopArea.prototype.update = function (force) {
+  if (!this.feature) {
+    return
   }
+
+  this.feature.setBounds(this.bounds.toLeaflet())
+  this.featureLabel.setLatLng(L.latLng(this.bounds.getNorth(), this.bounds.getCenter().lon))
+}
+
+StopArea.prototype.show = function(map) {
+  if (this.shown) {
+    return this.update()
+  }
+
+  this.feature = L.rectangle(this.bounds.toLeaflet(), {
+    color: 'black',
+    opacity: 0.8,
+    fill: true,
+    fillOpacity: 0.0,
+    weight: 5,
+    zIndex: 200
+  }).addTo(map).bindPopup(this.buildPopup())
+
+  var label = L.divIcon({
+    className: 'label-stop',
+    iconSize: null,
+    html: '<div><span>' + this.name() + '</span></div>'
+  })
+
+  this.featureLabel =
+    L.marker(L.latLng(this.bounds.getNorth(), this.bounds.getCenter().lon), {
+      icon: label
+  }).addTo(map)
+
+  this.shown = true
 }
 
 StopArea.prototype.hide = function(map) {
@@ -113,6 +127,7 @@ StopArea.prototype.hide = function(map) {
 StopArea.factory = function (ptmap) {
   var stopAreas = []
   var stopAreaNames = {}
+  var updateRequested = []
 
   return {
     add: function (link) {
@@ -146,6 +161,25 @@ StopArea.factory = function (ptmap) {
     },
     names: function () {
       return stopAreaNames
+    },
+    requestUpdate: function (stopArea) {
+      if (!updateRequested.length) {
+        async.setImmediate(this.update.bind(this))
+      }
+
+      updateRequested.push(stopArea)
+    },
+    update: function (force) {
+      var toUpdate = updateRequested
+      updateRequested = []
+
+      if (force) {
+        toUpdate = stopAreas
+      }
+
+      for (var i = 0; i < toUpdate.length; i++) {
+        toUpdate[i].update(force)
+      }
     }
   }
 }
