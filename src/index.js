@@ -1,5 +1,5 @@
 /* global call_hooks L:false */
-var config
+window.config = {}
 
 var Environment = require('./Environment')
 var PTMap = require('./PTMap')
@@ -12,7 +12,7 @@ window.onload = function () {
   xhr.onreadystatechange = function() {
     if (xhr.readyState === 4) {
       if (xhr.status === 200) {
-        config = xhr.response
+        window.config = xhr.response
         init()
       } else {
         alert('Can\'t load configuration from server. Does conf.json exist?')
