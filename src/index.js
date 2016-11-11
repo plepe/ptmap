@@ -2,6 +2,7 @@
 window.config = {}
 
 var Environment = require('./Environment')
+var EnvironmentFrontend = require('./EnvironmentFrontend')
 var PTMap = require('./PTMap')
 var OverpassFrontend = require('overpass-frontend')
 
@@ -47,4 +48,6 @@ function init () {
   map.on('moveend', function (e) {
     ptmap.checkUpdateMap()
   })
+
+  var environmentFrontend = new EnvironmentFrontend(env, document.getElementById('display'))
 }

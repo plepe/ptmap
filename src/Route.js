@@ -39,8 +39,8 @@ Route.prototype.isActive = function () {
   if (!this.openingHours) {
     var oh = '05:00-00:00'
 
-    if ('opening_hours' in conf.default_tags) {
-      oh = conf.default_tags.opening_hours
+    if ('opening_hours' in config.default_tags) {
+      oh = config.default_tags.opening_hours
     }
 
     if (this.object.tags.opening_hours) {
@@ -50,7 +50,7 @@ Route.prototype.isActive = function () {
     // TODO: also pass nominatim_object to get correct holidays etc
     try {
       this.openingHours = new OpeningHours(oh, {
-        address: conf.nominatim_address
+        address: config.nominatim_address
       })
     } catch (e) {
       this.errors.push("Error parsing opening hours string: " + e)
