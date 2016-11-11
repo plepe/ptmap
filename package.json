@@ -4,6 +4,7 @@
   "version": "0.0.0",
   "main": "index.js",
   "dependencies": {
+    "array-equal": "^1.0.0",
     "async": "*",
     "eslint": "^3.7.1",
     "flatpickr": "^2.0.8",

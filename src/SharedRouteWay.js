@@ -1,16 +1,20 @@
 /* global L:false */
 var natsort = require('natsort')
 var async = require('async')
+var arrayEquals = require('array-equal')
 
 function SharedRouteWay (ptmap, way) {
   this.ptmap = ptmap
   this.way = way
   this.id = way.id
   this.links = []
+  this.updateNeeded = true
+  this.lastRoutes = []
 }
 
 SharedRouteWay.prototype.requestUpdate = function () {
   this.ptmap.sharedRouteWays.requestUpdate(this)
+  this.updateNeeded = true
 }
 
 SharedRouteWay.prototype.addLink = function (link) {
@@ -116,6 +120,15 @@ SharedRouteWay.prototype.update = function (force) {
     return
   }
 
+  if (!this.updateNeeded) {
+    // check if routes array still equal
+    var routes = this.routes()
+    if (arrayEquals(routes, this.lastRoutes)) {
+      return
+    }
+    this.lastRoutes = routes
+  }
+
   var routeConf = {
     color: 'black',
     priority: 0
@@ -132,6 +145,7 @@ SharedRouteWay.prototype.update = function (force) {
     }
   })
 
+  this.updateNeeded = false
 }
 
 SharedRouteWay.prototype.show = function (map) {
@@ -149,9 +163,16 @@ SharedRouteWay.prototype.show = function (map) {
     opacity: 1
   }).addTo(map)
 
-  this.update()
+  this.feature.setText(this.build_label(), {
+    repeat: true,
+    offset: 12,
+    attributes: {
+      fill: routeConf.color
+    }
+  })
 
   this.shown = true
+  this.updateNeeded = false
 }
 
 SharedRouteWay.prototype.hide = function (map) {

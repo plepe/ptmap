@@ -1,5 +1,6 @@
 var BoundingBox = require('boundingbox')
 var async = require('async')
+var arrayEquals = require('array-equal')
 
 function StopArea (ptmap) {
   this.ptmap = ptmap
@@ -7,6 +8,7 @@ function StopArea (ptmap) {
 
   this.links = []
   this.bounds = null
+  this.lastRoutes = []
 }
 
 StopArea.prototype.requestUpdate = function () {
@@ -84,6 +86,15 @@ StopArea.prototype.buildPopup = function () {
 StopArea.prototype.update = function (force) {
   if (!this.feature) {
     return
+  }
+
+  if (!this.updateNeeded) {
+    // check if routes array still equal
+    var routes = this.routes()
+    if (arrayEquals(routes, this.lastRoutes)) {
+      return
+    }
+    this.lastRoutes = routes
   }
 
   this.feature.setBounds(this.bounds.toLeaflet())
