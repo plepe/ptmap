@@ -15,7 +15,7 @@ function EnvironmentFrontend (env, display) {
 
   this.display.onclick = this.openDatePicker.bind(this)
 
-  window.setInterval(this.update.bind(this), 2000)
+  this.env.on('updateMinute', this.update.bind(this))
   this.update()
 }
 

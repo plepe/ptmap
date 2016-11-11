@@ -10,6 +10,7 @@ var BoundingBox = require('boundingbox')
 function PTMap (map, env) {
   this.map = map
   this.env = env
+  this.env.on('updateMinute', this.checkUpdateMap.bind(this))
 
   this.currentStopAreas = []
   this.currentSharedRouteWays = []
