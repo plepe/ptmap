@@ -6,6 +6,7 @@
   "dependencies": {
     "async": "*",
     "eslint": "^3.7.1",
+    "flatpickr": "^2.0.8",
     "moment": "*",
     "natsort": "*",
     "opening_hours": "*",

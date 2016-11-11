@@ -17,6 +17,11 @@ Environment.prototype.update = function () {
   }
 }
 
+Environment.prototype.setDate = function(date) {
+  this.base_date = new Date(date)
+  this.base_timestamp = new Date()
+}
+
 Environment.prototype.done = function () {
   this.needUpdate = false
 }

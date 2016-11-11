@@ -16,6 +16,7 @@ html_export_var(array("conf" => $conf));
     <?php print_add_html_headers(); /* print additional html headers */ ?>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="node_modules/leaflet/dist/leaflet.css" />
+    <link rel="stylesheet" href="node_modules/flatpickr/dist/flatpickr.min.css" />
     <script src="node_modules/leaflet/dist/leaflet.js"></script>
     <script src="node_modules/leaflet-textpath/leaflet.textpath.js"></script>
     <script src="dist/ptmap.js"></script>
