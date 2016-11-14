@@ -31,6 +31,15 @@ PTMap.prototype.checkUpdateMap = function () {
     bbox: this.map.getBounds()
   }
 
+  async.setImmediate(function () {
+    for(var i = 0; i < this.currentSharedRouteWays.length; i++) {
+      this.currentSharedRouteWays[i].update()
+    }
+    for(var i = 0; i < this.currentStopAreas.length; i++) {
+      this.currentStopAreas[i].update()
+    }
+  }.bind(this))
+
   async.parallel([
     function (callback) {
       var newStopAreas = []
