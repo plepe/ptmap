@@ -84,17 +84,20 @@ StopArea.prototype.buildPopup = function () {
 }
 
 StopArea.prototype.update = function (force) {
-  if (!this.feature) {
-    return
-  }
+  var routes = this.routes()
 
   if (!this.updateNeeded) {
     // check if routes array still equal
-    var routes = this.routes()
     if (arrayEquals(routes, this.lastRoutes)) {
       return
     }
     this.lastRoutes = routes
+  }
+
+  if (!routes.length) {
+    return this.hide()
+  } else if (!this.shown) {
+    return this.show()
   }
 
   this.feature.setBounds(this.bounds.toLeaflet())
