@@ -9,6 +9,7 @@ function Route (ptmap, object) {
   this.object = object
 
   this.id = this.object.id
+  this.routeType = this.object.tags.route
 }
 
 Route.prototype.title = function () {

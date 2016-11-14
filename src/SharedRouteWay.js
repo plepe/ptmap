@@ -37,6 +37,16 @@ SharedRouteWay.prototype.routes = function () {
   return ret
 }
 
+SharedRouteWay.prototype.topRoute = function () {
+  var routes = this.routes()
+
+  if (routes.length) {
+    return routes[0]
+  }
+
+  return null
+}
+
 SharedRouteWay.prototype.isActive = function () {
   return !!this.routes().length
 }
@@ -132,10 +142,8 @@ SharedRouteWay.prototype.update = function (force) {
     return this.show()
   }
 
-  var routeConf = {
-    color: 'black',
-    priority: 0
-  }
+  var topRoute = this.topRoute()
+  var routeConf = config.routes[topRoute.routeType]
 
   this.feature.setLatLngs(this.way.geometry)
 
@@ -156,10 +164,8 @@ SharedRouteWay.prototype.show = function () {
     return this.update()
   }
 
-  var routeConf = {
-    color: 'black',
-    priority: 0
-  }
+  var topRoute = this.topRoute()
+  var routeConf = config.routes[topRoute.routeType]
 
   this.feature = L.polyline(this.way.geometry, {
     color: routeConf.color,
