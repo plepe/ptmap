@@ -107,8 +107,13 @@ PTMap.prototype.getRouteById = function (ids, featureCallback, finalCallback) {
 }
 
 PTMap.prototype.getRoutes = function (filter, featureCallback, finalCallback) {
+  var query = []
+  for (var type in config.routes) {
+    query.push(overpassFrontend.regexpEscape(type))
+  }
+
   overpassFrontend.BBoxQuery(
-    'relation[type=route][route~"^bus|tram$"]',
+    'relation[type=route][route~"^(' + query.join('|') + ')$"]',
     filter.bbox,
     {
       properties: OverpassFrontend.TAGS | OverpassFrontend.MEMBERS | OverpassFrontend.BBOX
