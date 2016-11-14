@@ -102,7 +102,7 @@ StopArea.prototype.update = function (force) {
   this.featurePopup.setContent(this.buildPopup())
 }
 
-StopArea.prototype.show = function(map) {
+StopArea.prototype.show = function () {
   if (this.shown) {
     return this.update()
   }
@@ -116,7 +116,7 @@ StopArea.prototype.show = function(map) {
     fillOpacity: 0.0,
     weight: 5,
     zIndex: 200
-  }).addTo(map).bindPopup(this.featurePopup)
+  }).addTo(this.ptmap.map).bindPopup(this.featurePopup)
 
   var label = L.divIcon({
     className: 'label-stop',
@@ -127,18 +127,18 @@ StopArea.prototype.show = function(map) {
   this.featureLabel =
     L.marker(L.latLng(this.bounds.getNorth(), this.bounds.getCenter().lon), {
       icon: label
-  }).addTo(map)
+  }).addTo(this.ptmap.map)
 
   this.shown = true
 }
 
-StopArea.prototype.hide = function(map) {
+StopArea.prototype.hide = function () {
   if (this.feature) {
-    map.removeLayer(this.feature)
+    this.ptmap.map.removeLayer(this.feature)
     delete this.feature
   }
   if (this.featureLabel) {
-    map.removeLayer(this.featureLabel)
+    this.ptmap.map.removeLayer(this.featureLabel)
     delete this.featureLabel
   }
 

@@ -148,7 +148,7 @@ SharedRouteWay.prototype.update = function (force) {
   this.updateNeeded = false
 }
 
-SharedRouteWay.prototype.show = function (map) {
+SharedRouteWay.prototype.show = function () {
   if (this.shown) {
     return this.update()
   }
@@ -161,7 +161,7 @@ SharedRouteWay.prototype.show = function (map) {
   this.feature = L.polyline(this.way.geometry, {
     color: routeConf.color,
     opacity: 1
-  }).addTo(map)
+  }).addTo(this.ptmap.map)
 
   this.feature.setText(this.build_label(), {
     repeat: true,
@@ -175,9 +175,9 @@ SharedRouteWay.prototype.show = function (map) {
   this.updateNeeded = false
 }
 
-SharedRouteWay.prototype.hide = function (map) {
+SharedRouteWay.prototype.hide = function () {
   if (this.feature) {
-    map.removeLayer(this.feature)
+    this.ptmap.map.removeLayer(this.feature)
     delete this.feature
   }
 

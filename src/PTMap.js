@@ -39,7 +39,7 @@ PTMap.prototype.checkUpdateMap = function () {
         filter,
         function (err, stopArea) {
           newStopAreas.push(stopArea)
-          stopArea.show(this.map)
+          stopArea.show()
         }.bind(this),
         function (err) {
           for (var i = 0; i < this.currentStopAreas.length; i++) {
@@ -60,7 +60,7 @@ PTMap.prototype.checkUpdateMap = function () {
         filter,
         function (err, sharedRouteWay) {
           newSharedRouteWays.push(sharedRouteWay)
-          sharedRouteWay.show(this.map)
+          sharedRouteWay.show()
         }.bind(this),
         function (err) {
           for (var i = 0; i < this.currentSharedRouteWays.length; i++) {
