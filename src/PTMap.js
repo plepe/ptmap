@@ -12,6 +12,9 @@ function PTMap (map, env) {
   this.env = env
   this.env.on('updateMinute', this.checkUpdateMap.bind(this))
 
+  this.map.createPane('stopArea')
+  map.getPane('stopArea').style.zIndex = 401
+
   this.currentStopAreas = []
   this.currentSharedRouteWays = []
 

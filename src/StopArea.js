@@ -118,7 +118,8 @@ StopArea.prototype.show = function () {
     fill: true,
     fillOpacity: 0.0,
     weight: 5,
-    zIndex: 200
+    zIndex: 200,
+    pane: 'stopArea'
   }).addTo(this.ptmap.map).bindPopup(this.featurePopup)
 
   var label = L.divIcon({
@@ -129,7 +130,8 @@ StopArea.prototype.show = function () {
 
   this.featureLabel =
     L.marker(L.latLng(this.bounds.getNorth(), this.bounds.getCenter().lon), {
-      icon: label
+      icon: label,
+      pane: 'stopArea'
   }).addTo(this.ptmap.map)
 
   this.shown = true
