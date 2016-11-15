@@ -36,11 +36,19 @@ EnvironmentFrontend.prototype.openDatePicker = function () {
 
   this.datePickerWindow = document.createElement('div')
   this.datePickerWindow.id = 'config'
+  this.datePickerWindow.innerHTML = '<a class="close-button" href="#close">×</a>'
+  this.datePickerWindow.firstChild.onclick = function () {
+    this.datePickerWindow.parentNode.removeChild(this.datePickerWindow)
+    this.datePicker = null
+    return false
+  }.bind(this)
+
   document.body.appendChild(this.datePickerWindow)
 
-  this.datePicker = new Flatpickr(this.datePickerWindow, {
+  this.datePicker = new Flatpickr(this.datePickerWindow.firstChild, {
     enableTime: true,
     inline: true,
+    static: true,
     weekNumbers: true,
     defaultDate: this.env.date(),
     onChange: function(d) {

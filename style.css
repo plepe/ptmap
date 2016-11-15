@@ -31,11 +31,22 @@
   border: 1px solid black;
   background: white;
 }
-.flatpickr-calendar {
+#config {
   position: absolute;
   z-index: 10000;
   top: 5px;
   left: 5px;
   border: 1px solid black;
   background: white;
+}
+#config .close-button {
+  display: block;
+  text-align: right;
+  padding: 4px 4px 4px 4px;
+  height: 14px;
+  font-size: 16px;
+  font-family: Tahoma, Verdana, sans-serif;
+  color: #c3c3c3;
+  text-decoration: none;
+  font-weight: bold;
 }
