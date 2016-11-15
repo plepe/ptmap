@@ -21,8 +21,8 @@
     "eslint-config-standard": "^6.2.0",
     "eslint-plugin-promise": "^3.0.0",
     "eslint-plugin-standard": "^2.0.1",
-    "leaflet": "^0.7.0",
-    "leaflet-textpath": "^1.0.0",
+    "leaflet": "^1.0.0",
+    "leaflet-textpath": "https://github.com/makinacorpus/Leaflet.TextPath#leaflet0.8-dev",
     "mocha": "^3.1.2"
   },
   "scripts": {
