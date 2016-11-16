@@ -23,13 +23,18 @@
   overflow: auto;
 }
 
-#clock {
+#status {
   position: absolute;
   z-index: 10000;
   bottom: 5px;
   left: 5px;
   border: 1px solid black;
   background: white;
+}
+#status div {
+  display: inline;
+  margin-left: 5px;
+  margin-right: 5px;
 }
 #config {
   position: absolute;

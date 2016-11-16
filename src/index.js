@@ -49,5 +49,5 @@ function init () {
     ptmap.checkUpdateMap()
   })
 
-  var environmentFrontend = new EnvironmentFrontend(env, document.getElementById('display'))
+  var environmentFrontend = new EnvironmentFrontend(env, document.getElementById('clock'))
 }
