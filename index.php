@@ -25,6 +25,7 @@ html_export_var(array("conf" => $conf));
   <div id='map'></div>
   <div id='status'>
     <div id='clock'></div>
+    <div id='loadingIndicator'><img src='img/loading.gif'>Loading</div>
   </div>
   </body>
 </html>

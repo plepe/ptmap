@@ -36,6 +36,9 @@
   margin-left: 5px;
   margin-right: 5px;
 }
+#status div#loadingIndicator {
+  visibility: hidden;
+}
 #config {
   position: absolute;
   z-index: 10000;

@@ -30,6 +30,11 @@ PTMap.prototype.checkUpdateMap = function () {
 
   this.updateMapActive = true
 
+  var loadingIndicator = document.getElementById('loadingIndicator')
+  if (loadingIndicator) {
+    loadingIndicator.style.visibility = 'visible';
+  }
+
   var filter = {
     bbox: this.map.getBounds()
   }
@@ -88,6 +93,10 @@ PTMap.prototype.checkUpdateMap = function () {
     }.bind(this)
   ], function () {
     this.updateMapActive = false
+
+    if (loadingIndicator) {
+      loadingIndicator.style.visibility = 'hidden';
+    }
   }.bind(this))
 }
 
