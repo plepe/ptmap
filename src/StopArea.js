@@ -1,6 +1,7 @@
 var BoundingBox = require('boundingbox')
 var async = require('async')
 var arrayEquals = require('array-equal')
+var natsort = require('natsort')
 
 function StopArea (ptmap) {
   this.ptmap = ptmap
@@ -71,11 +72,25 @@ StopArea.prototype.isActive = function () {
 
 StopArea.prototype.buildPopup = function () {
   var ret = "<b>" + this.name() + "</b><ul>\n"
+  var r = []
+  var i
 
   var routes = this.routes()
 
-  for (var i = 0; i < routes.length; i++) {
-    ret += "<li><a href='" + routes[i].id + "'>" + routes[i].title() + "</a></li>"
+  for (i = 0; i < routes.length; i++) {
+    r.push({
+      ref: routes[i].ref(),
+      text: "<li><a href='" + routes[i].id + "'>" + routes[i].title() + "</a></li>"
+    })
+  }
+
+  r = weightSort(r, {
+    key: 'ref',
+    compareFunction: natsort()
+  })
+
+  for (i = 0; i < r.length; i++) {
+    ret += r[i].text
   }
 
   ret += "</ul>"
