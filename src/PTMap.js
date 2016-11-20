@@ -1,5 +1,6 @@
 var OverpassFrontend = require('overpass-frontend')
 var async = require('async')
+var moment = require('moment')
 /* global overpassFrontend */
 
 var Route = require('./Route')
@@ -21,6 +22,31 @@ function PTMap (map, env) {
   this.routes = Route.factory(this)
   this.sharedRouteWays = SharedRouteWay.factory(this)
   this.stopAreas = StopArea.factory(this)
+}
+
+PTMap.prototype.getState = function () {
+  var ret = {}
+
+  ret.zoom = this.map.getZoom()
+  ret.lat = this.map.getCenter().lat.toFixed(5)
+  ret.lon = this.map.getCenter().lng.toFixed(5)
+  ret.date = moment(this.env.date()).format()
+
+  return ret
+}
+
+PTMap.prototype.setState = function (state) {
+  if ('lat' in state && 'lon' in state && 'zoom' in state) {
+    this.map.setView([ state.lat, state.lon ], state.zoom)
+  } else if ('lat' in state && 'lon' in state) {
+    this.map.panTo([ state.lat, state.lon ])
+  } else if ('zoom' in state) {
+    this.map.setZoom(state.zoom)
+  }
+
+  if ('date' in state) {
+    this.env.setDate(state.date)
+  }
 }
 
 PTMap.prototype.checkUpdateMap = function () {
