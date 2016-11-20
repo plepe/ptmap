@@ -26,6 +26,10 @@ function PTMap (map, env) {
   this.sharedRouteWays = SharedRouteWay.factory(this)
   this.stopAreas = StopArea.factory(this)
 
+  this.map.on('moveend', function (e) {
+    this.checkUpdateMap()
+  }.bind(this))
+
   this.map.on('popupopen', function (e) {
     if ('object' in e.popup && 'getUrl' in e.popup.object) {
       this.updateState(e.popup.object.getUrl())
@@ -35,6 +39,8 @@ function PTMap (map, env) {
     this.updateState({})
   }.bind(this))
   this.state = {}
+
+  this.checkUpdateMap()
 }
 
 PTMap.prototype.__proto__ = events.EventEmitter.prototype

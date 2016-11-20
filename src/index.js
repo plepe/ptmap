@@ -46,8 +46,6 @@ function init () {
   var env = new Environment()
   ptmap = new PTMap(map, env)
 
-  ptmap.checkUpdateMap()
-
   hash(function (loc) {
     if (hashUpdated) {
       hashUpdated = false
@@ -58,9 +56,6 @@ function init () {
     ptmap.setState(state)
   })
 
-  map.on('moveend', function (e) {
-    ptmap.checkUpdateMap()
-  })
   ptmap.on('updateState', function (e) {
     hashUpdated = true
     location.hash = '#' + queryString.stringify(e)
