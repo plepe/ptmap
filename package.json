@@ -6,20 +6,20 @@
   "dependencies": {
     "array-equal": "^1.0.0",
     "async": "*",
-    "eslint": "^3.7.1",
     "flatpickr": "^2.0.8",
     "moment": "*",
     "natsort": "*",
     "opening_hours": "*",
-    "overpass-frontend": "*",
+    "overpass-frontend": "https://github.com/plepe/overpass-frontend",
     "turf": "*",
-    "twig": "0.8.9"
+    "twig": "0.8.9",
+    "weight-sort": "*"
   },
   "devDependencies": {
     "browserify": "*",
     "eslint": "^3.7.1",
     "eslint-config-standard": "^6.2.0",
-    "eslint-plugin-promise": "^3.0.0",
+    "eslint-plugin-promise": "^3.3.0",
     "eslint-plugin-standard": "^2.0.1",
     "leaflet": "^1.0.0",
     "leaflet-textpath": "https://github.com/makinacorpus/Leaflet.TextPath#leaflet0.8-dev",
