@@ -26,6 +26,7 @@ window.onload = function () {
 }
 
 function init () {
+  var hashUpdated = false
   window.overpassFrontend = new OverpassFrontend(config.overpass.url, config.overpass)
 
   var map = L.map('map').setView([48.202, 16.338], 15)
@@ -48,6 +49,11 @@ function init () {
   ptmap.checkUpdateMap()
 
   hash(function (loc) {
+    if (hashUpdated) {
+      hashUpdated = false
+      return
+    }
+
     var state = queryString.parse(loc.substr(1))
     ptmap.setState(state)
   })
@@ -56,6 +62,7 @@ function init () {
     ptmap.checkUpdateMap()
   })
   ptmap.on('updateState', function (e) {
+    hashUpdated = true
     location.hash = '#' + queryString.stringify(e)
   })
 
