@@ -1,6 +1,7 @@
 var OverpassFrontend = require('overpass-frontend')
 var async = require('async')
 var moment = require('moment')
+var events = require('events')
 /* global overpassFrontend */
 
 var Route = require('./Route')
@@ -9,6 +10,8 @@ var StopArea = require('./StopArea')
 var BoundingBox = require('boundingbox')
 
 function PTMap (map, env) {
+  events.EventEmitter.call(this)
+
   this.map = map
   this.env = env
   this.env.on('updateMinute', this.checkUpdateMap.bind(this))
@@ -23,6 +26,8 @@ function PTMap (map, env) {
   this.sharedRouteWays = SharedRouteWay.factory(this)
   this.stopAreas = StopArea.factory(this)
 }
+
+PTMap.prototype.__proto__ = events.EventEmitter.prototype
 
 PTMap.prototype.getState = function () {
   var ret = {}
