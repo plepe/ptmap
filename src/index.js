@@ -5,6 +5,8 @@ var Environment = require('./Environment')
 var EnvironmentFrontend = require('./EnvironmentFrontend')
 var PTMap = require('./PTMap')
 var OverpassFrontend = require('overpass-frontend')
+var hash = require('sheet-router/hash')
+var qs = require('sheet-router/qs')
 
 window.onload = function () {
   var xhr = new XMLHttpRequest()
@@ -44,6 +46,11 @@ function init () {
   ptmap = new PTMap(map, env)
 
   ptmap.checkUpdateMap()
+
+  hash(function (loc) {
+    var state = qs(loc.substr(1))
+    ptmap.setState(state)
+  })
 
   map.on('moveend', function (e) {
     ptmap.checkUpdateMap()
