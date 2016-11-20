@@ -18,6 +18,15 @@ StopArea.prototype.getUrl = function () {
   }
 }
 
+StopArea.prototype.open = function () {
+  if (!this.shown) {
+    this.show()
+  }
+
+  this.featurePopup.setLatLng(this.feature.getCenter())
+  this.featurePopup.openOn(this.ptmap.map)
+}
+
 StopArea.prototype.requestUpdate = function () {
   this.ptmap.stopAreas.requestUpdate(this)
 }
