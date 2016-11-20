@@ -55,6 +55,9 @@ function init () {
   map.on('moveend', function (e) {
     ptmap.checkUpdateMap()
   })
+  ptmap.on('updateState', function (e) {
+    location.hash = '#' + queryString.stringify(e)
+  })
 
   var environmentFrontend = new EnvironmentFrontend(env, document.getElementById('clock'))
 }

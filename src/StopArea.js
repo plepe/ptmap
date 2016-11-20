@@ -12,6 +12,12 @@ function StopArea (ptmap) {
   this.lastRoutes = []
 }
 
+StopArea.prototype.getUrl = function () {
+  return {
+    stopArea: this.id
+  }
+}
+
 StopArea.prototype.requestUpdate = function () {
   this.ptmap.stopAreas.requestUpdate(this)
 }
@@ -126,6 +132,7 @@ StopArea.prototype.show = function () {
   }
 
   this.featurePopup = L.popup().setContent(this.buildPopup())
+  this.featurePopup.object = this
 
   this.feature = L.rectangle(this.bounds.toLeaflet(), {
     color: 'black',

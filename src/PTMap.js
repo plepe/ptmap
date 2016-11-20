@@ -25,12 +25,22 @@ function PTMap (map, env) {
   this.routes = Route.factory(this)
   this.sharedRouteWays = SharedRouteWay.factory(this)
   this.stopAreas = StopArea.factory(this)
+
+  this.map.on('popupopen', function (e) {
+    if ('object' in e.popup && 'getUrl' in e.popup.object) {
+      this.updateState(e.popup.object.getUrl())
+    }
+  }.bind(this))
+  this.map.on('popupclose', function (e) {
+    this.updateState({})
+  }.bind(this))
+  this.state = {}
 }
 
 PTMap.prototype.__proto__ = events.EventEmitter.prototype
 
 PTMap.prototype.getState = function () {
-  var ret = {}
+  var ret = JSON.parse(JSON.stringify(this.state))
 
   ret.zoom = this.map.getZoom()
   ret.lat = this.map.getCenter().lat.toFixed(5)
@@ -52,6 +62,11 @@ PTMap.prototype.setState = function (state) {
   if ('date' in state) {
     this.env.setDate(state.date)
   }
+}
+
+PTMap.prototype.updateState = function (state) {
+  this.state = state
+  this.emit('updateState', state)
 }
 
 PTMap.prototype.checkUpdateMap = function () {
