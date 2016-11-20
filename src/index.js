@@ -56,6 +56,9 @@ function init () {
     ptmap.setState(state)
   })
 
+  var state = queryString.parse(location.hash.substr(1))
+  ptmap.setState(state)
+
   ptmap.on('updateState', function (e) {
     hashUpdated = true
     location.hash = '#' + queryString.stringify(e)
