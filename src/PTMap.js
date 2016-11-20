@@ -68,6 +68,14 @@ PTMap.prototype.setState = function (state) {
   if ('date' in state) {
     this.env.setDate(state.date)
   }
+
+  if ('stopArea' in state) {
+    this.stopAreas.get(state.stopArea, function (err, ob) {
+      if (ob) {
+        ob.open()
+      }
+    })
+  }
 }
 
 PTMap.prototype.updateState = function (state) {
