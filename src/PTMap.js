@@ -22,6 +22,7 @@ function PTMap (map, env) {
   this.currentStopAreas = []
   this.currentSharedRouteWays = []
   this.loadingState = 0
+  this.updateMapRequested = false
 
   this.routes = Route.factory(this)
   this.sharedRouteWays = SharedRouteWay.factory(this)
@@ -41,7 +42,9 @@ function PTMap (map, env) {
   }.bind(this))
   this.state = {}
 
-  this.checkUpdateMap()
+  async.setImmediate(function () {
+    this.checkUpdateMap()
+  }.bind(this))
 }
 
 PTMap.prototype.__proto__ = events.EventEmitter.prototype
@@ -72,11 +75,13 @@ PTMap.prototype.setState = function (state) {
 
   if ('stopArea' in state) {
     this.setLoading()
+
     this.stopAreas.get(state.stopArea, function (err, ob) {
-      this.unsetLoading()
       if (ob) {
         ob.open()
       }
+
+      this.unsetLoading()
     }.bind(this))
   }
 }
@@ -99,15 +104,20 @@ PTMap.prototype.unsetLoading = function () {
   this.loadingState--
   if (loadingIndicator && this.loadingState <= 0) {
     loadingIndicator.style.visibility = 'hidden';
+
+    if (this.updateMapRequested) {
+      this.checkUpdateMap()
+    }
   }
 }
 
 PTMap.prototype.checkUpdateMap = function () {
-  if (this.updateMapActive) {
+  if (this.loadingState) {
+    this.updateMapRequested = true
     return
   }
 
-  this.updateMapActive = true
+  this.updateMapRequested = false
 
   this.setLoading()
 
@@ -169,7 +179,6 @@ PTMap.prototype.checkUpdateMap = function () {
       )
     }.bind(this)
   ], function () {
-    this.updateMapActive = false
     this.unsetLoading()
   }.bind(this))
 }
