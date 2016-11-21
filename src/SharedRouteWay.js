@@ -167,6 +167,9 @@ SharedRouteWay.prototype.update = function (force) {
 }
 
 SharedRouteWay.prototype.show = function () {
+  if (typeof L === 'undefined') {
+    return
+  }
   if (this.shown) {
     return this.update()
   }
