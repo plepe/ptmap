@@ -84,6 +84,8 @@ describe('Route', function () {
           maxlon: 16.338,
           maxlat: 48.201
         }),
+        function (err, routeWay) {
+        },
         function (err, result) {
           if (!(route.id in expectedRouteWays)) {
             return callback(err) // ignore
@@ -153,6 +155,8 @@ describe('Route', function () {
           maxlon: 16.342,
           maxlat: 48.202
         }),
+        function (err, routeWay) {
+        },
         function (err, result) {
           if (!(route.id in expectedRouteWays)) {
             return callback(err) // ignore
@@ -221,6 +225,8 @@ describe('Route', function () {
           maxlon: 16.342,
           maxlat: 48.202
         }),
+        function (err, routeWay) {
+        },
         function (err, result) {
           if (!(route.id in expectedRouteWays)) {
             return callback(err) // ignore
@@ -261,6 +267,8 @@ describe('Route', function () {
           maxlon: 16.338,
           maxlat: 48.201
         }),
+        function (err, stop) {
+        },
         function (err, result) {
           if (!(route.id in expected)) {
             return callback(err) // ignore
@@ -298,6 +306,8 @@ describe('Route', function () {
     async.each(routes,
       function (route, callback) {
         route.stops(null,
+        function (err, stop) {
+        },
         function (err, result) {
           if (!(route.id in expected)) {
             return callback(err) // ignore

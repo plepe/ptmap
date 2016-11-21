@@ -1,3 +1,5 @@
+var async = require('async')
+
 /* global overpassFrontend:false */
 var OverpassFrontend = require('overpass-frontend')
 var SharedRouteWay = require('./SharedRouteWay')
@@ -62,7 +64,7 @@ Route.prototype.isActive = function () {
   return this.openingHours.getState(this.ptmap.env.date());
 }
 
-Route.prototype.routeWays = function (bbox, callback) {
+Route.prototype.routeWays = function (bbox, featureCallback, finalCallback) {
   var wayIds = []
   var wayIndexList = []
   var wayIndex = 0
@@ -93,7 +95,11 @@ Route.prototype.routeWays = function (bbox, callback) {
         })
       }
 
-      if (!this._routeWays[wayIndex].way) {
+      if (this._routeWays[wayIndex].way) {
+        async.setImmediate(function (wayIndex) {
+          featureCallback(null, this._routeWays[wayIndex], wayIndex)
+        }.bind(this, wayIndex))
+      } else {
         wayIds.push(member.id)
         wayIndexList.push(wayIndex)
       }
@@ -114,9 +120,11 @@ Route.prototype.routeWays = function (bbox, callback) {
         this._routeWays[wayIndex].way = result
         this.routeWayCheck(wayIndex)
       }
+
+      featureCallback(err, this._routeWays[wayIndex], wayIndex)
     }.bind(this, wayIndexList),
     function (err) {
-      callback(err, this._routeWays)
+      finalCallback(err, this._routeWays)
     }.bind(this)
   )
 }
@@ -182,7 +190,7 @@ Route.prototype.routeWayCheck = function (wayIndex) {
   link.sharedRouteWay.requestUpdate()
 }
 
-Route.prototype.stops = function (bbox, callback) {
+Route.prototype.stops = function (bbox, featureCallback, finalCallback) {
   var i
 
   if (!this._stops) {
@@ -209,6 +217,10 @@ Route.prototype.stops = function (bbox, callback) {
     if (this._stops[i].node === false) {
       nodeIds.push(this._stops[i].nodeId)
       nodeIndexList.push(i)
+    } else {
+      async.setImmediate(function (i) {
+        featureCallback(null, this._stops[i], i)
+      }.bind(this, i))
     }
   }
 
@@ -229,9 +241,11 @@ Route.prototype.stops = function (bbox, callback) {
         this._stops[nodeIndex].node = result
         this.stopCheck(nodeIndex)
       }
+
+      featureCallback(err, this._stops[nodeIndex], nodeIndex)
     }.bind(this, nodeIndexList),
     function (err) {
-      callback(err, this._stops)
+      finalCallback(err, this._stops)
     }.bind(this)
   )
 }

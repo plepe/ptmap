@@ -222,19 +222,17 @@ PTMap.prototype.getSharedRouteWays = function (filter, featureCallback, finalCal
 
       route.routeWays(
         filter.bbox,
-        function (err, routeWays) {
-          for (var i = 0; i < routeWays.length; i++) {
-            if (routeWays[i].wayId in done) {
-              continue
-            }
-
-            if (routeWays[i].way && routeWays[i].way.intersects(bbox)) {
-              done[routeWays[i].wayId] = true
-              featureCallback(null, routeWays[i].sharedRouteWay)
-            }
+        function (err, routeWay, wayIndex) {
+          if (routeWay.wayId in done) {
+            return
           }
 
-
+          if (routeWay.way && routeWay.way.intersects(bbox)) {
+            done[routeWay.wayId] = true
+            featureCallback(null, routeWay.sharedRouteWay)
+          }
+        },
+        function (err, routeWays) {
           stackRoutes--
           if (stackRoutes === 0 && finishedRoutes) {
             finalCallback(err)
@@ -261,19 +259,17 @@ PTMap.prototype.getStopAreas = function (filter, featureCallback, finalCallback)
 
       route.stops(
         filter.bbox,
-        function (err, stops) {
-          for (var i = 0; i < stops.length; i++) {
-            if (done.indexOf(stops[i].stopArea) !== -1) {
-              continue
-            }
-
-            if (stops[i].node && stops[i].node.intersects(bbox)) {
-              done.push(stops[i].stopArea)
-              featureCallback(null, stops[i].stopArea)
-            }
+        function (err, stop, stopIndex) {
+          if (done.indexOf(stop.stopArea) !== -1) {
+            return
           }
 
-
+          if (stop.node && stop.node.intersects(bbox)) {
+            done.push(stop.stopArea)
+            featureCallback(null, stop.stopArea)
+          }
+        },
+        function (err, stops) {
           stackRoutes--
           if (stackRoutes === 0 && finishedRoutes) {
             finalCallback(err)
