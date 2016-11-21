@@ -1,12 +1,12 @@
 var fs = require('fs')
-var conf = JSON.parse(fs.readFileSync('test/conf.json', 'utf8'))
+global.config = JSON.parse(fs.readFileSync('test/conf.json', 'utf8'))
 
 var assert = require('assert')
 var async = require('async')
 var BoundingBox = require('boundingbox')
 
 var OverpassFrontend = require('overpass-frontend')
-GLOBAL.overpassFrontend = new OverpassFrontend(conf.url)
+GLOBAL.overpassFrontend = new OverpassFrontend(config.overpass.url, config.overpass)
 
 var PTMap = require('../src/PTMap')
 var ptmap = new PTMap()

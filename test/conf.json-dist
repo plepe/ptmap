@@ -1,3 +1,32 @@
 {
-  "url": "http://localhost/overpass/api/interpreter"
+    "overpass": {
+        "url": "http://localhost/overpass/api/interpreter",
+        "effortPerQuery": 1023,
+        "effortNode": 1,
+        "effortWay": 4,
+        "effortRelation": 64,
+        "timeGap": 100
+    },
+    "default_tags": {
+        "opening_hours": "05:00-00:00"
+    },
+    "nominatim_address": {
+      "": "Temporary; will be removed when auto-load is implemented",
+      "country_code": "at",
+      "state": "Wien"
+    },
+    "routes": {
+        "bus": {
+	    "priority": 1,
+	    "color": "blue"
+	},
+        "tram": {
+	    "priority": 2,
+	    "color": "red"
+	},
+        "subway": {
+	    "priority": 3,
+	    "color": "magenta"
+	}
+    }
 }

@@ -8,16 +8,18 @@ var Route = require('./Route')
 var SharedRouteWay = require('./SharedRouteWay')
 var StopArea = require('./StopArea')
 var BoundingBox = require('boundingbox')
+var Environment = require('./Environment')
 
 function PTMap (map, env) {
   events.EventEmitter.call(this)
 
   this.map = map
-  this.env = env
+  if (env) {
+    this.env = env
+  } else {
+    this.env = new Environment()
+  }
   this.env.on('updateMinute', this.checkUpdateMap.bind(this))
-
-  this.map.createPane('stopArea')
-  map.getPane('stopArea').style.zIndex = 401
 
   this.currentStopAreas = []
   this.currentSharedRouteWays = []
@@ -28,23 +30,28 @@ function PTMap (map, env) {
   this.sharedRouteWays = SharedRouteWay.factory(this)
   this.stopAreas = StopArea.factory(this)
 
-  this.map.on('moveend', function (e) {
-    this.checkUpdateMap()
-  }.bind(this))
+  if (this.map) {
+    this.map.createPane('stopArea')
+    this.map.getPane('stopArea').style.zIndex = 401
 
-  this.map.on('popupopen', function (e) {
-    if ('object' in e.popup && 'getUrl' in e.popup.object) {
-      this.updateState(e.popup.object.getUrl())
-    }
-  }.bind(this))
-  this.map.on('popupclose', function (e) {
-    this.updateState({})
-  }.bind(this))
-  this.state = {}
+    this.map.on('moveend', function (e) {
+      this.checkUpdateMap()
+    }.bind(this))
 
-  async.setImmediate(function () {
-    this.checkUpdateMap()
-  }.bind(this))
+    this.map.on('popupopen', function (e) {
+      if ('object' in e.popup && 'getUrl' in e.popup.object) {
+        this.updateState(e.popup.object.getUrl())
+      }
+    }.bind(this))
+    this.map.on('popupclose', function (e) {
+      this.updateState({})
+    }.bind(this))
+    this.state = {}
+
+    async.setImmediate(function () {
+      this.checkUpdateMap()
+    }.bind(this))
+  }
 }
 
 PTMap.prototype.__proto__ = events.EventEmitter.prototype
@@ -92,22 +99,28 @@ PTMap.prototype.updateState = function (state) {
 }
 
 PTMap.prototype.setLoading = function () {
-  var loadingIndicator = document.getElementById('loadingIndicator')
   this.loadingState++
-  if (loadingIndicator) {
-    loadingIndicator.style.visibility = 'visible';
+
+  if (typeof document !== 'undefined') {
+    var loadingIndicator = document.getElementById('loadingIndicator')
+    if (loadingIndicator) {
+      loadingIndicator.style.visibility = 'visible';
+    }
   }
 }
 
 PTMap.prototype.unsetLoading = function () {
-  var loadingIndicator = document.getElementById('loadingIndicator')
   this.loadingState--
-  if (loadingIndicator && this.loadingState <= 0) {
-    loadingIndicator.style.visibility = 'hidden';
 
-    if (this.updateMapRequested) {
-      this.checkUpdateMap()
+  if (typeof document !== 'undefined') {
+    var loadingIndicator = document.getElementById('loadingIndicator')
+    if (loadingIndicator && this.loadingState <= 0) {
+      loadingIndicator.style.visibility = 'hidden';
     }
+  }
+
+  if (this.updateMapRequested && this.loadingState <= 0) {
+    this.checkUpdateMap()
   }
 }
 

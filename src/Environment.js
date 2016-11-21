@@ -8,7 +8,7 @@ function Environment () {
 
   events.EventEmitter.call(this)
 
-  window.setInterval(this.update.bind(this), 1000)
+  setInterval(this.update.bind(this), 1000)
   this.update()
 }
 
