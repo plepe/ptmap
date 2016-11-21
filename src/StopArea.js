@@ -27,6 +27,9 @@ StopArea.prototype.open = function () {
   this.featurePopup.openOn(this.ptmap.map)
 }
 
+StopArea.prototype.close = function () {
+}
+
 StopArea.prototype.requestUpdate = function () {
   this.ptmap.stopAreas.requestUpdate(this)
 }

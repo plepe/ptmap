@@ -25,6 +25,7 @@ function PTMap (map, env) {
   this.currentSharedRouteWays = []
   this.loadingState = 0
   this.updateMapRequested = false
+  this.highlight = null
 
   this.routes = Route.factory(this)
   this.sharedRouteWays = SharedRouteWay.factory(this)
@@ -40,11 +41,22 @@ function PTMap (map, env) {
 
     this.map.on('popupopen', function (e) {
       if ('object' in e.popup && 'getUrl' in e.popup.object) {
+        this.highlight = e.popup.object
         this.updateState(e.popup.object.getUrl())
       }
     }.bind(this))
     this.map.on('popupclose', function (e) {
+      if (this.closeOverride) {
+        this.closeOverride = false
+        return
+      }
+
       this.updateState({})
+
+      if (this.highlight) {
+        this.highlight.close()
+        this.highlight = null
+      }
     }.bind(this))
     this.state = {}
 
@@ -81,10 +93,13 @@ PTMap.prototype.setState = function (state) {
   }
 
   if ('stopArea' in state) {
+    this.closeOverride = true
+    this.map.closePopup()
     this.setLoading()
 
     this.stopAreas.get(state.stopArea, function (err, ob) {
       if (ob) {
+        this.highlight = ob
         ob.open()
       }
 
