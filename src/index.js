@@ -5,6 +5,8 @@ var Environment = require('./Environment')
 var EnvironmentFrontend = require('./EnvironmentFrontend')
 var PTMap = require('./PTMap')
 var OverpassFrontend = require('overpass-frontend')
+var hash = require('sheet-router/hash')
+var queryString = require('query-string')
 
 window.onload = function () {
   var xhr = new XMLHttpRequest()
@@ -24,6 +26,7 @@ window.onload = function () {
 }
 
 function init () {
+  var hashUpdated = false
   window.overpassFrontend = new OverpassFrontend(config.overpass.url, config.overpass)
 
   var map = L.map('map').setView([48.202, 16.338], 15)
@@ -43,10 +46,22 @@ function init () {
   var env = new Environment()
   ptmap = new PTMap(map, env)
 
-  ptmap.checkUpdateMap()
+  hash(function (loc) {
+    if (hashUpdated) {
+      hashUpdated = false
+      return
+    }
 
-  map.on('moveend', function (e) {
-    ptmap.checkUpdateMap()
+    var state = queryString.parse(loc.substr(1))
+    ptmap.setState(state)
+  })
+
+  var state = queryString.parse(location.hash.substr(1))
+  ptmap.setState(state)
+
+  ptmap.on('updateState', function (e) {
+    hashUpdated = true
+    location.hash = '#' + queryString.stringify(e)
   })
 
   var environmentFrontend = new EnvironmentFrontend(env, document.getElementById('clock'))

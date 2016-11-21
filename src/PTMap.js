@@ -1,5 +1,7 @@
 var OverpassFrontend = require('overpass-frontend')
 var async = require('async')
+var moment = require('moment')
+var events = require('events')
 /* global overpassFrontend */
 
 var Route = require('./Route')
@@ -8,6 +10,8 @@ var StopArea = require('./StopArea')
 var BoundingBox = require('boundingbox')
 
 function PTMap (map, env) {
+  events.EventEmitter.call(this)
+
   this.map = map
   this.env = env
   this.env.on('updateMinute', this.checkUpdateMap.bind(this))
@@ -17,23 +21,105 @@ function PTMap (map, env) {
 
   this.currentStopAreas = []
   this.currentSharedRouteWays = []
+  this.loadingState = 0
+  this.updateMapRequested = false
 
   this.routes = Route.factory(this)
   this.sharedRouteWays = SharedRouteWay.factory(this)
   this.stopAreas = StopArea.factory(this)
+
+  this.map.on('moveend', function (e) {
+    this.checkUpdateMap()
+  }.bind(this))
+
+  this.map.on('popupopen', function (e) {
+    if ('object' in e.popup && 'getUrl' in e.popup.object) {
+      this.updateState(e.popup.object.getUrl())
+    }
+  }.bind(this))
+  this.map.on('popupclose', function (e) {
+    this.updateState({})
+  }.bind(this))
+  this.state = {}
+
+  async.setImmediate(function () {
+    this.checkUpdateMap()
+  }.bind(this))
 }
 
-PTMap.prototype.checkUpdateMap = function () {
-  if (this.updateMapActive) {
-    return
+PTMap.prototype.__proto__ = events.EventEmitter.prototype
+
+PTMap.prototype.getState = function () {
+  var ret = JSON.parse(JSON.stringify(this.state))
+
+  ret.zoom = this.map.getZoom()
+  ret.lat = this.map.getCenter().lat.toFixed(5)
+  ret.lon = this.map.getCenter().lng.toFixed(5)
+  ret.date = moment(this.env.date()).format()
+
+  return ret
+}
+
+PTMap.prototype.setState = function (state) {
+  if ('lat' in state && 'lon' in state && 'zoom' in state) {
+    this.map.setView([ state.lat, state.lon ], state.zoom)
+  } else if ('lat' in state && 'lon' in state) {
+    this.map.panTo([ state.lat, state.lon ])
+  } else if ('zoom' in state) {
+    this.map.setZoom(state.zoom)
   }
 
-  this.updateMapActive = true
+  if ('date' in state) {
+    this.env.setDate(state.date)
+  }
 
+  if ('stopArea' in state) {
+    this.setLoading()
+
+    this.stopAreas.get(state.stopArea, function (err, ob) {
+      if (ob) {
+        ob.open()
+      }
+
+      this.unsetLoading()
+    }.bind(this))
+  }
+}
+
+PTMap.prototype.updateState = function (state) {
+  this.state = state
+  this.emit('updateState', state)
+}
+
+PTMap.prototype.setLoading = function () {
   var loadingIndicator = document.getElementById('loadingIndicator')
+  this.loadingState++
   if (loadingIndicator) {
     loadingIndicator.style.visibility = 'visible';
   }
+}
+
+PTMap.prototype.unsetLoading = function () {
+  var loadingIndicator = document.getElementById('loadingIndicator')
+  this.loadingState--
+  if (loadingIndicator && this.loadingState <= 0) {
+    loadingIndicator.style.visibility = 'hidden';
+
+    if (this.updateMapRequested) {
+      this.checkUpdateMap()
+    }
+  }
+}
+
+PTMap.prototype.checkUpdateMap = function () {
+  if (this.loadingState) {
+    this.updateMapRequested = true
+    return
+  }
+
+  this.updateMapRequested = false
+
+  this.setLoading()
 
   var filter = {
     bbox: this.map.getBounds()
@@ -87,16 +173,13 @@ PTMap.prototype.checkUpdateMap = function () {
           }
           this.currentSharedRouteWays = newSharedRouteWays
 
+          console.log('callback sharedroute')
           callback()
         }.bind(this)
       )
     }.bind(this)
   ], function () {
-    this.updateMapActive = false
-
-    if (loadingIndicator) {
-      loadingIndicator.style.visibility = 'hidden';
-    }
+    this.unsetLoading()
   }.bind(this))
 }
 

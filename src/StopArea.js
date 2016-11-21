@@ -12,6 +12,21 @@ function StopArea (ptmap) {
   this.lastRoutes = []
 }
 
+StopArea.prototype.getUrl = function () {
+  return {
+    stopArea: this.id
+  }
+}
+
+StopArea.prototype.open = function () {
+  if (!this.shown) {
+    this.show()
+  }
+
+  this.featurePopup.setLatLng(this.feature.getCenter())
+  this.featurePopup.openOn(this.ptmap.map)
+}
+
 StopArea.prototype.requestUpdate = function () {
   this.ptmap.stopAreas.requestUpdate(this)
 }
@@ -28,7 +43,7 @@ StopArea.prototype.addStop = function (link) {
   var name = this.name()
   var pos = this.bounds.getCenter()
   if (name) {
-    this.id = this.name() + '|' + pos.lon.toFixed(4) + '|' + pos.lat.toFixed(4)
+    this.id = this.name() + ',' + pos.lon.toFixed(4) + ',' + pos.lat.toFixed(4)
   }
   else {
     this.id = this.links[0].node.id
@@ -126,6 +141,7 @@ StopArea.prototype.show = function () {
   }
 
   this.featurePopup = L.popup().setContent(this.buildPopup())
+  this.featurePopup.object = this
 
   this.feature = L.rectangle(this.bounds.toLeaflet(), {
     color: 'black',
@@ -203,6 +219,38 @@ StopArea.factory = function (ptmap) {
     },
     names: function () {
       return stopAreaNames
+    },
+    get: function (id, callback) {
+      var done = false
+      var m = id.match(/^(.*),(\-?[0-9]+\.[0-9]+),(\-?[0-9]+\.[0-9]+)$/)
+      if (!m) {
+        callback('invalid id', null)
+        return
+      }
+      var name = m[1]
+
+      ptmap.getStopAreas(
+        {
+          bbox: {
+            minlat: parseFloat(m[3]) - 0.01,
+            maxlat: parseFloat(m[3]) + 0.01,
+            minlon: parseFloat(m[2]) - 0.01,
+            maxlon: parseFloat(m[2]) + 0.01
+          }
+        },
+        function (err, stopArea) {
+          if (name === stopArea.name()) {
+            callback(null, stopArea)
+            done = true
+          }
+        },
+        function (err) {
+          if (!done) {
+            callback('not found', null)
+          }
+        }
+      )
+
     },
     requestUpdate: function (stopArea) {
       if (!updateRequested.length) {
