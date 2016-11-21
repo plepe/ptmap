@@ -257,8 +257,60 @@ Route.factory = function (ptmap) {
     },
     all: function () {
       return routes
+    },
+    get: function (ids, featureCallback, finalCallback) {
+      if (typeof ids === 'string') {
+        ids = [ ids ]
+      }
+
+      overpassFrontend.get(
+        ids,
+        {
+          properties: OverpassFrontend.TAGS | OverpassFrontend.MEMBERS | OverpassFrontend.BBOX
+        },
+        _loadRoute.bind(this, featureCallback),
+        function (err) {
+          finalCallback(err)
+        }
+      )
+    },
+
+    query: function (filter, featureCallback, finalCallback) {
+      var query = []
+      for (var type in config.routes) {
+        query.push(overpassFrontend.regexpEscape(type))
+      }
+
+      overpassFrontend.BBoxQuery(
+        'relation[type=route][route~"^(' + query.join('|') + ')$"]',
+        filter.bbox,
+        {
+          properties: OverpassFrontend.TAGS | OverpassFrontend.MEMBERS | OverpassFrontend.BBOX
+        },
+        _loadRoute.bind(this, featureCallback),
+        function (err) {
+          finalCallback(err)
+        }
+      )
     }
   }
+
+  // internal function _loadRoute
+  function _loadRoute (featureCallback, err, result) {
+    if (err) {
+      console.log('Error should not happen')
+      return
+    }
+
+    var route = this.add(result)
+
+    if (!route.isActive()) {
+      return
+    }
+
+    featureCallback(null, route)
+  }
+
 }
 
 module.exports = Route

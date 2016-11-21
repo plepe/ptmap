@@ -202,50 +202,11 @@ PTMap.prototype.update = function (force) {
 }
 
 PTMap.prototype.getRouteById = function (ids, featureCallback, finalCallback) {
-  overpassFrontend.get(
-    ids,
-    {
-      properties: OverpassFrontend.TAGS | OverpassFrontend.MEMBERS | OverpassFrontend.BBOX
-    },
-    this._loadRoute.bind(this, featureCallback),
-    function (err) {
-      finalCallback(err)
-    }
-  )
+  return this.routes.get(ids, featureCallback, finalCallback)
 }
 
 PTMap.prototype.getRoutes = function (filter, featureCallback, finalCallback) {
-  var query = []
-  for (var type in config.routes) {
-    query.push(overpassFrontend.regexpEscape(type))
-  }
-
-  overpassFrontend.BBoxQuery(
-    'relation[type=route][route~"^(' + query.join('|') + ')$"]',
-    filter.bbox,
-    {
-      properties: OverpassFrontend.TAGS | OverpassFrontend.MEMBERS | OverpassFrontend.BBOX
-    },
-    this._loadRoute.bind(this, featureCallback),
-    function (err) {
-      finalCallback(err)
-    }
-  )
-}
-
-PTMap.prototype._loadRoute = function (featureCallback, err, result) {
-  if (err) {
-    console.log('Error should not happen')
-    return
-  }
-
-  var route = this.routes.add(result)
-
-  if (!route.isActive()) {
-    return
-  }
-
-  featureCallback(null, route)
+  return this.routes.query(filter, featureCallback, finalCallback)
 }
 
 PTMap.prototype.getSharedRouteWays = function (filter, featureCallback, finalCallback) {
