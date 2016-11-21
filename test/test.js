@@ -461,7 +461,13 @@ describe('PTMap', function () {
       'w42799336': [ 'r1809912', 'r1990860' ],
       'w125586446': [ 'r2005432' ],
       'w146678761': [ 'r2005432' ],
-      'w148731068': [ 'r2005433' ]
+      'w148731068': [ 'r2005433' ],
+      'w370033150': [ 'r20309' ],
+      'w370577160': [ 'r2853012' ],
+      'w118102651': [ 'r2853012' ],
+      'w9269047': [ 'r2928575' ],
+      'w211153301': [ 'r5954449' ],
+      'w370577159': [ 'r5954449' ],
     }
 
     var returned = []
@@ -475,7 +481,8 @@ describe('PTMap', function () {
 
     ptmap.getSharedRouteWays(
       {
-        bbox: bbox
+        bbox: bbox,
+        onlyActive: false
       },
       function (err, result) {
         assert.equal(err, null)
@@ -486,12 +493,13 @@ describe('PTMap', function () {
       },
       function (err) {
         assert.equal(err, null)
-        assert.equal(returned.length, Object.keys(expected).length)
+        assert.deepEqual(returnedIds.concat().sort(), Object.keys(expected).sort(), 'List of returned ways does not match')
 
         // process list in the end, because the sharedRouteWays may have been
         // modified (more routes added)
         for (var i = 0; i < returned.length; i++) {
-          assert.equal(returned[i].routes().length, expected[returnedIds[i]].length, 'Way ' + returnedIds[i] + ' has wrong count of routes')
+          var routeIds = returned[i].routes({ onlyActive: false }).map(function (r) { return r.id })
+          assert.deepEqual(routeIds, expected[returnedIds[i]], 'Way ' + returnedIds[i] + ' has wrong routes')
         }
 
         done()
@@ -544,7 +552,13 @@ describe('PTMap', function () {
       'w42799336': [ 'r1809912', 'r1990860' ],
       'w125586446': [ 'r2005432' ],
       'w146678761': [ 'r2005432' ],
-      'w148731068': [ 'r2005433' ]
+      'w148731068': [ 'r2005433' ],
+      'w370033150': [ 'r20309' ],
+      'w370577160': [ 'r2853012' ],
+      'w118102651': [ 'r2853012' ],
+      'w9269047': [ 'r2928575' ],
+      'w211153301': [ 'r5954449' ],
+      'w370577159': [ 'r5954449' ],
     }
 
     var returned = []
@@ -558,7 +572,8 @@ describe('PTMap', function () {
 
     ptmap.getSharedRouteWays(
       {
-        bbox: bbox
+        bbox: bbox,
+        onlyActive: false
       },
       function (err, result) {
         assert.equal(err, null)
@@ -569,12 +584,13 @@ describe('PTMap', function () {
       },
       function (err) {
         assert.equal(err, null)
-        assert.equal(returned.length, Object.keys(expected).length)
+        assert.deepEqual(returnedIds.concat().sort(), Object.keys(expected).sort(), 'List of returned ways does not match')
 
         // process list in the end, because the sharedRouteWays may have been
         // modified (more routes added)
         for (var i = 0; i < returned.length; i++) {
-          assert.equal(returned[i].routes().length, expected[returnedIds[i]].length, 'Way ' + returnedIds[i] + ' has wrong count of routes')
+          var routeIds = returned[i].routes({ onlyActive: false }).map(function (r) { return r.id })
+          assert.deepEqual(routeIds, expected[returnedIds[i]], 'Way ' + returnedIds[i] + ' has wrong routes')
         }
 
         done()
@@ -584,9 +600,9 @@ describe('PTMap', function () {
 
   it('getStopAreas', function (done) {
     var expected = {
-      'Westbahnhof|16.3391|48.1969': [ 'r1306478', 'r5333483', 'r207109', 'r207110', 'r2446126', 'r5275276', 'r1800603', 'r1306732', 'r1306733', 'r1809913', 'r1990861', 'r1306966', 'r1306967', 'r1800604', 'r1809912', 'r1990860', 'r2005432', 'r2005433', 'r5275276' ],
-      'Beingasse|16.3322|48.1994': [ 'r910885', 'r910886', 'r1306732', 'r1306733' ],
-      'Gerstnerstraße/Westbahnhof|16.3383|48.1955': [ 'r1800603', 'r1306966', 'r1306967', 'r1800604' ]
+      'Westbahnhof,16.3388,48.1965': [ 'r1306478', 'r5333483', 'r207109', 'r207110', 'r2446126', 'r5275276', 'r1800603', 'r1306732', 'r1306733', 'r1809913', 'r1990861', 'r1306966', 'r1306967', 'r1800604', 'r1809912', 'r1990860', 'r2005432', 'r2005433', 'r5275276', 'r20309', 'r2853012', 'r2928575', 'r5954449' ],
+      'Beingasse,16.3322,48.1994': [ 'r910885', 'r910886', 'r1306732', 'r1306733' ],
+      'Gerstnerstraße/Westbahnhof,16.3383,48.1955': [ 'r1800603', 'r1306966', 'r1306967', 'r1800604' ]
     }
 
     var returned = []
@@ -600,7 +616,8 @@ describe('PTMap', function () {
 
     ptmap.getStopAreas(
       {
-        bbox: bbox
+        bbox: bbox,
+        onlyActive: false
       },
       function (err, result) {
         assert.equal(err, null)
@@ -624,7 +641,8 @@ describe('PTMap', function () {
         assert.equal(returned.length, Object.keys(expected).length)
 
         for (var i = 0; i < returned.length; i++) {
-          assert.equal(returned[i].routes().length,expected[returned[i].id].length, 'Way ' + returnedIds[i] + ' has wrong count of routes')
+          var routeIds = returned[i].routes({ onlyActive: false }).map(function (r) { return r.id })
+          assert.deepEqual(routeIds.sort(), expected[returned[i].id].sort(), 'Way ' + returned[i].id + ' has wrong count of routes')
         }
 
         done()
