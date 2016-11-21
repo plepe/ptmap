@@ -7,6 +7,7 @@
     "array-equal": "^1.0.0",
     "async": "*",
     "flatpickr": "^2.0.8",
+    "html-escape": "^2.0.0",
     "moment": "*",
     "natsort": "*",
     "opening_hours": "*",

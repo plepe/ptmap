@@ -1,4 +1,5 @@
 var async = require('async')
+var htmlEscape = require('html-escape')
 
 /* global overpassFrontend:false */
 var OverpassFrontend = require('overpass-frontend')
@@ -36,6 +37,102 @@ Route.prototype.ref = function () {
   }
 
   return 'unknown'
+}
+
+Route.prototype.open = function (callback) {
+  this.ptmap.map.fitBounds(this.object.bounds.toLeaflet())
+
+  this.highlightPopup = L.popup()
+  this.highlightPopup.object = this
+  this.highlightPopup.setContent(this.buildPopup())
+  this.highlightPopup.setLatLng(this.object.bounds.getCenter())
+  this.highlightPopup.openOn(this.ptmap.map)
+
+  this.showHighlight(function () {
+    this.highlightPopup.setContent(this.buildPopup())
+    console.log('shown')
+
+    callback()
+  }.bind(this))
+}
+
+Route.prototype.buildPopup = function () {
+  var ret = ''
+
+  ret = '<h1>' + htmlEscape(this.title()) + '</h1>\n'
+
+  if (this._stops) {
+    ret += '<h2>Stops</h2><ul>\n'
+
+    for (var i = 0; i < this._stops.length; i++) {
+      var stop = this._stops[i]
+
+      ret += '<li>'
+      if (stop.node) {
+        ret += htmlEscape(stop.node.tags.name)
+      } else {
+        ret += 'unknown'
+      }
+      ret += '</li>\n'
+    }
+
+    ret += '</ul>\n'
+  }
+
+  return ret
+}
+
+Route.prototype.close = function () {
+  this.hideHighlight()
+}
+
+Route.prototype.showHighlight = function (callback) {
+  this.highlightsRouteWays = []
+
+  async.parallel([
+    function (callback) {
+      this.routeWays(null,
+        function (err, routeWay, index) {
+          if (!routeWay.way) {
+            return
+          }
+
+          if (!this.highlightsRouteWays[index]) {
+            this.highlightsRouteWays[index] =
+              L.polyline(routeWay.way.geometry, {
+                color: 'black',
+                weight: 4,
+                opacity: 1,
+                pane: 'highlightRouteWays'
+              })
+          }
+
+          this.highlightsRouteWays[index].addTo(this.ptmap.map)
+        }.bind(this),
+        function (err) {
+          callback()
+        }
+      )
+    }.bind(this),
+    function (callback) {
+      this.stops(null,
+        function () {},
+        function () {
+          callback()
+        }
+      )
+    }.bind(this)
+  ], function () {
+    callback()
+  })
+}
+
+Route.prototype.hideHighlight = function () {
+  for (var i = 0; i < this.highlightsRouteWays.length; i++) {
+    if (this.highlightsRouteWays[i]) {
+      this.ptmap.map.removeLayer(this.highlightsRouteWays[i])
+    }
+  }
 }
 
 Route.prototype.isActive = function () {

@@ -33,7 +33,10 @@ function PTMap (map, env) {
 
   if (this.map) {
     this.map.createPane('stopArea')
-    this.map.getPane('stopArea').style.zIndex = 401
+    this.map.getPane('stopArea').style.zIndex = 402
+
+    this.map.createPane('highlightRouteWays')
+    this.map.getPane('highlightRouteWays').style.zIndex = 401
 
     this.map.on('moveend', function (e) {
       this.checkUpdateMap()
@@ -105,6 +108,25 @@ PTMap.prototype.setState = function (state) {
 
       this.unsetLoading()
     }.bind(this))
+  }
+
+  if ('route' in state) {
+    this.closeOverride = true
+    this.map.closePopup()
+    this.setLoading()
+
+    this.routes.get(
+      state.route,
+      function (err, ob) {
+        if (ob) {
+          this.highlight = ob
+          ob.open(function () {
+            this.unsetLoading()
+          }.bind(this))
+        }
+      }.bind(this),
+      function () {}
+    )
   }
 }
 

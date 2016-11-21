@@ -105,7 +105,7 @@ StopArea.prototype.buildPopup = function () {
   for (i = 0; i < routes.length; i++) {
     r.push({
       ref: routes[i].ref(),
-      text: "<li><a href='" + routes[i].id + "'>" + routes[i].title() + "</a></li>"
+      text: "<li><a href='#route=" + routes[i].id + "'>" + routes[i].title() + "</a></li>"
     })
   }
 
@@ -245,10 +245,10 @@ StopArea.factory = function (ptmap) {
       ptmap.getStopAreas(
         {
           bbox: {
-            minlat: parseFloat(m[3]) - 0.01,
-            maxlat: parseFloat(m[3]) + 0.01,
-            minlon: parseFloat(m[2]) - 0.01,
-            maxlon: parseFloat(m[2]) + 0.01
+            minlat: parseFloat(m[3]) - 0.001,
+            maxlat: parseFloat(m[3]) + 0.001,
+            minlon: parseFloat(m[2]) - 0.001,
+            maxlon: parseFloat(m[2]) + 0.001
           }
         },
         function (err, stopArea) {
