@@ -356,7 +356,7 @@ describe('PTMap', function () {
   })
 
   it('getRoutes', function (done) {
-    var expected = [ 'r79466', 'r910885', 'r910886', 'r1306478', 'r1800603', 'r1306732', 'r1306733', 'r1809913', 'r1990861', 'r207109', 'r207110', 'r1306966', 'r1306967', 'r1800604', 'r1809912', 'r1990860', 'r2005432', 'r2005433', 'r2446126', 'r5275276', 'r5333483', 'r20309', 'r2853012', 'r2928575', 'r5954449' ]
+    var expected = [ 'r910885', 'r910886', 'r1800603', 'r1306732', 'r1306733', 'r1809913', 'r1990861', 'r1306966', 'r1306967', 'r1800604', 'r1809912', 'r1990860', 'r2005432', 'r2005433', 'r2446126', 'r20309', 'r2853012', 'r2928575', 'r5954449' ]
     var returned = []
     var bbox = {
       'minlat': 48.190,
@@ -377,7 +377,40 @@ describe('PTMap', function () {
       },
       function (err) {
         assert.equal(err, null)
-        assert.equal(returned.length, expected.length, 'Wrong count of routes returned')
+        returned.sort()
+        expected.sort()
+        assert.deepEqual(returned, expected, 'Wrong count of routes returned')
+        done()
+      }
+    )
+  })
+
+  it('getRoutes, onlyActive=false', function (done) {
+    var expected = [ 'r79466', 'r910885', 'r910886', 'r1306478', 'r1800603', 'r1306732', 'r1306733', 'r1809913', 'r1990861', 'r207109', 'r207110', 'r1306966', 'r1306967', 'r1800604', 'r1809912', 'r1990860', 'r2005432', 'r2005433', 'r2446126', 'r5275276', 'r5333483', 'r20309', 'r2853012', 'r2928575', 'r5954449' ]
+    var returned = []
+    var bbox = {
+      'minlat': 48.190,
+      'minlon': 16.330,
+      'maxlat': 48.205,
+      'maxlon': 16.350
+    }
+
+    ptmap.getRoutes(
+      {
+        bbox: bbox,
+        onlyActive: false
+      },
+      function (err, route) {
+        assert.equal(err, null)
+        assert.notEqual(expected.indexOf(route.id), -1, 'Route ' + route.id + ' not expected')
+        assert.equal(returned.indexOf(route.id), -1, 'ID should not have been returned before')
+        returned.push(route.id)
+      },
+      function (err) {
+        assert.equal(err, null)
+        returned.sort()
+        expected.sort()
+        assert.deepEqual(returned, expected, 'Wrong count of routes returned')
         done()
       }
     )

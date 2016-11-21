@@ -263,12 +263,16 @@ Route.factory = function (ptmap) {
         ids = [ ids ]
       }
 
+      var filter = {
+        onlyActive: false
+      }
+
       overpassFrontend.get(
         ids,
         {
           properties: OverpassFrontend.TAGS | OverpassFrontend.MEMBERS | OverpassFrontend.BBOX
         },
-        _loadRoute.bind(this, featureCallback),
+        _loadRoute.bind(this, filter, featureCallback),
         function (err) {
           finalCallback(err)
         }
@@ -281,13 +285,17 @@ Route.factory = function (ptmap) {
         query.push(overpassFrontend.regexpEscape(type))
       }
 
+      if (!('onlyActive' in filter)) {
+        filter.onlyActive = true
+      }
+
       overpassFrontend.BBoxQuery(
         'relation[type=route][route~"^(' + query.join('|') + ')$"]',
         filter.bbox,
         {
           properties: OverpassFrontend.TAGS | OverpassFrontend.MEMBERS | OverpassFrontend.BBOX
         },
-        _loadRoute.bind(this, featureCallback),
+        _loadRoute.bind(this, filter, featureCallback),
         function (err) {
           finalCallback(err)
         }
@@ -296,7 +304,7 @@ Route.factory = function (ptmap) {
   }
 
   // internal function _loadRoute
-  function _loadRoute (featureCallback, err, result) {
+  function _loadRoute (filter, featureCallback, err, result) {
     if (err) {
       console.log('Error should not happen')
       return
@@ -304,7 +312,7 @@ Route.factory = function (ptmap) {
 
     var route = this.add(result)
 
-    if (!route.isActive()) {
+    if (filter.onlyActive && !route.isActive()) {
       return
     }
 
