@@ -45,7 +45,7 @@ describe('Route', function () {
           assert(false, 'There should be no error: ' + err)
         }
 
-        var route = fakePTMap.routes.get(result)
+        var route = fakePTMap.routes.add(result)
         routes[result.id] = route
 
         assert.equal(route.title(), titles[result.id], result.id + ': Wrong route title')

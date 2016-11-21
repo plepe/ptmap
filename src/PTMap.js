@@ -226,7 +226,7 @@ PTMap.prototype._loadRoute = function (featureCallback, err, result) {
     return
   }
 
-  var route = this.routes.get(result)
+  var route = this.routes.add(result)
 
   if (!route.isActive()) {
     return

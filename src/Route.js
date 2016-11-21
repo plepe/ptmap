@@ -248,7 +248,7 @@ Route.factory = function (ptmap) {
   var routes = {}
 
   return {
-    get: function (object) {
+    add: function (object) {
       if (!(object.id in routes)) {
         routes[object.id] = new Route(ptmap, object)
       }
