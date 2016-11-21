@@ -21,13 +21,20 @@ SharedRouteWay.prototype.addLink = function (link) {
   this.links.push(link)
 }
 
-SharedRouteWay.prototype.routes = function () {
+SharedRouteWay.prototype.routes = function (filter) {
   var ret = []
+
+  if (typeof filter === 'undefined') {
+    filter = { onlyActive: true }
+  }
+  if (!('onlyActive' in filter)) {
+    filter.onlyActive = true
+  }
 
   for (var i = 0; i < this.links.length; i++) {
     var link = this.links[i]
 
-    if (!link.route.isActive()) {
+    if (filter.onlyActive === true && !link.route.isActive()) {
       continue
     }
 
