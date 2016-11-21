@@ -21,6 +21,7 @@ function PTMap (map, env) {
 
   this.currentStopAreas = []
   this.currentSharedRouteWays = []
+  this.loadingState = 0
 
   this.routes = Route.factory(this)
   this.sharedRouteWays = SharedRouteWay.factory(this)
@@ -70,17 +71,35 @@ PTMap.prototype.setState = function (state) {
   }
 
   if ('stopArea' in state) {
+    this.setLoading()
     this.stopAreas.get(state.stopArea, function (err, ob) {
+      this.unsetLoading()
       if (ob) {
         ob.open()
       }
-    })
+    }.bind(this))
   }
 }
 
 PTMap.prototype.updateState = function (state) {
   this.state = state
   this.emit('updateState', state)
+}
+
+PTMap.prototype.setLoading = function () {
+  var loadingIndicator = document.getElementById('loadingIndicator')
+  this.loadingState++
+  if (loadingIndicator) {
+    loadingIndicator.style.visibility = 'visible';
+  }
+}
+
+PTMap.prototype.unsetLoading = function () {
+  var loadingIndicator = document.getElementById('loadingIndicator')
+  this.loadingState--
+  if (loadingIndicator && this.loadingState <= 0) {
+    loadingIndicator.style.visibility = 'hidden';
+  }
 }
 
 PTMap.prototype.checkUpdateMap = function () {
@@ -90,10 +109,7 @@ PTMap.prototype.checkUpdateMap = function () {
 
   this.updateMapActive = true
 
-  var loadingIndicator = document.getElementById('loadingIndicator')
-  if (loadingIndicator) {
-    loadingIndicator.style.visibility = 'visible';
-  }
+  this.setLoading()
 
   var filter = {
     bbox: this.map.getBounds()
@@ -147,16 +163,14 @@ PTMap.prototype.checkUpdateMap = function () {
           }
           this.currentSharedRouteWays = newSharedRouteWays
 
+          console.log('callback sharedroute')
           callback()
         }.bind(this)
       )
     }.bind(this)
   ], function () {
     this.updateMapActive = false
-
-    if (loadingIndicator) {
-      loadingIndicator.style.visibility = 'hidden';
-    }
+    this.unsetLoading()
   }.bind(this))
 }
 
