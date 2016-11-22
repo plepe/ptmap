@@ -176,7 +176,7 @@ StopArea.prototype.show = function () {
     L.marker(L.latLng(this.bounds.getNorth(), this.bounds.getCenter().lon), {
       icon: label,
       pane: 'stopArea'
-  }).addTo(this.ptmap.map)
+  }).addTo(this.ptmap.map).bindPopup(this.featurePopup)
 
   this.shown = true
 }
