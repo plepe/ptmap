@@ -1,6 +1,6 @@
 {
     "overpass": {
-        "url": "https://www.overpass-api.de/api/interpreter",
+        "url": "//www.overpass-api.de/api/interpreter",
         "effortPerQuery": 1023,
         "effortNode": 1,
         "effortWay": 4,
