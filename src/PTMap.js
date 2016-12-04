@@ -162,7 +162,11 @@ PTMap.prototype.unsetLoading = function () {
 }
 
 PTMap.prototype.checkUpdateMap = function () {
-  if (this.loadingState) {
+  if (this.checkUpdateMapRequest) {
+  console.log(request)
+    this.checkUpdateMapRequest.abort()
+    this.unsetLoading()
+  } else if (this.loadingState) {
     this.updateMapRequested = true
     return
   }
@@ -185,11 +189,29 @@ PTMap.prototype.checkUpdateMap = function () {
     }
   }.bind(this))
 
+  var request = {
+    stopAreas: null,
+    sharedRouteWays: null,
+  }
+  request.abort = function () {
+    console.log('PTMap.checkUpdateMap.abort called')
+    if (this.stopAreas) {
+      this.stopAreas.abort()
+    }
+
+    if (this.sharedRouteWays) {
+      this.sharedRouteWays.abort()
+    }
+
+  }.bind(request)
+
+  this.checkUpdateMapRequest = request
+
   async.parallel([
     function (callback) {
       var newStopAreas = []
 
-      this.getStopAreas(
+      request.stopAreas = this.getStopAreas(
         filter,
         function (err, stopArea) {
           newStopAreas.push(stopArea)
@@ -203,6 +225,7 @@ PTMap.prototype.checkUpdateMap = function () {
           }
           this.currentStopAreas = newStopAreas
 
+          request.stopAreas = null
           callback()
         }.bind(this)
       )
@@ -210,7 +233,7 @@ PTMap.prototype.checkUpdateMap = function () {
     function (callback) {
       var newSharedRouteWays = []
 
-      this.getSharedRouteWays(
+      request.sharedRouteWay = this.getSharedRouteWays(
         filter,
         function (err, sharedRouteWay) {
           newSharedRouteWays.push(sharedRouteWay)
@@ -224,14 +247,17 @@ PTMap.prototype.checkUpdateMap = function () {
           }
           this.currentSharedRouteWays = newSharedRouteWays
 
-          console.log('callback sharedroute')
+          request.sharedRouteWays = null
           callback()
         }.bind(this)
       )
     }.bind(this)
   ], function () {
     this.unsetLoading()
+    this.checkUpdateMapRequest = null
   }.bind(this))
+
+  return request
 }
 
 PTMap.prototype.update = function (force) {

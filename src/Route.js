@@ -272,7 +272,6 @@ Route.prototype.routeWays = function (filter, featureCallback, finalCallback) {
     }
   }
 
-
   var param = {
     bbox: filter.bbox,
     properties: OverpassFrontend.GEOM | OverpassFrontend.MEMBERS,
@@ -280,7 +279,7 @@ Route.prototype.routeWays = function (filter, featureCallback, finalCallback) {
   }
   param.priority += priorityFromScale[this.scaleCategory()]
 
-  overpassFrontend.get(wayIds,
+  return overpassFrontend.get(wayIds,
     param,
     function (wayIndexList, err, result, index) {
       wayIndex = wayIndexList[index]
@@ -406,7 +405,7 @@ Route.prototype.stops = function (filter, featureCallback, finalCallback) {
     param.bbox = filter.bbox
   }
 
-  overpassFrontend.get(
+  return overpassFrontend.get(
     nodeIds,
     param,
     function (nodeIndexList, err, result, index) {
@@ -456,7 +455,7 @@ Route.factory = function (ptmap) {
         onlyActive: false
       }
 
-      overpassFrontend.get(
+      return overpassFrontend.get(
         ids,
         {
           properties: OverpassFrontend.TAGS | OverpassFrontend.MEMBERS | OverpassFrontend.BBOX
@@ -485,7 +484,7 @@ Route.factory = function (ptmap) {
       }
       param.priority += 0.2
 
-      overpassFrontend.BBoxQuery(
+      return overpassFrontend.BBoxQuery(
         'relation[type=route][route~"^(' + query.join('|') + ')$"]',
         filter.bbox,
         param,

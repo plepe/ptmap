@@ -292,13 +292,22 @@ SharedRouteWay.factory = function (ptmap) {
       var bbox = new BoundingBox(filter.bbox)
       var stackRoutes = 0
       var finishedRoutes = false
+      var request = {
+        requests: []
+      }
+      request.abort = function (request) {
+        for (var i = 0; i < request.length; i++) {
+          request[i].abort()
+        }
+        console.log('PTMap.getSharedRouteWays.abort called')
+      }.bind(this, request)
 
-      ptmap.getRoutes(
+      request.requests.push(ptmap.getRoutes(
         filter,
         function (err, route) {
           stackRoutes++
 
-          route.routeWays(
+          request.requests.push(route.routeWays(
             filter,
             function (err, routeWay, wayIndex) {
               if (routeWay.wayId in done) {
@@ -316,15 +325,15 @@ SharedRouteWay.factory = function (ptmap) {
                 finalCallback(err)
               }
             }
-          )
+          ))
         }.bind(this),
         function (err) {
           finishedRoutes = true
-          if (stackRoutes === 0) {
+          if (stackRoutes === 0 || err) {
             finalCallback(err)
           }
         }
-      )
+      ))
     }
   }
 }

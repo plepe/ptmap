@@ -337,7 +337,7 @@ StopArea.factory = function (ptmap) {
       }
       var name = m[1]
 
-      ptmap.getStopAreas(
+      return ptmap.getStopAreas(
         {
           bbox: {
             minlat: parseFloat(m[3]) - 0.001,
@@ -385,13 +385,22 @@ StopArea.factory = function (ptmap) {
       var bbox = new BoundingBox(filter.bbox)
       var stackRoutes = 0
       var finishedRoutes = false
+      var request = {
+        requests: []
+      }
+      request.abort = function (request) {
+        for (var i = 0; i < request.length; i++) {
+          request[i].abort()
+        }
+        console.log('PTMap.getStopAreasWays.abort called')
+      }.bind(this, request)
 
-      ptmap.getRoutes(
+      request.requests.push(ptmap.getRoutes(
         filter,
         function (err, route) {
           stackRoutes++
 
-          route.stops(
+          request.requests.push(route.stops(
             filter,
             function (err, stop, stopIndex) {
               if (done.indexOf(stop.stopArea) !== -1) {
@@ -409,15 +418,15 @@ StopArea.factory = function (ptmap) {
                 finalCallback(err)
               }
             }
-          )
+          ))
         }.bind(this),
         function (err) {
           finishedRoutes = true
-          if (stackRoutes === 0) {
+          if (stackRoutes === 0 || err) {
             finalCallback(err)
           }
         }
-      )
+      ))
     }
   }
 }
