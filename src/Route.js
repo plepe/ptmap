@@ -7,6 +7,8 @@ var SharedRouteWay = require('./SharedRouteWay')
 var StopArea = require('./StopArea')
 var OpeningHours = require('opening_hours')
 
+var priorityFromScale = [ 0.6, 0.4, 0.1, 0.3 ]
+
 function Route (ptmap, object) {
   this.ptmap = ptmap
   this.object = object
@@ -276,7 +278,7 @@ Route.prototype.routeWays = function (filter, featureCallback, finalCallback) {
     properties: OverpassFrontend.GEOM | OverpassFrontend.MEMBERS,
     priority: 'priority' in filter ? filter.priority : 0
   }
-  param.priority += 0.1
+  param.priority += priorityFromScale[this.scaleCategory()]
 
   overpassFrontend.get(wayIds,
     param,
@@ -399,7 +401,7 @@ Route.prototype.stops = function (filter, featureCallback, finalCallback) {
     properties: OverpassFrontend.GEOM | OverpassFrontend.TAGS,
     priority: 'priority' in filter ? filter.priority : 0
   }
-  param.priority += 0.1
+  param.priority += priorityFromScale[this.scaleCategory()]
   if (filter.bbox) {
     param.bbox = filter.bbox
   }
