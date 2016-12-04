@@ -248,77 +248,11 @@ PTMap.prototype.getRoutes = function (filter, featureCallback, finalCallback) {
 }
 
 PTMap.prototype.getSharedRouteWays = function (filter, featureCallback, finalCallback) {
-  var done = {}
-  var bbox = new BoundingBox(filter.bbox)
-  var stackRoutes = 0
-  var finishedRoutes = false
-
-  this.getRoutes(
-    filter,
-    function (err, route) {
-      stackRoutes++
-
-      route.routeWays(
-        filter,
-        function (err, routeWay, wayIndex) {
-          if (routeWay.wayId in done) {
-            return
-          }
-
-          if (routeWay.way && routeWay.way.intersects(bbox)) {
-            done[routeWay.wayId] = true
-            featureCallback(null, routeWay.sharedRouteWay)
-          }
-        },
-        function (err, routeWays) {
-          stackRoutes--
-          if (stackRoutes === 0 && finishedRoutes) {
-            finalCallback(err)
-          }
-        }
-      )
-    }.bind(this),
-    function (err) {
-      finishedRoutes = true
-    }
-  )
+  return this.sharedRouteWays.query(filter, featureCallback, finalCallback)
 }
 
 PTMap.prototype.getStopAreas = function (filter, featureCallback, finalCallback) {
-  var done = []
-  var bbox = new BoundingBox(filter.bbox)
-  var stackRoutes = 0
-  var finishedRoutes = false
-
-  this.getRoutes(
-    filter,
-    function (err, route) {
-      stackRoutes++
-
-      route.stops(
-        filter,
-        function (err, stop, stopIndex) {
-          if (done.indexOf(stop.stopArea) !== -1) {
-            return
-          }
-
-          if (stop.node && stop.node.intersects(bbox)) {
-            done.push(stop.stopArea)
-            featureCallback(null, stop.stopArea)
-          }
-        },
-        function (err, stops) {
-          stackRoutes--
-          if (stackRoutes === 0 && finishedRoutes) {
-            finalCallback(err)
-          }
-        }
-      )
-    }.bind(this),
-    function (err) {
-      finishedRoutes = true
-    }
-  )
+  return this.stopAreas.query(filter, featureCallback, finalCallback)
 }
 
 module.exports = PTMap

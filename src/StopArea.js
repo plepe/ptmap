@@ -378,6 +378,43 @@ StopArea.factory = function (ptmap) {
       for (var i = 0; i < toUpdate.length; i++) {
         toUpdate[i].update(force)
       }
+    },
+
+    query: function (filter, featureCallback, finalCallback) {
+      var done = []
+      var bbox = new BoundingBox(filter.bbox)
+      var stackRoutes = 0
+      var finishedRoutes = false
+
+      ptmap.getRoutes(
+        filter,
+        function (err, route) {
+          stackRoutes++
+
+          route.stops(
+            filter,
+            function (err, stop, stopIndex) {
+              if (done.indexOf(stop.stopArea) !== -1) {
+                return
+              }
+
+              if (stop.node && stop.node.intersects(bbox)) {
+                done.push(stop.stopArea)
+                featureCallback(null, stop.stopArea)
+              }
+            },
+            function (err, stops) {
+              stackRoutes--
+              if (stackRoutes === 0 && finishedRoutes) {
+                finalCallback(err)
+              }
+            }
+          )
+        }.bind(this),
+        function (err) {
+          finishedRoutes = true
+        }
+      )
     }
   }
 }

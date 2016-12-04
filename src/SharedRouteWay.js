@@ -285,6 +285,43 @@ SharedRouteWay.factory = function (ptmap) {
       for (var i = 0; i < toUpdate.length; i++) {
         toUpdate[i].update(force)
       }
+    },
+
+    query: function (filter, featureCallback, finalCallback) {
+      var done = {}
+      var bbox = new BoundingBox(filter.bbox)
+      var stackRoutes = 0
+      var finishedRoutes = false
+
+      ptmap.getRoutes(
+        filter,
+        function (err, route) {
+          stackRoutes++
+
+          route.routeWays(
+            filter,
+            function (err, routeWay, wayIndex) {
+              if (routeWay.wayId in done) {
+                return
+              }
+
+              if (routeWay.way && routeWay.way.intersects(bbox)) {
+                done[routeWay.wayId] = true
+                featureCallback(null, routeWay.sharedRouteWay)
+              }
+            },
+            function (err, routeWays) {
+              stackRoutes--
+              if (stackRoutes === 0 && finishedRoutes) {
+                finalCallback(err)
+              }
+            }
+          )
+        }.bind(this),
+        function (err) {
+          finishedRoutes = true
+        }
+      )
     }
   }
 }
