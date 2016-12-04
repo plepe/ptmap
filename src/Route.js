@@ -91,6 +91,16 @@ Route.prototype.scaleCategory = function () {
     ret = 3
   }
 
+  if (this.ptmap.map.getZoom() >= 17) {
+    if (ret < 2) {
+      ret = 2
+    }
+  } else if (this.ptmap.map.getZoom() >= 15) {
+    if (ret === 0) {
+      ret = 1
+    }
+  }
+
   return ret
 }
 
