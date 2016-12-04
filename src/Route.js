@@ -287,25 +287,29 @@ Route.prototype.routeWayCheck = function (wayIndex) {
   link.sharedRouteWay.requestUpdate()
 }
 
+Route.prototype._initStops = function () {
+  this._stops = []
+
+  for (i = 0; i < this.object.members.length; i++) {
+    var member = this.object.members[i]
+
+    if (member.type === 'node' && member.role === 'stop') {
+      this._stops.push({
+        role: member.role,
+        nodeId: member.id,
+        node: false,
+        routeId: this.id,
+        route: this
+      })
+    }
+  }
+}
+
 Route.prototype.stops = function (bbox, featureCallback, finalCallback) {
   var i
 
   if (!this._stops) {
-    this._stops = []
-
-    for (i = 0; i < this.object.members.length; i++) {
-      var member = this.object.members[i]
-
-      if (member.type === 'node' && member.role === 'stop') {
-        this._stops.push({
-          role: member.role,
-          nodeId: member.id,
-          node: false,
-          routeId: this.id,
-          route: this
-        })
-      }
-    }
+    this._initStops()
   }
 
   var nodeIds = []
