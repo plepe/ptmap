@@ -413,6 +413,9 @@ StopArea.factory = function (ptmap) {
         }.bind(this),
         function (err) {
           finishedRoutes = true
+          if (stackRoutes === 0) {
+            finalCallback(err)
+          }
         }
       )
     }
