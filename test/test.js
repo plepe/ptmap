@@ -78,12 +78,14 @@ describe('Route', function () {
 
     async.each(routes,
       function (route, callback) {
-        route.routeWays(new BoundingBox({
-          minlon: 16.336,
-          minlat: 48.200,
-          maxlon: 16.338,
-          maxlat: 48.201
-        }),
+        route.routeWays({
+          bbox: new BoundingBox({
+            minlon: 16.336,
+            minlat: 48.200,
+            maxlon: 16.338,
+            maxlat: 48.201
+          })
+        },
         function (err, routeWay) {
         },
         function (err, result) {
@@ -149,12 +151,14 @@ describe('Route', function () {
 
     async.each(routes,
       function (route, callback) {
-        route.routeWays(new BoundingBox({
-          minlon: 16.336,
-          minlat: 48.195,
-          maxlon: 16.342,
-          maxlat: 48.202
-        }),
+        route.routeWays({
+          bbox: new BoundingBox({
+            minlon: 16.336,
+            minlat: 48.195,
+            maxlon: 16.342,
+            maxlat: 48.202
+          })
+        },
         function (err, routeWay) {
         },
         function (err, result) {
@@ -219,12 +223,14 @@ describe('Route', function () {
 
     async.each(routes,
       function (route, callback) {
-        route.routeWays(new BoundingBox({
-          minlon: 16.336,
-          minlat: 48.195,
-          maxlon: 16.342,
-          maxlat: 48.202
-        }),
+        route.routeWays({
+          bbox: new BoundingBox({
+            minlon: 16.336,
+            minlat: 48.195,
+            maxlon: 16.342,
+            maxlat: 48.202
+          })
+        },
         function (err, routeWay) {
         },
         function (err, result) {
@@ -261,12 +267,14 @@ describe('Route', function () {
 
     async.each(routes,
       function (route, callback) {
-        route.stops(new BoundingBox({
-          minlon: 16.336,
-          minlat: 48.200,
-          maxlon: 16.338,
-          maxlat: 48.201
-        }),
+        route.stops({
+          bbox: new BoundingBox({
+            minlon: 16.336,
+            minlat: 48.200,
+            maxlon: 16.338,
+            maxlat: 48.201
+          })
+        },
         function (err, stop) {
         },
         function (err, result) {
@@ -305,7 +313,7 @@ describe('Route', function () {
 
     async.each(routes,
       function (route, callback) {
-        route.stops(null,
+        route.stops({},
         function (err, stop) {
         },
         function (err, result) {

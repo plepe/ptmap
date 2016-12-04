@@ -156,7 +156,7 @@ Route.prototype.showHighlight = function (callback) {
 
   async.parallel([
     function (callback) {
-      this.routeWays(null,
+      this.routeWays({},
         function (err, routeWay, index) {
           if (!routeWay.way) {
             return
@@ -226,7 +226,7 @@ Route.prototype.isActive = function () {
   return this.openingHours.getState(this.ptmap.env.date());
 }
 
-Route.prototype.routeWays = function (bbox, featureCallback, finalCallback) {
+Route.prototype.routeWays = function (filter, featureCallback, finalCallback) {
   var wayIds = []
   var wayIndexList = []
   var wayIndex = 0
@@ -272,7 +272,7 @@ Route.prototype.routeWays = function (bbox, featureCallback, finalCallback) {
 
   overpassFrontend.get(wayIds,
     {
-      bbox: bbox,
+      bbox: filter.bbox,
       properties: OverpassFrontend.GEOM | OverpassFrontend.MEMBERS
     },
     function (wayIndexList, err, result, index) {
@@ -370,7 +370,7 @@ Route.prototype._initStops = function () {
   }
 }
 
-Route.prototype.stops = function (bbox, featureCallback, finalCallback) {
+Route.prototype.stops = function (filter, featureCallback, finalCallback) {
   var i
 
   if (!this._stops) {
@@ -393,8 +393,8 @@ Route.prototype.stops = function (bbox, featureCallback, finalCallback) {
   var param = {
     properties: OverpassFrontend.GEOM | OverpassFrontend.TAGS
   }
-  if (bbox) {
-    param.bbox = bbox
+  if (filter.bbox) {
+    param.bbox = filter.bbox
   }
 
   overpassFrontend.get(

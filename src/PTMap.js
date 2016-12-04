@@ -259,7 +259,7 @@ PTMap.prototype.getSharedRouteWays = function (filter, featureCallback, finalCal
       stackRoutes++
 
       route.routeWays(
-        filter.bbox,
+        filter,
         function (err, routeWay, wayIndex) {
           if (routeWay.wayId in done) {
             return
@@ -296,7 +296,7 @@ PTMap.prototype.getStopAreas = function (filter, featureCallback, finalCallback)
       stackRoutes++
 
       route.stops(
-        filter.bbox,
+        filter,
         function (err, stop, stopIndex) {
           if (done.indexOf(stop.stopArea) !== -1) {
             return
