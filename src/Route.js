@@ -39,6 +39,61 @@ Route.prototype.ref = function () {
   return 'unknown'
 }
 
+Route.prototype.approxPxLength = function () {
+  var leafletBounds = this.object.bounds.toLeaflet()
+  var sw = leafletBounds.getSouthWest()
+  var ne = leafletBounds.getNorthEast()
+
+  sw = this.ptmap.map.latLngToLayerPoint(sw)
+  ne = this.ptmap.map.latLngToLayerPoint(ne)
+
+  var h = ne.x - sw.x
+  var v = ne.y - sw.y
+
+  var d = Math.sqrt(h * h + v * v)
+
+  return d
+}
+
+Route.prototype.approxPxStopDistance = function () {
+  if (!this._stops) {
+    this._initStops()
+  }
+
+  if (this._stops.length >= 2) {
+    return this.approxPxLength() / (this._stops.length - 1)
+  }
+  else {
+    return this.approxPxLength()
+  }
+
+  return 0.0
+}
+
+/* Scale of a route (avg. approx stop distance) in relation to the current zoom
+ * level
+ * 0 ... "very small" (hidden?)
+ * 1 ... "small" (shown as narrow line)
+ * 2 ... "perfect for this scale" (thick line)
+ * 3 ... "too large" (dotted)
+ */
+Route.prototype.scaleCategory = function () {
+  var approxPxStopDistance = this.approxPxStopDistance()
+  var ret
+
+  if (approxPxStopDistance < 20) {
+    ret = 0
+  } else if (approxPxStopDistance < 70) {
+    ret = 1
+  } else if (approxPxStopDistance < 1000) {
+    ret = 2
+  } else {
+    ret = 3
+  }
+
+  return ret
+}
+
 Route.prototype.open = function (callback) {
   this.ptmap.map.fitBounds(this.object.bounds.toLeaflet())
 
