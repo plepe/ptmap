@@ -480,7 +480,8 @@ Route.factory = function (ptmap) {
 
       var param = {
         properties: OverpassFrontend.TAGS | OverpassFrontend.MEMBERS | OverpassFrontend.BBOX,
-        priority: 'priority' in filter ? filter.priority : 0
+        priority: 'priority' in filter ? filter.priority : 0,
+        split: 32
       }
       param.priority += 0.2
 
