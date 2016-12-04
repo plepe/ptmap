@@ -149,6 +149,74 @@ StopArea.prototype.scaleCategory = function () {
   return topRoute.scaleCategory()
 }
 
+StopArea.prototype.getStyle = function () {
+  var topRoute = this.topRoute()
+  var topScale = topRoute.scaleCategory()
+  var routeConf = config.routes[topRoute.routeType]
+
+  if (topScale === 0) {
+    return {
+    }
+  } else if (topScale === 1) {
+    return {
+      area: {
+        color: 'black',
+        opacity: 0.8,
+        fill: true,
+        fillOpacity: 0.0,
+        weight: 2,
+        zIndex: 200,
+        pane: 'stopArea'
+      }
+    }
+  } else if (topScale === 2) {
+    return {
+      area: {
+        color: 'black',
+        opacity: 0.8,
+        fill: true,
+        fillOpacity: 0.0,
+        weight: 5,
+        zIndex: 200,
+        pane: 'stopArea'
+      },
+      text: {
+        fill: routeConf.color,
+        'font-size': 10,
+        offset: 6
+      }
+    }
+  } else {
+    return {
+      area: {
+        color: 'black',
+        opacity: 0.8,
+        fill: true,
+        fillOpacity: 0.0,
+        weight: 5,
+        zIndex: 200,
+        pane: 'stopArea'
+      },
+      text: {
+        fill: routeConf.color,
+        'font-size': 12,
+        offset: 10
+      }
+    }
+    this.lastRoutes = routes
+  }
+
+  if (!routes.length) {
+    return this.hide()
+  } else if (!this.shown) {
+    return this.show()
+  }
+
+  this.feature.setBounds(this.bounds.toLeaflet())
+  this.featureLabel.setLatLng(L.latLng(this.bounds.getNorth(), this.bounds.getCenter().lon))
+  this.featurePopup.setContent(this.buildPopup())
+}
+
 StopArea.prototype.update = function (force) {
   var routes = this.routes()
 

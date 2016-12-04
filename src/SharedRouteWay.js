@@ -70,6 +70,52 @@ SharedRouteWay.prototype.scaleCategory = function () {
   return topRoute.scaleCategory()
 }
 
+SharedRouteWay.prototype.getStyle = function () {
+  var topRoute = this.topRoute()
+  var topScale = topRoute.scaleCategory()
+  var routeConf = config.routes[topRoute.routeType]
+
+  if (topScale === 0) {
+    return {
+    }
+  } else if (topScale === 1) {
+    return {
+      line: {
+        color: routeConf.color,
+        opacity: 1,
+        weight: 1,
+        dashArray: null
+      }
+    }
+  } else if (topScale == 2) {
+    return {
+      line: {
+        color: routeConf.color,
+        opacity: 1,
+        weight: 3,
+        dashArray: null
+      },
+      text: {
+        fill: routeConf.color,
+        offset: 12
+      }
+    }
+  } else {
+    return {
+      line: {
+        color: routeConf.color,
+        opacity: 1,
+        weight: 3,
+        dashArray: '1,7'
+      },
+      text: {
+        fill: routeConf.color,
+        offset: 12
+      }
+    }
+  }
+}
+
 SharedRouteWay.prototype.isActive = function () {
   return !!this.routes().length
 }
