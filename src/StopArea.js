@@ -3,6 +3,8 @@ var async = require('async')
 var arrayEquals = require('array-equal')
 var natsort = require('natsort')
 
+var cmpScaleCategory = require('./cmpScaleCategory')
+
 function StopArea (ptmap) {
   this.ptmap = ptmap
   this.id = null
@@ -121,6 +123,30 @@ StopArea.prototype.buildPopup = function () {
   ret += "</ul>"
 
   return ret
+}
+
+StopArea.prototype.topRoute = function () {
+  var routes = this.routes()
+
+  routes.sort(function (a, b) {
+    return cmpScaleCategory(a.scaleCategory(), b.scaleCategory())
+  })
+
+  if (routes.length) {
+    return routes[0]
+  }
+
+  return null
+}
+
+StopArea.prototype.scaleCategory = function () {
+  var topRoute = this.topRoute()
+
+  if (topRoute === null) {
+    return null
+  }
+
+  return topRoute.scaleCategory()
 }
 
 StopArea.prototype.update = function (force) {

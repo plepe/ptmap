@@ -3,6 +3,8 @@ var natsort = require('natsort')
 var async = require('async')
 var arrayEquals = require('array-equal')
 
+var cmpScaleCategory = require('./cmpScaleCategory')
+
 function SharedRouteWay (ptmap, way) {
   this.ptmap = ptmap
   this.way = way
@@ -47,11 +49,25 @@ SharedRouteWay.prototype.routes = function (filter) {
 SharedRouteWay.prototype.topRoute = function () {
   var routes = this.routes()
 
+  routes.sort(function (a, b) {
+    return cmpScaleCategory(a.scaleCategory(), b.scaleCategory())
+  })
+
   if (routes.length) {
     return routes[0]
   }
 
   return null
+}
+
+SharedRouteWay.prototype.scaleCategory = function () {
+  var topRoute = this.topRoute()
+
+  if (topRoute === null) {
+    return null
+  }
+
+  return topRoute.scaleCategory()
 }
 
 SharedRouteWay.prototype.isActive = function () {
