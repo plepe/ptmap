@@ -172,7 +172,8 @@ PTMap.prototype.checkUpdateMap = function () {
   this.setLoading()
 
   var filter = {
-    bbox: this.map.getBounds()
+    bbox: this.map.getBounds(),
+    minScaleCategory: 1
   }
 
   async.setImmediate(function () {

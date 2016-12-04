@@ -486,6 +486,10 @@ Route.factory = function (ptmap) {
       return
     }
 
+    if (filter.minScaleCategory && route.scaleCategory() < filter.minScaleCategory) {
+      return
+    }
+
     featureCallback(null, route)
   }
 
