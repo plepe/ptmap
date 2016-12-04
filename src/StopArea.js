@@ -203,77 +203,78 @@ StopArea.prototype.getStyle = function () {
         offset: 10
       }
     }
-    this.lastRoutes = routes
   }
-
-  if (!routes.length) {
-    return this.hide()
-  } else if (!this.shown) {
-    return this.show()
-  }
-
-  this.feature.setBounds(this.bounds.toLeaflet())
-  this.featureLabel.setLatLng(L.latLng(this.bounds.getNorth(), this.bounds.getCenter().lon))
-  this.featurePopup.setContent(this.buildPopup())
 }
 
 StopArea.prototype.update = function (force) {
-  var routes = this.routes()
-
-  if (!this.updateNeeded) {
-    // check if routes array still equal
-    if (arrayEquals(routes, this.lastRoutes)) {
-      return
-    }
-    this.lastRoutes = routes
-  }
-
-  if (!routes.length) {
-    return this.hide()
-  } else if (!this.shown) {
-    return this.show()
-  }
-
-  this.feature.setBounds(this.bounds.toLeaflet())
-  this.featureLabel.setLatLng(L.latLng(this.bounds.getNorth(), this.bounds.getCenter().lon))
-  this.featurePopup.setContent(this.buildPopup())
-}
-
-StopArea.prototype.show = function () {
   if (typeof L === 'undefined') {
     return
   }
-  if (this.shown) {
-    return this.update()
+
+  var routes = this.routes()
+
+  if (!routes.length) {
+    return this.hide()
   }
 
-  this.featurePopup = L.popup().setContent(this.buildPopup())
-  this.featurePopup.object = this
+  var style = this.getStyle()
 
-  this.feature = L.rectangle(this.bounds.toLeaflet(), {
-    color: 'black',
-    opacity: 0.8,
-    fill: true,
-    fillOpacity: 0.0,
-    weight: 5,
-    zIndex: 200,
-    pane: 'stopArea'
-  }).addTo(this.ptmap.map).bindPopup(this.featurePopup)
+  // popup
+  if (!this.featurePopup) {
+    this.featurePopup = L.popup()
+    this.featurePopup.object = this
+  }
+  this.featurePopup.setContent(this.buildPopup())
 
-  var label = L.divIcon({
-    className: 'label-stop',
-    iconSize: null,
-    html: '<div><span>' + this.name() + '</span></div>'
-  })
+  // area
+  if (style.area) {
+    if (this.feature) {
+      this.feature.setBounds(this.bounds.toLeaflet())
+      this.feature.setStyle(style.area)
+    }
+    else {
+      this.feature = L.rectangle(this.bounds.toLeaflet(), style.area)
+        .addTo(this.ptmap.map).bindPopup(this.featurePopup)
+    }
+  }
+  else {
+    if (this.feature) {
+      this.ptmap.map.removeLayer(this.feature)
+      delete this.feature
+    }
+  }
 
-  this.featureLabel =
-    L.marker(L.latLng(this.bounds.getNorth(), this.bounds.getCenter().lon), {
-      icon: label,
-      pane: 'stopArea'
-  }).addTo(this.ptmap.map).bindPopup(this.featurePopup)
+  // text
+  if (style.text) {
+    var label = L.divIcon({
+      className: 'label-stop',
+      iconSize: null,
+      html: '<div><span style="font-size: ' + style.text['font-size'] +'px;">' + this.name() + '</span></div>'
+    })
+
+    if (this.featureLabel) {
+      this.featureLabel.setLatLng(L.latLng(this.bounds.getNorth(), this.bounds.getCenter().lon))
+      this.featureLabel.setIcon(label)
+    }
+    else {
+      this.featureLabel =
+        L.marker(L.latLng(this.bounds.getNorth(), this.bounds.getCenter().lon), {
+          icon: label,
+          pane: 'stopArea'
+      }).addTo(this.ptmap.map).bindPopup(this.featurePopup)
+    }
+  }
+  else {
+    if (this.featureLabel) {
+      this.ptmap.map.removeLayer(this.featureLabel)
+      delete this.featureLabel
+    }
+  }
 
   this.shown = true
 }
+
+StopArea.prototype.show = StopArea.prototype.update
 
 StopArea.prototype.hide = function () {
   if (this.feature) {

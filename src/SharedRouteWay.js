@@ -195,66 +195,49 @@ SharedRouteWay.prototype.build_label = function () {
 }
 
 SharedRouteWay.prototype.update = function (force) {
-  var routes = this.routes()
-
-  if (!this.updateNeeded) {
-    // check if routes array still equal
-    if (arrayEquals(routes, this.lastRoutes)) {
-      return
-    }
-    this.lastRoutes = routes
-  }
-
-  if (!routes.length) {
-    return this.hide()
-  } else if (!this.shown) {
-    return this.show()
-  }
-
-  var topRoute = this.topRoute()
-  var routeConf = config.routes[topRoute.routeType]
-
-  this.feature.setLatLngs(this.way.geometry)
-
-  this.feature.setText(null)
-  this.feature.setText(this.build_label(), {
-    repeat: true,
-    offset: 12,
-    attributes: {
-      fill: routeConf.color
-    }
-  })
-
-  this.updateNeeded = false
-}
-
-SharedRouteWay.prototype.show = function () {
   if (typeof L === 'undefined') {
     return
   }
-  if (this.shown) {
-    return this.update()
+
+  var routes = this.routes()
+
+  if (!routes.length) {
+    return this.hide()
   }
 
-  var topRoute = this.topRoute()
-  var routeConf = config.routes[topRoute.routeType]
+  var style = this.getStyle()
 
-  this.feature = L.polyline(this.way.geometry, {
-    color: routeConf.color,
-    opacity: 1
-  }).addTo(this.ptmap.map)
-
-  this.feature.setText(this.build_label(), {
-    repeat: true,
-    offset: 12,
-    attributes: {
-      fill: routeConf.color
+  // line
+  if (style.line) {
+    if (this.feature) {
+      this.feature.setStyle(style.line)
     }
-  })
+    else {
+      this.feature = L.polyline(this.way.geometry, style.line).addTo(this.ptmap.map)
+    }
+  } else if (this.feature) {
+    this.ptmap.map.removeLayer(this.feature)
+    delete this.feature
+  }
+
+  // text
+  if (this.feature) {
+    this.feature.setText(null)
+  }
+
+  if (style.text && this.feature) {
+    this.feature.setText(this.build_label(), {
+      repeat: true,
+      offset: style.text.offset,
+      attributes: style.text
+    })
+  }
 
   this.shown = true
   this.updateNeeded = false
 }
+
+SharedRouteWay.prototype.show = SharedRouteWay.prototype.update
 
 SharedRouteWay.prototype.hide = function () {
   if (this.feature) {
