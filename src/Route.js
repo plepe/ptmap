@@ -490,6 +490,7 @@ Route.factory = function (ptmap) {
         param,
         _loadRoute.bind(this, filter, featureCallback),
         function (err) {
+          console.log('route final', err)
           finalCallback(err)
         }
       )

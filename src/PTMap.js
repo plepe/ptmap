@@ -149,6 +149,11 @@ PTMap.prototype.setLoading = function () {
 PTMap.prototype.unsetLoading = function () {
   this.loadingState--
 
+  if (this.loadingState < 0) {
+    console.log('loadingState', this.loadingState)
+    this.loadingState = 0
+  }
+
   if (typeof document !== 'undefined') {
     var loadingIndicator = document.getElementById('loadingIndicator')
     if (loadingIndicator && this.loadingState <= 0) {
@@ -162,9 +167,10 @@ PTMap.prototype.unsetLoading = function () {
 }
 
 PTMap.prototype.checkUpdateMap = function () {
+  console.log('checkUpdateMap')
   if (this.checkUpdateMapRequest) {
-  console.log(request)
     this.checkUpdateMapRequest.abort()
+    delete this.checkUpdateMapRequest
     this.unsetLoading()
   } else if (this.loadingState) {
     this.updateMapRequested = true
@@ -225,6 +231,7 @@ PTMap.prototype.checkUpdateMap = function () {
           }
           this.currentStopAreas = newStopAreas
 
+          console.log('set stopAreas null')
           request.stopAreas = null
           callback()
         }.bind(this)
@@ -233,7 +240,7 @@ PTMap.prototype.checkUpdateMap = function () {
     function (callback) {
       var newSharedRouteWays = []
 
-      request.sharedRouteWay = this.getSharedRouteWays(
+      request.sharedRouteWays = this.getSharedRouteWays(
         filter,
         function (err, sharedRouteWay) {
           newSharedRouteWays.push(sharedRouteWay)
@@ -247,6 +254,7 @@ PTMap.prototype.checkUpdateMap = function () {
           }
           this.currentSharedRouteWays = newSharedRouteWays
 
+          console.log('set sharedRouteWays null')
           request.sharedRouteWays = null
           callback()
         }.bind(this)
