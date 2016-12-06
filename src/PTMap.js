@@ -171,7 +171,6 @@ PTMap.prototype.checkUpdateMap = function () {
   if (this.checkUpdateMapRequest) {
     this.checkUpdateMapRequest.abort()
     delete this.checkUpdateMapRequest
-    this.unsetLoading()
   } else if (this.loadingState) {
     this.updateMapRequested = true
     return
