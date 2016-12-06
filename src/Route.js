@@ -203,6 +203,10 @@ Route.prototype.hideHighlight = function () {
 }
 
 Route.prototype.isActive = function () {
+  if (new Date() - this.lastIsActiveTime < 1000) {
+    return this.lastIsActiveState
+  }
+
   if (!this.openingHours) {
     var oh = '05:00-00:00'
 
@@ -220,12 +224,15 @@ Route.prototype.isActive = function () {
         address: config.nominatim_address
       })
     } catch (e) {
-      this.errors.push("Error parsing opening hours string: " + e)
+      // this.errors.push("Error parsing opening hours string: " + e)
       return true
     }
   }
 
-  return this.openingHours.getState(this.ptmap.env.date());
+  this.lastIsActiveTime = new Date()
+  this.lastIsActiveState = this.openingHours.getState(this.ptmap.env.date());
+
+  return this.lastIsActiveState
 }
 
 Route.prototype.routeWays = function (filter, featureCallback, finalCallback) {
