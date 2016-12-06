@@ -225,8 +225,13 @@ Route.prototype.isActive = function () {
       })
     } catch (e) {
       // this.errors.push("Error parsing opening hours string: " + e)
+      this.openingHours = true
       return true
     }
+  }
+
+  if (this.openingHours === true) {
+    return true
   }
 
   this.lastIsActiveTime = new Date()
