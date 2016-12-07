@@ -324,7 +324,7 @@ Route.prototype.routeWayCheck = function (wayIndex) {
   }
 
   if (!link.sharedRouteWay) {
-    link.sharedRouteWay = this.ptmap.sharedRouteWays.get(link.way)
+    link.sharedRouteWay = this.ptmap.sharedRouteWays.add(link.way)
     link.sharedRouteWay.addLink(link)
   }
 

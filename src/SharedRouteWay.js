@@ -292,7 +292,7 @@ SharedRouteWay.factory = function (ptmap) {
   var updateRequested = []
 
   return {
-    get: function (way) {
+    add: function (way) {
       if (!(way.id in sharedRouteWays)) {
         sharedRouteWays[way.id] = new SharedRouteWay(ptmap, way)
       }
