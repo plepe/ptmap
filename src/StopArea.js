@@ -168,7 +168,7 @@ StopArea.prototype.getStyle = function () {
         opacity: 0.8,
         fill: true,
         fillOpacity: 0.0,
-        weight: 2,
+        weight: 1,
         zIndex: 200,
         pane: 'stopArea'
       }
@@ -180,8 +180,8 @@ StopArea.prototype.getStyle = function () {
         opacity: 0.8,
         fill: true,
         fillOpacity: 0.0,
-        weight: 5,
-        zIndex: 200,
+        weight: 2,
+        zIndex: 201,
         pane: 'stopArea'
       },
       text: {
@@ -198,7 +198,7 @@ StopArea.prototype.getStyle = function () {
         fill: true,
         fillOpacity: 0.0,
         weight: 5,
-        zIndex: 200,
+        zIndex: 202,
         pane: 'stopArea'
       },
       text: {
