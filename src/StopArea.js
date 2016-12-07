@@ -133,7 +133,7 @@ StopArea.prototype.topRoute = function () {
   var routes = this.routes()
 
   routes.sort(function (a, b) {
-    return cmpScaleCategory(a.scaleCategory(), b.scaleCategory())
+    return a.scaleCategory() < b.scaleCategory()
   })
 
   if (routes.length) {
