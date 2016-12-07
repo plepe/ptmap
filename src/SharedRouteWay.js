@@ -97,7 +97,8 @@ SharedRouteWay.prototype.getStyle = function () {
       },
       text: {
         fill: routeConf.color,
-        offset: 12
+        offset: 12,
+        'font-weight': 'bold'
       }
     }
   } else {
@@ -110,7 +111,8 @@ SharedRouteWay.prototype.getStyle = function () {
       },
       text: {
         fill: routeConf.color,
-        offset: 12
+        offset: 12,
+        'font-weight': 'bold'
       }
     }
   }
@@ -176,7 +178,7 @@ SharedRouteWay.prototype.build_label = function () {
 
   ret = '   '
   if (refBackward.length) {
-    ret += ' ← ' + refBackward.join(', ') + '   '
+    ret += ' ⬅ ' + refBackward.join(', ') + '   '
   }
 
   if (refBoth.length) {
@@ -184,11 +186,11 @@ SharedRouteWay.prototype.build_label = function () {
   }
 
   if (refForward.length) {
-    ret += refForward.join(', ') + ' → '
+    ret += refForward.join(', ') + ' ➡   '
   }
 
   if (refUnknown.length) {
-    ret += ' ?? ' + refUnknown.join(', ') + ' ?? '
+    ret += refUnknown.join(', ')
   }
 
   return ret + '             '
