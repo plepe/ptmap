@@ -80,6 +80,10 @@ Route.prototype.approxPxStopDistance = function () {
  * 3 ... "too large" (dotted)
  */
 Route.prototype.scaleCategory = function () {
+  if (this.lastScaleCategoryZoom === this.ptmap.map.getZoom()) {
+    return this.lastScaleCategoryValue
+  }
+
   var approxPxStopDistance = this.approxPxStopDistance()
   var ret
 
@@ -102,6 +106,9 @@ Route.prototype.scaleCategory = function () {
       ret = 1
     }
   }
+
+  this.lastScaleCategoryZoom = this.ptmap.map.getZoom()
+  this.lastScaleCategoryValue = ret
 
   return ret
 }
