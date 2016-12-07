@@ -196,6 +196,34 @@ SharedRouteWay.prototype.build_label = function () {
   return ret + '             '
 }
 
+SharedRouteWay.prototype.buildPopup = function () {
+  var ret = "<ul>\n"
+  var r = []
+  var i
+
+  var routes = this.routes()
+
+  for (i = 0; i < routes.length; i++) {
+    r.push({
+      ref: routes[i].ref(),
+      text: "<li><a href='#route=" + routes[i].id + "'>" + routes[i].title() + "</a></li>"
+    })
+  }
+
+  r = weightSort(r, {
+    key: 'ref',
+    compareFunction: natsort()
+  })
+
+  for (i = 0; i < r.length; i++) {
+    ret += r[i].text
+  }
+
+  ret += "</ul>"
+
+  return ret
+}
+
 SharedRouteWay.prototype.update = function (force) {
   if (typeof L === 'undefined') {
     return
@@ -209,6 +237,13 @@ SharedRouteWay.prototype.update = function (force) {
 
   var style = this.getStyle()
 
+  // popup
+  if (!this.featurePopup) {
+    this.featurePopup = L.popup()
+    this.featurePopup.object = this
+  }
+  this.featurePopup.setContent(this.buildPopup())
+
   // line
   if (style.line) {
     if (this.feature) {
@@ -216,6 +251,7 @@ SharedRouteWay.prototype.update = function (force) {
     }
     else {
       this.feature = L.polyline(this.way.geometry, style.line).addTo(this.ptmap.map)
+      this.feature.bindPopup(this.featurePopup)
     }
   } else if (this.feature) {
     this.ptmap.map.removeLayer(this.feature)
