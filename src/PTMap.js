@@ -168,9 +168,8 @@ PTMap.prototype.unsetLoading = function () {
 
 PTMap.prototype.checkUpdateMap = function () {
   console.log('checkUpdateMap')
-  if (this.checkUpdateMapRequest) {
+  if (this.checkUpdateMapRequest && !this.checkUpdateMapRequest.finished) {
     this.checkUpdateMapRequest.abort()
-    delete this.checkUpdateMapRequest
   } else if (this.loadingState) {
     this.updateMapRequested = true
     return
@@ -197,9 +196,11 @@ PTMap.prototype.checkUpdateMap = function () {
   var request = {
     stopAreas: null,
     sharedRouteWays: null,
+    finished: false
   }
   request.abort = function () {
     console.log('PTMap.checkUpdateMap.abort called')
+    this.finished = true
     if (this.stopAreas) {
       this.stopAreas.abort()
     }
@@ -259,10 +260,10 @@ PTMap.prototype.checkUpdateMap = function () {
         }.bind(this)
       )
     }.bind(this)
-  ], function () {
+  ], function (request) {
     this.unsetLoading()
-    this.checkUpdateMapRequest = null
-  }.bind(this))
+    request.finished = true
+  }.bind(this, request))
 
   return request
 }
