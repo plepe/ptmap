@@ -227,47 +227,49 @@ PTMap.prototype.checkUpdateMap = function () {
 
   this.checkUpdateMapRequest = request
 
-  async.parallel([
-    function (callback) {
-      var newStopAreas = []
+  async.setImmediate(function () {
+    async.parallel([
+      function (callback) {
+        var newStopAreas = []
 
-      request.stopAreas = this.getStopAreas(
-        filter,
-        function (err, stopArea) {
-          newStopAreas.push(stopArea)
-          stopArea.show()
-        }.bind(this),
-        function (err) {
-          this.currentStopAreas = newStopAreas
+        request.stopAreas = this.getStopAreas(
+          filter,
+          function (err, stopArea) {
+            newStopAreas.push(stopArea)
+            stopArea.show()
+          }.bind(this),
+          function (err) {
+            this.currentStopAreas = newStopAreas
 
-          console.log('set stopAreas null')
-          request.stopAreas = null
-          callback()
-        }.bind(this)
-      )
-    }.bind(this),
-    function (callback) {
-      var newSharedRouteWays = []
+            console.log('set stopAreas null')
+            request.stopAreas = null
+            callback()
+          }.bind(this)
+        )
+      }.bind(this),
+      function (callback) {
+        var newSharedRouteWays = []
 
-      request.sharedRouteWays = this.getSharedRouteWays(
-        filter,
-        function (err, sharedRouteWay) {
-          newSharedRouteWays.push(sharedRouteWay)
-          sharedRouteWay.show()
-        }.bind(this),
-        function (err) {
-          this.currentSharedRouteWays = newSharedRouteWays
+        request.sharedRouteWays = this.getSharedRouteWays(
+          filter,
+          function (err, sharedRouteWay) {
+            newSharedRouteWays.push(sharedRouteWay)
+            sharedRouteWay.show()
+          }.bind(this),
+          function (err) {
+            this.currentSharedRouteWays = newSharedRouteWays
 
-          console.log('set sharedRouteWays null')
-          request.sharedRouteWays = null
-          callback()
-        }.bind(this)
-      )
-    }.bind(this)
-  ], function (request) {
-    this.unsetLoading()
-    request.finished = true
-  }.bind(this, request))
+            console.log('set sharedRouteWays null')
+            request.sharedRouteWays = null
+            callback()
+          }.bind(this)
+        )
+      }.bind(this)
+    ], function (request) {
+      this.unsetLoading()
+      request.finished = true
+    }.bind(this, request))
+  }.bind(this))
 
   return request
 }
