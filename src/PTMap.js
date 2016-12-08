@@ -179,17 +179,31 @@ PTMap.prototype.checkUpdateMap = function () {
 
   this.setLoading()
 
+  var bbox = new BoundingBox(this.map.getBounds())
   var filter = {
-    bbox: this.map.getBounds(),
+    bbox: bbox,
     minScaleCategory: 1
   }
 
   async.setImmediate(function () {
-    for(var i = 0; i < this.currentSharedRouteWays.length; i++) {
-      this.currentSharedRouteWays[i].update()
+    var i
+
+    for(i = 0; i < this.currentSharedRouteWays.length; i++) {
+      var ob = this.currentSharedRouteWays[i]
+      if (ob.intersects(bbox)) {
+        ob.update()
+      } else {
+        ob.hide()
+      }
     }
-    for(var i = 0; i < this.currentStopAreas.length; i++) {
-      this.currentStopAreas[i].update()
+
+    for(i = 0; i < this.currentStopAreas.length; i++) {
+      var ob = this.currentStopAreas[i]
+      if (ob.intersects(bbox)) {
+        ob.update()
+      } else {
+        ob.hide()
+      }
     }
   }.bind(this))
 
@@ -224,11 +238,6 @@ PTMap.prototype.checkUpdateMap = function () {
           stopArea.show()
         }.bind(this),
         function (err) {
-          for (var i = 0; i < this.currentStopAreas.length; i++) {
-            if (newStopAreas.indexOf(this.currentStopAreas[i]) === -1) {
-              this.currentStopAreas[i].hide(this.map)
-            }
-          }
           this.currentStopAreas = newStopAreas
 
           console.log('set stopAreas null')
@@ -247,11 +256,6 @@ PTMap.prototype.checkUpdateMap = function () {
           sharedRouteWay.show()
         }.bind(this),
         function (err) {
-          for (var i = 0; i < this.currentSharedRouteWays.length; i++) {
-            if (newSharedRouteWays.indexOf(this.currentSharedRouteWays[i]) === -1) {
-              this.currentSharedRouteWays[i].hide(this.map)
-            }
-          }
           this.currentSharedRouteWays = newSharedRouteWays
 
           console.log('set sharedRouteWays null')
