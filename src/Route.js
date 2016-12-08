@@ -189,7 +189,7 @@ Route.prototype.showHighlight = function (callback) {
       )
     }.bind(this),
     function (callback) {
-      this.stops(null,
+      this.stops({},
         function () {},
         function () {
           callback()
