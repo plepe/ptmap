@@ -14,6 +14,10 @@ function SharedRouteWay (ptmap, way) {
   this.lastRoutes = []
 }
 
+SharedRouteWay.prototype.intersects = function (bbox) {
+  return this.way.intersects(bbox)
+}
+
 SharedRouteWay.prototype.requestUpdate = function () {
   this.ptmap.sharedRouteWays.requestUpdate(this)
   this.updateNeeded = true

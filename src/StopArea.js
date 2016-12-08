@@ -14,6 +14,10 @@ function StopArea (ptmap) {
   this.lastRoutes = []
 }
 
+StopArea.prototype.intersects = function (bbox) {
+  return this.bounds.intersects(bbox)
+}
+
 StopArea.prototype.getUrl = function () {
   return {
     stopArea: this.id
