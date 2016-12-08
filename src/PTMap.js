@@ -193,6 +193,7 @@ PTMap.prototype.checkUpdateMap = function () {
       if (ob.intersects(bbox)) {
         ob.update()
       } else {
+        this.currentSharedRouteWays.splice(i, 1)
         ob.hide()
       }
     }
@@ -202,6 +203,7 @@ PTMap.prototype.checkUpdateMap = function () {
       if (ob.intersects(bbox)) {
         ob.update()
       } else {
+        this.currentStopAreas.splice(i, 1)
         ob.hide()
       }
     }
@@ -213,7 +215,6 @@ PTMap.prototype.checkUpdateMap = function () {
     finished: false
   }
   request.abort = function () {
-    console.log('PTMap.checkUpdateMap.abort called')
     this.finished = true
     if (this.stopAreas) {
       this.stopAreas.abort()
@@ -230,36 +231,32 @@ PTMap.prototype.checkUpdateMap = function () {
   async.setImmediate(function () {
     async.parallel([
       function (callback) {
-        var newStopAreas = []
-
         request.stopAreas = this.getStopAreas(
           filter,
           function (err, stopArea) {
-            newStopAreas.push(stopArea)
+            if (this.currentStopAreas.indexOf(stopArea) === -1) {
+              this.currentStopAreas.push(stopArea)
+            }
+
             stopArea.show()
           }.bind(this),
           function (err) {
-            this.currentStopAreas = newStopAreas
-
-            console.log('set stopAreas null')
             request.stopAreas = null
             callback()
           }.bind(this)
         )
       }.bind(this),
       function (callback) {
-        var newSharedRouteWays = []
-
         request.sharedRouteWays = this.getSharedRouteWays(
           filter,
           function (err, sharedRouteWay) {
-            newSharedRouteWays.push(sharedRouteWay)
+            if (this.currentSharedRouteWays.indexOf(sharedRouteWay) === -1) {
+              this.currentSharedRouteWays.push(sharedRouteWay)
+            }
+
             sharedRouteWay.show()
           }.bind(this),
           function (err) {
-            this.currentSharedRouteWays = newSharedRouteWays
-
-            console.log('set sharedRouteWays null')
             request.sharedRouteWays = null
             callback()
           }.bind(this)
