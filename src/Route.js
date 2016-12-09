@@ -17,6 +17,12 @@ function Route (ptmap, object) {
   this.routeType = this.object.tags.route
 }
 
+Route.prototype.getUrl = function () {
+  return {
+    route: this.id
+  }
+}
+
 Route.prototype.title = function () {
   if ('name' in this.object.tags) {
     return this.object.tags.name
