@@ -2,6 +2,9 @@ var BoundingBox = require('boundingbox')
 var async = require('async')
 var arrayEquals = require('array-equal')
 var natsort = require('natsort')
+var turf = {
+  distance: require('turf-distance')
+}
 
 var cmpScaleCategory = require('./cmpScaleCategory')
 
@@ -300,6 +303,43 @@ StopArea.factory = function (ptmap) {
   var updateRequested = []
 
   return {
+    findNear: function (name, loc) {
+      if (!(name in stopAreaNames)) {
+        return null
+      }
+
+      var locGeoJSON = {
+        type: 'Feature',
+        geometry: {
+          type: 'Point',
+          coordinates: [ loc.lat, loc.lon ]
+        }
+      }
+
+      var found = null
+      var minDistance = 0.5 // km
+
+      for (var i = 0; i < stopAreaNames[name].length; i++) {
+        var stopArea = stopAreaNames[name][i]
+        var stopAreaCenter = stopArea.bounds.getCenter()
+        stopAreaCenter = {
+            type: 'Feature',
+            geometry: {
+              type: 'Point',
+              coordinates: [ stopAreaCenter.lat, stopAreaCenter.lon ]
+            }
+          }
+
+        var distance = turf.distance(locGeoJSON, stopAreaCenter, 'kilometers')
+        if (distance < minDistance) {
+          minDistance = distance
+          found = stopArea
+        }
+      }
+
+      return found
+    },
+
     add: function (link) {
       var name = null
 
@@ -308,16 +348,22 @@ StopArea.factory = function (ptmap) {
       }
 
       if (name) {
-        if (name in stopAreaNames) {
-          stopAreaNames[name][0].addStop(link)
+        var found
+        if (found = this.findNear(name, link.node.geometry)) {
+          found.addStop(link)
+          return found
+        }
 
-          return stopAreaNames[name]
+        var ob = new StopArea(ptmap)
+        stopAreas.push(ob)
+        ob.addStop(link)
+        if (name in stopAreaNames) {
+          stopAreaNames[name].push(ob)
         } else {
-          var ob = new StopArea(ptmap)
-          stopAreas.push(ob)
-          ob.addStop(link)
           stopAreaNames[name] = [ ob ]
         }
+
+        return ob
       } else {
         var ob = new StopArea(ptmap)
         stopAreas.push(ob)
@@ -341,9 +387,10 @@ StopArea.factory = function (ptmap) {
       }
       var name = m[1]
 
-      if (name in stopAreaNames) {
+      var found
+      if (found = this.findNear(name, { lat: m[2], lon: m[3] })) {
         async.setImmediate(function () {
-          callback(null, stopAreaNames[name][0])
+          callback(null, found)
         })
 
         // return fake request object

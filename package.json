@@ -14,7 +14,7 @@
     "overpass-frontend": "https://github.com/plepe/overpass-frontend",
     "query-string": "^4.2.3",
     "sheet-router": "^4.1.1",
-    "turf": "*",
+    "turf-distance": "*",
     "twig": "0.8.9",
     "weight-sort": "*"
   },
