@@ -52,7 +52,7 @@ StopArea.prototype.addStop = function (link) {
   var name = this.name()
   var pos = this.bounds.getCenter()
   if (name) {
-    this.id = this.name() + ',' + pos.lon.toFixed(4) + ',' + pos.lat.toFixed(4)
+    this.id = this.name() + ',' + pos.lat.toFixed(4) + ',' + pos.lon.toFixed(4)
   }
   else {
     this.id = this.links[0].node.id
@@ -355,10 +355,10 @@ StopArea.factory = function (ptmap) {
       return ptmap.getStopAreas(
         {
           bbox: {
-            minlat: parseFloat(m[3]) - 0.001,
-            maxlat: parseFloat(m[3]) + 0.001,
-            minlon: parseFloat(m[2]) - 0.001,
-            maxlon: parseFloat(m[2]) + 0.001
+            minlat: parseFloat(m[2]) - 0.001,
+            maxlat: parseFloat(m[2]) + 0.001,
+            minlon: parseFloat(m[3]) - 0.001,
+            maxlon: parseFloat(m[3]) + 0.001
           }
         },
         function (err, stopArea) {
