@@ -46,6 +46,9 @@ function PTMap (map, env) {
 
     this.map.on('popupopen', function (e) {
       if ('object' in e.popup && 'getUrl' in e.popup.object) {
+        if (this.highlight) {
+          this.highlight.close()
+        }
         this.highlight = e.popup.object
 
         this.updateState()
@@ -118,6 +121,10 @@ PTMap.prototype.setState = function (state) {
 
       this.unsetLoading()
     }.bind(this))
+  } else if (this.highlight && this.highlight.constructor.name == 'StopArea') {
+    this.highlight.close()
+    this.highlight = null
+    this.map.closePopup(this.featurePopup)
   }
 
   if ('route' in state) {
@@ -137,6 +144,10 @@ PTMap.prototype.setState = function (state) {
       }.bind(this),
       function () {}
     )
+  } else if (this.highlight && this.highlight.constructor.name == 'Route') {
+    this.highlight.close()
+    this.highlight = null
+    this.map.closePopup(this.featurePopup)
   }
 }
 
