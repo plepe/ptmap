@@ -39,13 +39,16 @@ function PTMap (map, env) {
     this.map.getPane('highlightRouteWays').style.zIndex = 401
 
     this.map.on('moveend', function (e) {
+      this.updateState()
+
       this.checkUpdateMap()
     }.bind(this))
 
     this.map.on('popupopen', function (e) {
       if ('object' in e.popup && 'getUrl' in e.popup.object) {
         this.highlight = e.popup.object
-        this.updateState(e.popup.object.getUrl())
+
+        this.updateState()
       }
     }.bind(this))
     this.map.on('popupclose', function (e) {
@@ -54,12 +57,12 @@ function PTMap (map, env) {
         return
       }
 
-      this.updateState({})
-
       if (this.highlight) {
         this.highlight.close()
         this.highlight = null
       }
+
+      this.updateState()
     }.bind(this))
     this.state = {}
 
@@ -71,13 +74,20 @@ function PTMap (map, env) {
 
 PTMap.prototype.__proto__ = events.EventEmitter.prototype
 
-PTMap.prototype.getState = function () {
-  var ret = JSON.parse(JSON.stringify(this.state))
+PTMap.prototype.getState = function (fullState) {
+  var ret = {}
+
+  if (this.highlight) {
+    ret = this.highlight.getUrl()
+  }
 
   ret.zoom = this.map.getZoom()
   ret.lat = this.map.getCenter().lat.toFixed(5)
   ret.lon = this.map.getCenter().lng.toFixed(5)
-  ret.date = moment(this.env.date()).format()
+
+  if (fullState) {
+    ret.date = moment(this.env.date()).format()
+  }
 
   return ret
 }
@@ -130,9 +140,10 @@ PTMap.prototype.setState = function (state) {
   }
 }
 
-PTMap.prototype.updateState = function (state) {
-  this.state = state
-  this.emit('updateState', state)
+PTMap.prototype.updateState = function () {
+  this.state = this.getState()
+
+  this.emit('updateState', this.state)
 }
 
 PTMap.prototype.setLoading = function () {
