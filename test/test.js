@@ -668,4 +668,50 @@ describe('PTMap', function () {
     )
   })
 
+  it('Far away StopAreas with same name', function (done) {
+    async.parallel([
+      function (callback) {
+        ptmap.stopAreas.query(
+          {
+            bbox: {
+              minlat: 48.234,
+              minlon: 16.192,
+              maxlat: 48.235,
+              maxlon: 16.193
+            },
+            onlyActive: false
+          },
+          function (err, result) {
+            console.log(result)
+          },
+          function (err) {
+            callback(err)
+          }
+        )
+      },
+      function (callback) {
+        ptmap.stopAreas.query(
+          {
+            bbox: {
+              minlat: 48.213,
+              minlon: 16.348,
+              maxlat: 48.214,
+              maxlon: 16.350
+            },
+            onlyActive: false
+          },
+          function (err, result) {
+            console.log(result)
+          },
+          function (err) {
+            callback(err)
+          }
+        )
+      }
+    ],
+    function (err) {
+      done()
+    })
+  })
+
 })
