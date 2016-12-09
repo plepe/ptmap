@@ -341,6 +341,17 @@ StopArea.factory = function (ptmap) {
       }
       var name = m[1]
 
+      if (name in stopAreaNames) {
+        async.setImmediate(function () {
+          callback(null, stopAreaNames[name][0])
+        })
+
+        // return fake request object
+        return {
+          abort: function () {}
+        }
+      }
+
       return ptmap.getStopAreas(
         {
           bbox: {
