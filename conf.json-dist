@@ -5,7 +5,7 @@
         "lon": 16.338
     },
     "overpass": {
-        "url": "//www.overpass-api.de/api/interpreter",
+        "url": "//overpass-api.de/api/interpreter",
         "effortPerQuery": 1023,
         "effortNode": 1,
         "effortWay": 4,
