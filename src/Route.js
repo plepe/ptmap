@@ -208,6 +208,10 @@ Route.prototype.showHighlight = function (callback) {
 }
 
 Route.prototype.hideHighlight = function () {
+  if (!this.highlightsRouteWays) {
+    return
+  }
+
   for (var i = 0; i < this.highlightsRouteWays.length; i++) {
     if (this.highlightsRouteWays[i]) {
       this.ptmap.map.removeLayer(this.highlightsRouteWays[i])
