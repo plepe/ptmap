@@ -1,4 +1,9 @@
 {
+    "location": {
+        "zoom": 15,
+        "lat": 48.202,
+        "lon": 16.338
+    },
     "overpass": {
         "url": "//www.overpass-api.de/api/interpreter",
         "effortPerQuery": 1023,

@@ -29,7 +29,7 @@ function init () {
   var hashUpdated = false
   window.overpassFrontend = new OverpassFrontend(config.overpass.url, config.overpass)
 
-  var map = L.map('map').setView([48.202, 16.338], 15)
+  var map = L.map('map').setView([ config.location.lat, config.location.lon], config.location.zoom)
 
   var osmMapnik = L.tileLayer('//{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
     {
