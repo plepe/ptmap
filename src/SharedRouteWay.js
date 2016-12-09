@@ -14,6 +14,17 @@ function SharedRouteWay (ptmap, way) {
   this.lastRoutes = []
 }
 
+// TODO: not implemented yet
+SharedRouteWay.prototype.getUrl = function () {
+  return {}
+}
+
+SharedRouteWay.prototype.open = function () {
+}
+
+SharedRouteWay.prototype.close = function () {
+}
+
 SharedRouteWay.prototype.intersects = function (bbox) {
   return this.way.intersects(bbox)
 }
