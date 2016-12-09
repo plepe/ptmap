@@ -18,15 +18,27 @@
     "routes": {
         "bus": {
 	    "priority": 1,
-	    "color": "blue"
+	    "color": "#af0000"
+	},
+        "trolleybus": {
+	    "priority": 1,
+	    "color": "#af3f00"
 	},
         "tram": {
 	    "priority": 2,
-	    "color": "red"
+	    "color": "#7f007f"
 	},
         "subway": {
 	    "priority": 3,
-	    "color": "magenta"
-	}
+	    "color": "#00007f"
+	},
+        "ferry": {
+	    "priority": 2,
+	    "color": "#007fff"
+	},
+        "train": {
+	    "priority": 4,
+	    "color": "#202020"
+        }
     }
 }
