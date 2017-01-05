@@ -77,7 +77,11 @@ StopArea.prototype.name = function () {
   return this.links[0].node.tags.name
 }
 
-StopArea.prototype.routes = function (filter) {
+/**
+ * return all links whose route is currently active
+ * @return {object[]} links
+ */
+StopArea.prototype.activeLinks = function (filter) {
   var ret = []
 
   if (typeof filter === 'undefined') {
@@ -94,6 +98,22 @@ StopArea.prototype.routes = function (filter) {
       continue
     }
 
+    ret.push(link)
+  }
+
+  return ret
+}
+
+/**
+ * return routes which are currently active
+ * @return {Route[]} routes
+ */
+StopArea.prototype.routes = function (filter) {
+  var ret = []
+  var activeLinks = this.activeLinks()
+
+  for (var i = 0; i < activeLinks.length; i++) {
+    var link = activeLinks[i]
     ret.push(link.route)
   }
 
