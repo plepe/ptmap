@@ -9,6 +9,16 @@ var OpeningHours = require('opening_hours')
 
 var priorityFromScale = [ 0.6, 0.4, 0.1, 0.3 ]
 
+/**
+ * A public transport route
+ * @constructor
+ * @param {PTMap} ptmap - the master ptmap object
+ * @object {OverpassObject} object - the OSM object (usually a relation)
+ * @property {string} id equals the id of the OSM object (e.g. 'r123')
+ * @property {string} routeType type of the route (the value of the tag 'route'), e.g. 'tram'
+ * @property {PTMap} ptmap the master ptmap object
+ * @property {OverpassObject} object the OSM object (usually a relation)
+ */
 function Route (ptmap, object) {
   this.ptmap = ptmap
   this.object = object
@@ -17,12 +27,20 @@ function Route (ptmap, object) {
   this.routeType = this.object.tags.route
 }
 
+/**
+ * return the url parameters to represent this route
+ * @return {object}
+ */
 Route.prototype.getUrl = function () {
   return {
     route: this.id
   }
 }
 
+/**
+ * title (the name of the route or 'ref to')
+ * @return {string}
+ */
 Route.prototype.title = function () {
   if ('name' in this.object.tags) {
     return this.object.tags.name
@@ -39,6 +57,10 @@ Route.prototype.title = function () {
   return 'unknown'
 }
 
+/**
+ * reference tag (usually 'ref')
+ * @return {string}
+ */
 Route.prototype.ref = function () {
   if ('ref' in this.object.tags) {
     return this.object.tags.ref
@@ -47,6 +69,10 @@ Route.prototype.ref = function () {
   return 'unknown'
 }
 
+/**
+ * approximate length in pixels - in fact it will calculate the length of the diagonal of the bounding box
+ * @return {float}
+ */
 Route.prototype.approxPxLength = function () {
   var leafletBounds = this.object.bounds.toLeaflet()
   var sw = leafletBounds.getSouthWest()
@@ -63,6 +89,10 @@ Route.prototype.approxPxLength = function () {
   return d
 }
 
+/**
+ * approximate distance of stops in pixels - the approximate length in pixels divided by the count of stops - 1
+ * @return {float}
+ */
 Route.prototype.approxPxStopDistance = function () {
   if (!this._stops) {
     this._initStops()
@@ -78,12 +108,14 @@ Route.prototype.approxPxStopDistance = function () {
   return 0.0
 }
 
-/* Scale of a route (avg. approx stop distance) in relation to the current zoom
+/**
+ * Scale of a route (avg. approx stop distance) in relation to the current zoom
  * level
- * 0 ... "very small" (hidden?)
- * 1 ... "small" (shown as narrow line)
- * 2 ... "perfect for this scale" (thick line)
- * 3 ... "too large" (dotted)
+ * @return {int}
+ *   0 ... "very small" (hidden?)
+ *   1 ... "small" (shown as narrow line)
+ *   2 ... "perfect for this scale" (thick line)
+ *   3 ... "too large" (dotted)
  */
 Route.prototype.scaleCategory = function () {
   if (typeof L === 'undefined') {

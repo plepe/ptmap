@@ -10,6 +10,10 @@ var StopArea = require('./StopArea')
 var BoundingBox = require('boundingbox')
 var Environment = require('./Environment')
 
+/**
+ * A public transport map
+ * @constructor
+ */
 function PTMap (map, env) {
   events.EventEmitter.call(this)
 
