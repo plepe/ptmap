@@ -21,7 +21,17 @@ SharedRouteWay.prototype.getUrl = function () {
   return {}
 }
 
-SharedRouteWay.prototype.open = function () {
+/**
+ * highlight object and show popup
+ * @param {object} options for future use
+ * @param {function} [callback] will be called when highlighting finished. The callback will be passed an err argument.
+ */
+SharedRouteWay.prototype.open = function (options, callback) {
+  if (callback) {
+    async.setImmediate(function () {
+      callback(null)
+    })
+  }
 }
 
 SharedRouteWay.prototype.close = function () {

@@ -27,13 +27,24 @@ StopArea.prototype.getUrl = function () {
   }
 }
 
-StopArea.prototype.open = function () {
+/**
+ * highlight object and show popup
+ * @param {object} options for future use
+ * @param {function} [callback] will be called when highlighting finished. The callback will be passed an err argument.
+ */
+StopArea.prototype.open = function (options, callback) {
   if (!this.shown) {
     this.show()
   }
 
   this.featurePopup.setLatLng(this.feature.getCenter())
   this.featurePopup.openOn(this.ptmap.map)
+
+  if (callback) {
+    async.setImmediate(function () {
+      callback(null)
+    })
+  }
 }
 
 StopArea.prototype.close = function () {
