@@ -2,6 +2,8 @@
 var natsort = require('natsort')
 var async = require('async')
 var arrayEquals = require('array-equal')
+var BoundingBox = require('boundingbox')
+var OverpassFrontend = require('overpass-frontend')
 
 var cmpScaleCategory = require('./cmpScaleCategory')
 
@@ -393,7 +395,53 @@ SharedRouteWay.factory = function (ptmap) {
       ))
 
       return request
+    },
+
+    /**
+     * get a shared route way
+     * @param {string|number} id - ID of the way
+     * @param {object} options - reserved for future use
+     * @param {function} callback - callback which will be passed the result
+     * @param {string|null} callback.error - if an error occured
+     * @param {Route|null} callback.result - Route object
+     */
+    get: function (id, options, callback) {
+      var found = false
+
+      if (id in sharedRouteWays) {
+        async.setImmediate(function () {
+          callback(null, sharedRouteWays[id])
+        })
+
+        // return fake request object
+        return {
+          abort: function () {}
+        }
+      }
+
+      return overpassFrontend.get(
+        [ id ],
+        {
+          properties: OverpassFrontend.BBOX
+        },
+        function (err, feature) {
+          found = true
+
+          var ob = null
+          if (feature) {
+            var ob = this.add(feature)
+          }
+
+          callback(null, ob)
+        }.bind(this),
+        function (err) {
+          if (!found) {
+            callback(err, null)
+          }
+        }
+      )
     }
+
   }
 }
 

@@ -398,7 +398,16 @@ StopArea.factory = function (ptmap) {
     names: function () {
       return stopAreaNames
     },
-    get: function (id, callback) {
+
+    /**
+     * get a stop area
+     * @param {string} id - ID of the stop area
+     * @param {object} options - reserved for future use
+     * @param {function} callback - callback which will be passed the result
+     * @param {string|null} callback.error - if an error occured
+     * @param {Route|null} callback.result - Route object
+     */
+    get: function (id, options, callback) {
       var done = false
       var m = id.match(/^(.*),(\-?[0-9]+\.[0-9]+),(\-?[0-9]+\.[0-9]+)$/)
       if (!m) {
@@ -419,7 +428,7 @@ StopArea.factory = function (ptmap) {
         }
       }
 
-      return ptmap.getStopAreas(
+      return ptmap.stopAreas.query(
         {
           bbox: {
             minlat: parseFloat(m[2]) - 0.001,
@@ -436,7 +445,7 @@ StopArea.factory = function (ptmap) {
         },
         function (err) {
           if (!done) {
-            callback('not found', null)
+            callback(err, null)
           }
         }
       )
@@ -478,7 +487,7 @@ StopArea.factory = function (ptmap) {
         console.log('PTMap.getStopAreasWays.abort called')
       }.bind(request)
 
-      request.requests.push(ptmap.getRoutes(
+      request.requests.push(ptmap.routes.query(
         filter,
         function (err, route) {
           stackRoutes++

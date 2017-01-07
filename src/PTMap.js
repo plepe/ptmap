@@ -138,6 +138,7 @@ PTMap.prototype.setState = function (state) {
 
     this.routes.get(
       state.route,
+      {},
       function (err, ob) {
         if (ob) {
           this.highlight = ob
@@ -304,7 +305,22 @@ PTMap.prototype.update = function (force) {
 }
 
 PTMap.prototype.getRouteById = function (ids, featureCallback, finalCallback) {
-  return this.routes.get(ids, featureCallback, finalCallback)
+  if (!Array.isArray(ids)) {
+    ids = [ ids ]
+  }
+
+  async.each(
+    ids,
+    function (id, callback) {
+      this.routes.get(id, {}, function (err, ob) {
+        featureCallback(err, ob)
+        callback()
+      })
+    }.bind(this),
+    function () {
+      finalCallback()
+    }
+  )
 }
 
 PTMap.prototype.getRoutes = function (filter, featureCallback, finalCallback) {

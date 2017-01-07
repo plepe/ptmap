@@ -511,23 +511,51 @@ Route.factory = function (ptmap) {
     all: function () {
       return routes
     },
-    get: function (ids, featureCallback, finalCallback) {
-      if (typeof ids === 'string') {
-        ids = [ ids ]
-      }
 
+    /**
+     * get a route
+     * @param {string|number} id - ID of the route (e.g. r910886)
+     * @param {object} options - reserved for future use
+     * @param {function} callback - callback which will be passed the result
+     * @param {string|null} callback.error - if an error occured
+     * @param {Route|null} callback.result - Route object
+     */
+    get: function (id, options, callback) {
       var filter = {
         onlyActive: false
       }
 
+      if (id in routes) {
+        async.setImmediate(function () {
+          callback(null, routes[id])
+        })
+
+        // return fake request object
+        return {
+          abort: function () {}
+        }
+      }
+
+      var found = false
+
       return overpassFrontend.get(
-        ids,
+        [ id ],
         {
           properties: OverpassFrontend.TAGS | OverpassFrontend.MEMBERS | OverpassFrontend.BBOX
         },
-        _loadRoute.bind(this, filter, featureCallback),
+        function (err, ob) {
+          found = true
+
+          if (ob) {
+            _loadRoute.call(this, filter, callback, err, ob)
+          } else {
+            callback(err, null)
+          }
+        }.bind(this),
         function (err) {
-          finalCallback(err)
+          if (!found) {
+            callback(err, null)
+          }
         }
       )
     },
