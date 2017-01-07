@@ -422,7 +422,7 @@ StopArea.factory = function (ptmap) {
       var done = false
       var m = id.match(/^(.*),(\-?[0-9]+\.[0-9]+),(\-?[0-9]+\.[0-9]+)$/)
       if (!m) {
-        callback('invalid id', null)
+        callback(null, null)
         return
       }
       var name = m[1]

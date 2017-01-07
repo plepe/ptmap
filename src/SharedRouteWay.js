@@ -438,7 +438,7 @@ SharedRouteWay.factory = function (ptmap) {
           found = true
 
           var ob = null
-          if (feature) {
+          if (feature && feature.type === 'way') {
             var ob = this.add(feature)
           }
 
