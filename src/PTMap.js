@@ -99,6 +99,44 @@ PTMap.prototype.getState = function (fullState) {
   return ret
 }
 
+/**
+ * get an object
+ * @param {string|number} id - ID of the object (e.g. r910886)
+ * @param {object} options - reserved for future use
+ * @param {function} callback - callback which will be passed the result
+ * @param {string|null} callback.error - if an error occured
+ * @param {Route|null} callback.result - Route object
+ */
+PTMap.prototype.get = function (id, options, callback) {
+  var found = []
+  async.eachOf(
+    [ 'routes', 'stopAreas', 'sharedRouteWays' ],
+    function (realm, i, callback) {
+      this[realm].get(
+        id,
+        options,
+        function (err, ob) {
+          if (ob) {
+            found[i] = ob
+          }
+
+          callback(err)
+        }
+      )
+    }.bind(this),
+    function (err) {
+      for (var i = 0; i < found.length; i++) {
+        if (found[i] !== undefined) {
+          callback(err, found[i])
+          return
+        }
+      }
+
+      callback(err, null)
+    }
+  )
+}
+
 PTMap.prototype.setState = function (state) {
   if ('lat' in state && 'lon' in state && 'zoom' in state) {
     this.map.setView([ state.lat, state.lon ], state.zoom)
