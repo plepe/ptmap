@@ -30,6 +30,7 @@ function PTMap (map, env) {
   this.loadingState = 0
   this.updateMapRequested = false
   this.highlight = null
+  this.path = null
 
   this.routes = Route.factory(this)
   this.sharedRouteWays = SharedRouteWay.factory(this)
@@ -64,6 +65,7 @@ function PTMap (map, env) {
         return
       }
 
+      this.path = null
       if (this.highlight) {
         this.highlight.close()
         this.highlight = null
@@ -84,8 +86,8 @@ PTMap.prototype.__proto__ = events.EventEmitter.prototype
 PTMap.prototype.getState = function (fullState) {
   var ret = {}
 
-  if (this.highlight) {
-    ret = this.highlight.getUrl()
+  if (this.path) {
+    ret.q = this.path
   }
 
   ret.zoom = this.map.getZoom()
@@ -150,47 +152,45 @@ PTMap.prototype.setState = function (state) {
     this.env.setDate(state.date)
   }
 
-  if ('stopArea' in state) {
+  if ('q' in state && this.path !== state.q) {
+    if (this.highlight) {
+      this.highlight.close()
+      this.highlight = null
+    }
+
     this.closeOverride = true
     this.map.closePopup()
     this.setLoading()
 
-    this.stopAreas.get(state.stopArea, function (err, ob) {
-      if (ob) {
-        this.highlight = ob
-        ob.open()
-      }
-
-      this.unsetLoading()
-    }.bind(this))
-  } else if (this.highlight && this.highlight.constructor.name == 'StopArea') {
-    this.highlight.close()
-    this.highlight = null
-    this.map.closePopup(this.featurePopup)
-  }
-
-  if ('route' in state) {
-    this.closeOverride = true
-    this.map.closePopup()
-    this.setLoading()
-
-    this.routes.get(
-      state.route,
+    this.path = state.q
+    this.get(
+      this.path,
       {},
       function (err, ob) {
-        if (ob) {
-          this.highlight = ob
-          ob.open(function () {
-            this.unsetLoading()
-          }.bind(this))
+        if (ob === null) {
+          this.updateState()
+
+          alert('object not found!')
+          return
         }
-      }.bind(this),
-      function () {}
+
+        this.highlight = ob
+        ob.open({}, function (err) {
+          console.log('open')
+          this.updateState()
+          this.unsetLoading()
+        }.bind(this))
+      }.bind(this)
     )
-  } else if (this.highlight && this.highlight.constructor.name == 'Route') {
-    this.highlight.close()
-    this.highlight = null
-    this.map.closePopup(this.featurePopup)
+  }
+  if (!('q' in state) && this.path) {
+    if (this.highlight) {
+      this.highlight.close()
+      this.highlight = null
+    }
+
+    this.closeOverride = true
+    this.map.closePopup()
   }
 }
 
