@@ -140,12 +140,14 @@ StopArea.prototype.buildPopup = function () {
   var r = []
   var i
 
-  var routes = this.routes()
+  var activeLinks = this.activeLinks()
 
-  for (i = 0; i < routes.length; i++) {
+  for (i = 0; i < activeLinks.length; i++) {
+    var link = activeLinks[i]
+
     r.push({
-      ref: routes[i].ref(),
-      text: "<li><a href='#q=" + routes[i].id + "'>" + routes[i].title() + "</a></li>"
+      ref: link.route.ref(),
+      text: "<li><a href='#q=" + link.route.id + "'>" + link.route.title() + "</a></li>"
     })
   }
 
