@@ -60,8 +60,12 @@ function init () {
   ptmap.setState(state)
 
   ptmap.on('updateState', function (e) {
-    hashUpdated = true
-    location.hash = '#' + queryString.stringify(e)
+    var newHash = '#' + queryString.stringify(e)
+
+    if (location.hash !== newHash) {
+      hashUpdated = true
+      location.hash = newHash
+    }
   })
 
   var environmentFrontend = new EnvironmentFrontend(env, document.getElementById('clock'))
