@@ -196,6 +196,7 @@ PTMap.prototype.setState = function (state) {
 
     this.path = state.q
 
+    var pathParts = this.path.split('/')
     var highlightLocationResolve = null
     loc = new Promise(function (resolve, reject) {
       highlightLocationResolve = function (loc) {
@@ -204,7 +205,7 @@ PTMap.prototype.setState = function (state) {
     })
 
     this.get(
-      this.path,
+      pathParts[0],
       {},
       function (err, ob) {
         if (ob === null) {
@@ -216,7 +217,9 @@ PTMap.prototype.setState = function (state) {
 
         this.highlight = ob
         ob.open(
-          {},
+          {
+            path: pathParts.slice(1)
+          },
           function (err, mapLocation) {
             highlightLocationResolve(mapLocation)
             this.unsetLoading()

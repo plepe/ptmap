@@ -147,7 +147,7 @@ StopArea.prototype.buildPopup = function () {
 
     r.push({
       ref: link.route.ref(),
-      text: "<li><a href='#q=" + link.route.id + "'>" + link.route.title() + "</a></li>"
+      text: "<li><a href='#q=" + link.route.id + "/" + link.node.id + "'>" + link.route.title() + "</a></li>"
     })
   }
 
