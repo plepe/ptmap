@@ -165,6 +165,7 @@ Route.prototype.open = function (options, callback) {
 
   this.highlightPopup = L.popup()
   this.highlightPopup.object = this
+  this.highlightPopup.path = this.id
   this.highlightPopup.setContent(this.buildPopup())
   this.highlightPopup.setLatLng(this.object.bounds.getCenter())
   this.highlightPopup.openOn(this.ptmap.map)

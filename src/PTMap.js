@@ -55,6 +55,7 @@ function PTMap (map, env) {
           this.highlight.close()
         }
         this.highlight = e.popup.object
+        this.path = e.popup.path
 
         this.updateState()
       }

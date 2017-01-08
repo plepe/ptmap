@@ -263,6 +263,7 @@ StopArea.prototype.update = function (force) {
   if (!this.featurePopup) {
     this.featurePopup = L.popup()
     this.featurePopup.object = this
+    this.featurePopup.path = this.id
   }
   this.featurePopup.setContent(this.buildPopup())
 
