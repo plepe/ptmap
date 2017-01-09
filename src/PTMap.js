@@ -140,14 +140,29 @@ PTMap.prototype.get = function (id, options, callback) {
   )
 }
 
-PTMap.prototype.setState = function (state) {
-  if ('lat' in state && 'lon' in state && 'zoom' in state) {
-    this.map.setView([ state.lat, state.lon ], state.zoom)
-  } else if ('lat' in state && 'lon' in state) {
-    this.map.panTo([ state.lat, state.lon ])
-  } else if ('zoom' in state) {
-    this.map.setZoom(state.zoom)
+/**
+ * set map to a specific location
+ * @param {object} loc location
+ * @param {number} [loc.lat] Latitude of new location, if undefined map center might not be changed
+ * @param {number} [loc.lon] Longitude of new location, if undefined map center might not be changed
+ * @param {number} [loc.zoom] New zoom level, if undefined zoom level might not be changed
+ */
+PTMap.prototype.setMapLocation = function (loc) {
+  if (!loc) {
+    return
   }
+
+  if ('lat' in loc && 'lon' in loc && 'zoom' in loc) {
+    this.map.setView([ loc.lat, loc.lon ], loc.zoom)
+  } else if ('lat' in loc && 'lon' in loc) {
+    this.map.panTo([ loc.lat, loc.lon ])
+  } else if ('zoom' in loc) {
+    this.map.setZoom(loc.zoom)
+  }
+}
+
+PTMap.prototype.setState = function (state) {
+  var loc = null // new map location
 
   if ('date' in state) {
     this.env.setDate(state.date)
@@ -193,6 +208,26 @@ PTMap.prototype.setState = function (state) {
     this.closeOverride = true
     this.map.closePopup()
   }
+
+  if ('lat' in state && 'lon' in state && 'zoom' in state) {
+    loc = {
+      lat: state.lat,
+      lon: state.lon,
+      zoom: state.zoom
+    }
+  } else if ('lat' in state && 'lon' in state) {
+    loc = {
+      lat: state.lat,
+      lon: state.lon
+    }
+  } else if ('zoom' in state) {
+    loc = {
+      zoom: state.zoom,
+      weight: -1
+    }
+  }
+
+  this.setMapLocation(loc)
 }
 
 PTMap.prototype.updateState = function () {
