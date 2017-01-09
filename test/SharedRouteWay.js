@@ -25,7 +25,10 @@ describe('SharedRouteWay', function () {
     var tests = {
       'w26231340': {
       },
-      'w2623134': null
+      'w2623134': null,
+      'r910886': null,
+      'n1941351811': null,
+      'Westbahnhof,48.1963,16.3387': null
     }
 
     async.eachOf(
