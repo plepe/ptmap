@@ -191,11 +191,13 @@ PTMap.prototype.setState = function (state) {
         }
 
         this.highlight = ob
-        ob.open({}, function (err) {
-          console.log('open')
-          this.updateState()
-          this.unsetLoading()
-        }.bind(this))
+        ob.open(
+          {},
+          function (err) {
+            this.updateState()
+            this.unsetLoading()
+          }.bind(this)
+        )
       }.bind(this)
     )
   }
