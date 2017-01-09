@@ -528,6 +528,17 @@ Route.factory = function (ptmap) {
         onlyActive: false
       }
 
+      if (!id.match(/^r[0-9]+/)) {
+        async.setImmediate(function () {
+          callback(null, null)
+        })
+
+        // return fake request object
+        return {
+          abort: function () {}
+        }
+      }
+
       if (id in routes) {
         async.setImmediate(function () {
           callback(null, routes[id])

@@ -419,6 +419,17 @@ SharedRouteWay.factory = function (ptmap) {
     get: function (id, options, callback) {
       var found = false
 
+      if (!id.match(/^w[0-9]+/)) {
+        async.setImmediate(function () {
+          callback(null, null)
+        })
+
+        // return fake request object
+        return {
+          abort: function () {}
+        }
+      }
+
       if (id in sharedRouteWays) {
         async.setImmediate(function () {
           callback(null, sharedRouteWays[id])
