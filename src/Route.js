@@ -561,6 +561,11 @@ Route.factory = function (ptmap) {
           found = true
 
           if (ob) {
+            if (ob.tags.type !== 'route' || !(ob.tags.route in config.routes)) {
+              callback(null, null)
+              return
+            }
+
             _loadRoute.call(this, filter, callback, err, ob)
           } else {
             callback(err, null)
