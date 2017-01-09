@@ -2,6 +2,7 @@ var OverpassFrontend = require('overpass-frontend')
 var async = require('async')
 var moment = require('moment')
 var events = require('events')
+var Promise = require('promise');
 /* global overpassFrontend */
 
 var Route = require('./Route')
@@ -185,12 +186,20 @@ PTMap.prototype.setState = function (state) {
     this.setLoading()
 
     this.path = state.q
+
+    var highlightLocationResolve = null
+    loc = new Promise(function (resolve, reject) {
+      highlightLocationResolve = function (loc) {
+        resolve(loc)
+      }
+    })
+
     this.get(
       this.path,
       {},
       function (err, ob) {
         if (ob === null) {
-          this.updateState()
+          highlightLocationResolve(null)
 
           alert('object not found!')
           return
@@ -200,7 +209,7 @@ PTMap.prototype.setState = function (state) {
         ob.open(
           {},
           function (err) {
-            this.updateState()
+            highlightLocationResolve(mapLocation)
             this.unsetLoading()
           }.bind(this)
         )
@@ -235,7 +244,11 @@ PTMap.prototype.setState = function (state) {
     }
   }
 
-  this.setMapLocation(loc)
+  loc = Promise.resolve(loc)
+  loc.then(function (value) {
+    this.setMapLocation(value)
+    this.updateState()
+  }.bind(this))
 }
 
 PTMap.prototype.updateState = function () {

@@ -158,11 +158,9 @@ Route.prototype.scaleCategory = function () {
 /**
  * highlight object and show popup
  * @param {object} options for future use
- * @param {function} [callback] will be called when highlighting finished. The callback will be passed an err argument.
+ * @param {function} [callback] will be called when highlighting finished. The callback will be passed an err argument and a new map location.
  */
 Route.prototype.open = function (options, callback) {
-  this.ptmap.map.fitBounds(this.object.bounds.toLeaflet())
-
   this.highlightPopup = L.popup()
   this.highlightPopup.object = this
   this.highlightPopup.path = this.id
@@ -173,7 +171,7 @@ Route.prototype.open = function (options, callback) {
   this.showHighlight(function () {
     this.highlightPopup.setContent(this.buildPopup())
 
-    callback(null)
+    callback(null, this.object.bounds)
   }.bind(this))
 }
 

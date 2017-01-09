@@ -30,7 +30,7 @@ StopArea.prototype.getUrl = function () {
 /**
  * highlight object and show popup
  * @param {object} options for future use
- * @param {function} [callback] will be called when highlighting finished. The callback will be passed an err argument.
+ * @param {function} [callback] will be called when highlighting finished. The callback will be passed an err argument and a new map location.
  */
 StopArea.prototype.open = function (options, callback) {
   if (!this.shown) {
@@ -42,8 +42,8 @@ StopArea.prototype.open = function (options, callback) {
 
   if (callback) {
     async.setImmediate(function () {
-      callback(null)
-    })
+      callback(null, this.feature.getCenter())
+    }.bind(this))
   }
 }
 

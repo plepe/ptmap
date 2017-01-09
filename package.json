@@ -12,6 +12,7 @@
     "natsort": "*",
     "opening_hours": "*",
     "overpass-frontend": "https://github.com/plepe/overpass-frontend",
+    "promise": "^7.1.1",
     "query-string": "^4.2.3",
     "sheet-router": "^4.1.1",
     "turf-distance": "*",
