@@ -36,6 +36,7 @@ function PTMap (map, env) {
   this.routes = Route.factory(this)
   this.sharedRouteWays = SharedRouteWay.factory(this)
   this.stopAreas = StopArea.factory(this)
+  this.notFoundIds = {}
 
   if (this.map) {
     this.map.createPane('stopArea')
@@ -112,6 +113,13 @@ PTMap.prototype.getState = function (fullState) {
  * @param {Route|null} callback.result - Route object
  */
 PTMap.prototype.get = function (id, options, callback) {
+  if (id in this.notFoundIds) {
+    async.setImmediate(function () {
+      callback(null, null)
+    })
+    return
+  }
+
   var found = []
   async.eachOf(
     [ 'routes', 'stopAreas', 'sharedRouteWays' ],
@@ -136,8 +144,9 @@ PTMap.prototype.get = function (id, options, callback) {
         }
       }
 
+      this.notFoundIds[id] = true
       callback(err, null)
-    }
+    }.bind(this)
   )
 }
 
