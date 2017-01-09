@@ -28,7 +28,8 @@ describe('Route', function () {
       'r1234': null,
       'w183723744': null,
       'n1941351811': null,
-      'Westbahnhof,48.1963,16.3387': null
+      'Westbahnhof,48.1963,16.3387': null,
+      'r1980077': null
     }
 
     async.eachOf(
