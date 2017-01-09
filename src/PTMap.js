@@ -146,6 +146,10 @@ PTMap.prototype.get = function (id, options, callback) {
  * @param {number} [loc.lat] Latitude of new location, if undefined map center might not be changed
  * @param {number} [loc.lon] Longitude of new location, if undefined map center might not be changed
  * @param {number} [loc.zoom] New zoom level, if undefined zoom level might not be changed
+ * @param {number} [loc.minlat] minlat/minlon/maxlat/maxlon specify bounds which should fit into the map view
+ * @param {number} [loc.minlon] minlat/minlon/maxlat/maxlon specify bounds which should fit into the map view
+ * @param {number} [loc.maxlat] minlat/minlon/maxlat/maxlon specify bounds which should fit into the map view
+ * @param {number} [loc.maxlon] minlat/minlon/maxlat/maxlon specify bounds which should fit into the map view
  */
 PTMap.prototype.setMapLocation = function (loc) {
   if (!loc) {
@@ -158,6 +162,8 @@ PTMap.prototype.setMapLocation = function (loc) {
     this.map.panTo([ loc.lat, loc.lon ])
   } else if ('zoom' in loc) {
     this.map.setZoom(loc.zoom)
+  } else if ('minlat' in loc && 'maxlat' in loc && 'minlon' in loc && 'maxlon' in loc) {
+    this.map.fitBounds(new BoundingBox(loc).toLeaflet())
   }
 }
 
