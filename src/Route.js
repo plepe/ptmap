@@ -222,13 +222,13 @@ Route.prototype.buildPopup = function () {
     for (var i = 0; i < this._stops.length; i++) {
       var stop = this._stops[i]
 
-      ret += '<li>'
+      ret += '<li>' + '<a href="#q=' + this.id + '/' + stop.nodeId + '">'
       if (stop.node) {
         ret += htmlEscape(stop.node.tags.name)
       } else {
         ret += 'unknown'
       }
-      ret += '</li>\n'
+      ret += '</a></li>\n'
     }
 
     ret += '</ul>\n'
