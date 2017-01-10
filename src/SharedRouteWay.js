@@ -7,13 +7,36 @@ var OverpassFrontend = require('overpass-frontend')
 
 var cmpScaleCategory = require('./cmpScaleCategory')
 
+/**
+ * A link to the routes of the shared route way
+ * @typedef {Object} SharedRouteWay.Link
+ * @property {string} role OSM role of the way inside the Route
+ * @property {string} wayId Stop ID, e.g. 'n1234'
+ * @property {OSMObject|false|null} way OSM way object. false, when not loaded yet. null, when not existant.
+ * @property {string} routeId Route ID, e.g. 'r910886'
+ * @property {OSMObject} route OSM route object.
+ * @property {SharedRouteWay} sharedRouteWay SharedRouteWay where this way has been added to.
+ * @property {string} dir Direction of route in relation to way. Either null (unknown), 'forward' (same direction), 'backward' (opposite direction).
+ * @property {OSMObject|false|null} prevWay previous way.
+ * @property {boolean|null} prevConnected Is the way properly connected to the previous way? true=yes, false=no, null=unknown.
+ * @property {OSMObject|false|null} nextWay next way.
+ * @property {boolean|null} nextConnected Is the way properly connected to the next way? true=yes, false=no, null=unknown.
+ */
+
+/**
+ * A way which is used by one or several routes.
+ * @constructor
+ * @param {PTMap} ptmap Public transport map object - for accessing PTMap properties (e.g. map, environment, ...)
+ * @property {string} id ID of the way (equals the OSM way id).
+ * @property {OSMObject} way OSM object.
+ * @property {SharedRouteWay.Link[]} links Links to the routes of the shared route way.
+ */
 function SharedRouteWay (ptmap, way) {
   this.ptmap = ptmap
   this.way = way
   this.id = way.id
   this.links = []
   this.updateNeeded = true
-  this.lastRoutes = []
 }
 
 // TODO: not implemented yet
