@@ -436,6 +436,7 @@ Route.prototype._initStops = function () {
       this._stops.push({
         role: member.role,
         nodeId: member.id,
+        nodeIndex: i,
         node: false,
         routeId: this.id,
         route: this
