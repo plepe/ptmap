@@ -444,7 +444,15 @@ Route.prototype._initStops = function () {
   }
 }
 
-Route.prototype.stops = function (filter, featureCallback, finalCallback) {
+/**
+ * return all or selected stops
+ * @param {object} options Options
+ * @param {number} [options.priority] Priority
+ * @param {BoundingBox} [options.bbox] Only return stops within the given bounding box
+ * @param {function} featureCallback Callback which will be called for every found stop with the parameters: err, feature, index
+ * @param {function} finalCallback Callback which will be called when request finished with the paramters: err
+ */
+Route.prototype.stops = function (options, featureCallback, finalCallback) {
   var i
 
   if (!this._stops) {
@@ -466,11 +474,11 @@ Route.prototype.stops = function (filter, featureCallback, finalCallback) {
 
   var param = {
     properties: OverpassFrontend.GEOM | OverpassFrontend.TAGS,
-    priority: 'priority' in filter ? filter.priority : 0
+    priority: 'priority' in options ? options.priority : 0
   }
   param.priority += priorityFromScale[this.scaleCategory()]
-  if (filter.bbox) {
-    param.bbox = filter.bbox
+  if (options.bbox) {
+    param.bbox = options.bbox
   }
 
   return overpassFrontend.get(
