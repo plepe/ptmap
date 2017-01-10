@@ -449,6 +449,7 @@ Route.prototype._initStops = function () {
  * @param {object} options Options
  * @param {number} [options.priority] Priority
  * @param {BoundingBox} [options.bbox] Only return stops within the given bounding box
+ * @param {string|string[]} [options.ids] Only return specified ids
  * @param {function} featureCallback Callback which will be called for every found stop with the parameters: err, feature, index
  * @param {function} finalCallback Callback which will be called when request finished with the paramters: err
  */
@@ -459,16 +460,23 @@ Route.prototype.stops = function (options, featureCallback, finalCallback) {
     this._initStops()
   }
 
+  if ('ids' in options && !Array.isArray(options.ids)) {
+    options.ids = [ options.ids ]
+  }
+
   var nodeIds = []
   var nodeIndexList = []
   for (i = 0; i < this._stops.length; i++) {
-    if (this._stops[i].node === false) {
-      nodeIds.push(this._stops[i].nodeId)
-      nodeIndexList.push(i)
-    } else {
-      async.setImmediate(function (i) {
-        featureCallback(null, this._stops[i], i)
-      }.bind(this, i))
+    if ((!('ids' in options)) ||
+        ('ids' in options && options.ids.indexOf(this._stops[i].nodeId) !== -1)) {
+      if (this._stops[i].node === false) {
+        nodeIds.push(this._stops[i].nodeId)
+        nodeIndexList.push(i)
+      } else {
+        async.setImmediate(function (i) {
+          featureCallback(null, this._stops[i], i)
+        }.bind(this, i))
+      }
     }
   }
 
