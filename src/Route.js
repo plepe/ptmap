@@ -157,21 +157,57 @@ Route.prototype.scaleCategory = function () {
 
 /**
  * highlight object and show popup
- * @param {object} options for future use
+ * @param {object} options
+ * @param {string[]} path Further path parts - identify stop of route
  * @param {function} [callback] will be called when highlighting finished. The callback will be passed an err argument and a new map location.
  */
 Route.prototype.open = function (options, callback) {
+  var popupLocation = this.object.bounds.getCenter()
+  var mapLocation = this.object.bounds
+  var done = 0
+
   this.highlightPopup = L.popup()
   this.highlightPopup.object = this
-  this.highlightPopup.path = this.id
-  this.highlightPopup.setContent(this.buildPopup())
-  this.highlightPopup.setLatLng(this.object.bounds.getCenter())
-  this.highlightPopup.openOn(this.ptmap.map)
+
+  if ('path' in options && options.path.length) {
+    var stopId = options.path[0]
+    this.highlightPopup.path = this.id + '/' + stopId
+
+    this.getStop(stopId,
+      function (err, result, index) {
+        console.log(err, result, index)
+        if (result) {
+          popupLocation = result.node.geometry
+          mapLocation = result.node.geometry
+        } else {
+          alert("Can't find stop " + stopId)
+        }
+
+        doneStop.call(this)
+      }.bind(this)
+    )
+  } else {
+    this.highlightPopup.path = this.id
+
+    doneStop.call(this)
+  }
+
+  function doneStop () {
+    this.highlightPopup.setContent(this.buildPopup(options))
+    this.highlightPopup.setLatLng(popupLocation)
+    this.highlightPopup.openOn(this.ptmap.map)
+
+    if (++done === 2) {
+      callback(null, mapLocation)
+    }
+  }
 
   this.showHighlight(function () {
     this.highlightPopup.setContent(this.buildPopup())
 
-    callback(null, this.object.bounds)
+    if (++done === 2) {
+      callback(null, mapLocation)
+    }
   }.bind(this))
 }
 
