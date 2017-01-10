@@ -177,8 +177,8 @@ Route.prototype.open = function (options, callback) {
       function (err, result, index) {
         console.log(err, result, index)
         if (result) {
-          popupLocation = result.node.geometry
-          mapLocation = result.node.geometry
+          popupLocation = result.stop.geometry
+          mapLocation = result.stop.geometry
         } else {
           alert("Can't find stop " + stopId)
         }
@@ -222,9 +222,9 @@ Route.prototype.buildPopup = function () {
     for (var i = 0; i < this._stops.length; i++) {
       var stop = this._stops[i]
 
-      ret += '<li>' + '<a href="#q=' + this.id + '/' + stop.nodeId + '">'
-      if (stop.node) {
-        ret += htmlEscape(stop.node.tags.name)
+      ret += '<li>' + '<a href="#q=' + this.id + '/' + stop.stopId + '">'
+      if (stop.stop) {
+        ret += htmlEscape(stop.stop.tags.name)
       } else {
         ret += 'unknown'
       }
@@ -471,9 +471,9 @@ Route.prototype._initStops = function () {
     if (member.type === 'node' && member.role === 'stop') {
       this._stops.push({
         role: member.role,
-        nodeId: member.id,
-        nodeIndex: i,
-        node: false,
+        stopId: member.id,
+        stopIndex: i,
+        stop: false,
         routeId: this.id,
         route: this
       })
@@ -501,14 +501,14 @@ Route.prototype.stops = function (options, featureCallback, finalCallback) {
     options.ids = [ options.ids ]
   }
 
-  var nodeIds = []
-  var nodeIndexList = []
+  var stopIds = []
+  var stopIndexList = []
   for (i = 0; i < this._stops.length; i++) {
     if ((!('ids' in options)) ||
-        ('ids' in options && options.ids.indexOf(this._stops[i].nodeId) !== -1)) {
-      if (this._stops[i].node === false) {
-        nodeIds.push(this._stops[i].nodeId)
-        nodeIndexList.push(i)
+        ('ids' in options && options.ids.indexOf(this._stops[i].stopId) !== -1)) {
+      if (this._stops[i].stop === false) {
+        stopIds.push(this._stops[i].stopId)
+        stopIndexList.push(i)
       } else {
         async.setImmediate(function (i) {
           featureCallback(null, this._stops[i], i)
@@ -527,18 +527,18 @@ Route.prototype.stops = function (options, featureCallback, finalCallback) {
   }
 
   return overpassFrontend.get(
-    nodeIds,
+    stopIds,
     param,
-    function (nodeIndexList, err, result, index) {
-      var nodeIndex = nodeIndexList[index]
+    function (stopIndexList, err, result, index) {
+      var stopIndex = stopIndexList[index]
 
       if (result !== false && result !== null) {
-        this._stops[nodeIndex].node = result
-        this.stopCheck(nodeIndex)
+        this._stops[stopIndex].stop = result
+        this.stopCheck(stopIndex)
       }
 
-      featureCallback(err, this._stops[nodeIndex], nodeIndex)
-    }.bind(this, nodeIndexList),
+      featureCallback(err, this._stops[stopIndex], stopIndex)
+    }.bind(this, stopIndexList),
     function (err) {
       finalCallback(err, this._stops)
     }.bind(this)
@@ -569,8 +569,8 @@ Route.prototype.getStop = function (id, callback) {
   )
 }
 
-Route.prototype.stopCheck = function (nodeIndex) {
-  var link = this._stops[nodeIndex]
+Route.prototype.stopCheck = function (stopIndex) {
+  var link = this._stops[stopIndex]
 
   // analyze stop; add to stop area
   this.ptmap.stopAreas.add(link)

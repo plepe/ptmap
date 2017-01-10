@@ -12,9 +12,9 @@ var cmpScaleCategory = require('./cmpScaleCategory')
  * A link to the routes of the stop area
  * @typedef {Object} StopArea.Link
  * @property {string} role OSM role of the stop inside the Route
- * @property {string} nodeId Stop ID, e.g. 'n1234'
- * @property {number} nodeIndex nth stop (starting with 0)
- * @property {OSMObject|false|null} node OSM stop object. false, when not loaded yet. null, when not existant.
+ * @property {string} stopId Stop ID, e.g. 'n1234'
+ * @property {number} stopIndex nth stop (starting with 0)
+ * @property {OSMObject|false|null} stop OSM stop object. false, when not loaded yet. null, when not existant.
  * @property {string} routeId Route ID, e.g. 'r910886'
  * @property {OSMObject} route OSM route object.
  * @property {StopArea} stopArea Stop Area where this stop has been added to.
@@ -77,9 +77,9 @@ StopArea.prototype.addStop = function (link) {
   this.links.push(link)
 
   if (this.bounds) {
-    this.bounds.extend(link.node.bounds)
+    this.bounds.extend(link.stop.bounds)
   } else {
-    this.bounds = new BoundingBox(link.node.bounds)
+    this.bounds = new BoundingBox(link.stop.bounds)
   }
 
   var name = this.name()
@@ -88,7 +88,7 @@ StopArea.prototype.addStop = function (link) {
     this.id = this.name() + ',' + pos.lat.toFixed(4) + ',' + pos.lon.toFixed(4)
   }
   else {
-    this.id = this.links[0].node.id
+    this.id = this.links[0].stop.id
   }
 
   link.stopArea = this
@@ -100,11 +100,11 @@ StopArea.prototype.name = function () {
     return null
   }
 
-  if (!('name' in this.links[0].node.tags)) {
+  if (!('name' in this.links[0].stop.tags)) {
     return 'unknown'
   }
 
-  return this.links[0].node.tags.name
+  return this.links[0].stop.tags.name
 }
 
 /**
@@ -166,7 +166,7 @@ StopArea.prototype.buildPopup = function () {
 
     r.push({
       ref: link.route.ref(),
-      text: "<li><a href='#q=" + link.route.id + "/" + link.node.id + "'>" + link.route.title() + "</a></li>"
+      text: "<li><a href='#q=" + link.route.id + "/" + link.stop.id + "'>" + link.route.title() + "</a></li>"
     })
   }
 
@@ -396,13 +396,13 @@ StopArea.factory = function (ptmap) {
     add: function (link) {
       var name = null
 
-      if ('name' in link.node.tags) {
-        name = link.node.tags.name
+      if ('name' in link.stop.tags) {
+        name = link.stop.tags.name
       }
 
       if (name) {
         var found
-        if (found = this.findNear(name, link.node.geometry)) {
+        if (found = this.findNear(name, link.stop.geometry)) {
           found.addStop(link)
           return found
         }
@@ -527,14 +527,14 @@ StopArea.factory = function (ptmap) {
 
           request.requests.push(route.stops(
             filter,
-            function (err, stop, stopIndex) {
-              if (done.indexOf(stop.stopArea) !== -1) {
+            function (err, link, stopIndex) {
+              if (done.indexOf(link.stopArea) !== -1) {
                 return
               }
 
-              if (stop.node && stop.node.intersects(bbox)) {
-                done.push(stop.stopArea)
-                featureCallback(null, stop.stopArea)
+              if (link.stop && link.stop.intersects(bbox)) {
+                done.push(link.stopArea)
+                featureCallback(null, link.stopArea)
               }
             },
             function (err, stops) {

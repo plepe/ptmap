@@ -260,7 +260,7 @@ describe('Route', function () {
       'r79466': {
         7: {
           role: 'stop',
-          nodeId: 'n3622336675'
+          stopId: 'n3622336675'
         },
       }
     }
@@ -285,10 +285,10 @@ describe('Route', function () {
           for (var i in expected[route.id]) {
             var exp = expected[route.id][i]
 
-            assert.ok(result[i].node, route.id + ':' + result[i].nodeId + '(' + i + '): Stop should be loaded')
+            assert.ok(result[i].stop, route.id + ':' + result[i].stopId + '(' + i + '): Stop should be loaded')
 
             for (var k in exp) {
-              assert.deepEqual(result[i][k], exp[k], result[i].nodeId + '/' + k + ': Expected: ' + exp[k] + ', Actual: ' + result[i][k])
+              assert.deepEqual(result[i][k], exp[k], result[i].stopId + '/' + k + ': Expected: ' + exp[k] + ', Actual: ' + result[i][k])
             }
           }
 
@@ -306,7 +306,7 @@ describe('Route', function () {
       'r79466': {
         7: {
           role: 'stop',
-          nodeId: 'n3622336675'
+          stopId: 'n3622336675'
         },
       }
     }
@@ -324,10 +324,10 @@ describe('Route', function () {
           for (var i in expected[route.id]) {
             var exp = expected[route.id][i]
 
-            assert.ok(result[i].node, route.id + ':' + result[i].nodeId + '(' + i + '): Stop should be loaded')
+            assert.ok(result[i].stop, route.id + ':' + result[i].stopId + '(' + i + '): Stop should be loaded')
 
             for (var k in exp) {
-              assert.deepEqual(result[i][k], exp[k], result[i].nodeId + '/' + k + ': Expected: ' + exp[k] + ', Actual: ' + result[i][k])
+              assert.deepEqual(result[i][k], exp[k], result[i].stopId + '/' + k + ': Expected: ' + exp[k] + ', Actual: ' + result[i][k])
             }
           }
 

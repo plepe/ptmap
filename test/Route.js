@@ -113,8 +113,8 @@ describe('Route', function () {
               function (t, callback) {
                 actual.getStop(t.id,
                   function (err, actual, index) {
-                    assert.equal(actual.nodeId, t.id, 'wrong id returned')
-                    assert.equal(actual.nodeIndex, t.index, 'wrong index returned')
+                    assert.equal(actual.stopId, t.id, 'wrong id returned')
+                    assert.equal(actual.stopIndex, t.index, 'wrong index returned')
                     callback()
                   }
                 )
