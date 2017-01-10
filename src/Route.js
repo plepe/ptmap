@@ -509,6 +509,30 @@ Route.prototype.stops = function (options, featureCallback, finalCallback) {
   )
 }
 
+/**
+ * return a specific stop by id
+ * @param {string} id ID of the stop node
+ * @param {function} callback. Parameters: err, stop link object, index of the stop in the list.
+ */
+Route.prototype.getStop = function (id, callback) {
+  var found = false
+
+  this.stops(
+    {
+      ids: id
+    },
+    function (err, result, index) {
+      found = true
+      callback(err, result, index)
+    },
+    function (err) {
+      if (!found) {
+        callback(err, null, null)
+      }
+    }
+  )
+}
+
 Route.prototype.stopCheck = function (nodeIndex) {
   var link = this._stops[nodeIndex]
 

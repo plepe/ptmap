@@ -92,4 +92,43 @@ describe('Route', function () {
       }
     )
   })
+
+  it('.getStop()', function (done) {
+    var tests = {
+      'r910886': [
+        { id: 'n2293994066', index: 15 }
+      ]
+    }
+
+    async.eachOf(
+      tests,
+      function (expected, id, callback) {
+        ptmap.routes.get(
+          id,
+          {},
+          function (err, actual) {
+            var test = tests[actual.id]
+
+            async.each(test,
+              function (t, callback) {
+                actual.getStop(t.id,
+                  function (err, actual, index) {
+                    assert.equal(actual.nodeId, t.id, 'wrong id returned')
+                    assert.equal(actual.nodeIndex, t.index, 'wrong index returned')
+                    callback()
+                  }
+                )
+              },
+              function (err) {
+                callback(err)
+              }
+            )
+          }
+        )
+      },
+      function (err) {
+        done(err)
+      }
+    )
+  })
 })
