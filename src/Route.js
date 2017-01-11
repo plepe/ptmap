@@ -342,6 +342,9 @@ Route.prototype.routeWays = function (filter, featureCallback, finalCallback) {
     this._routeWays = []
     init = true
   }
+  if (!this._stops) {
+    this._initStops()
+  }
 
   for (var i = 0; i < this.object.members.length; i++) {
     var member = this.object.members[i]
@@ -464,11 +467,18 @@ Route.prototype.routeWayCheck = function (wayIndex) {
 
 Route.prototype._initStops = function () {
   this._stops = []
+  this._stopsIndex = {}
 
   for (i = 0; i < this.object.members.length; i++) {
     var member = this.object.members[i]
 
     if (member.type === 'node' && member.role === 'stop') {
+      if (member.id in this._stopsIndex) {
+        this._stopsIndex[member.id].push(this._stops.length)
+      } else {
+        this._stopsIndex[member.id] = [ this._stops.length ]
+      }
+
       this._stops.push({
         role: member.role,
         stopId: member.id,
