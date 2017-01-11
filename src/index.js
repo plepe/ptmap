@@ -7,29 +7,68 @@ var PTMap = require('./PTMap')
 var OverpassFrontend = require('overpass-frontend')
 var hash = require('sheet-router/hash')
 var queryString = require('query-string')
-
-window.onload = function () {
+var async = require('async')
+var ipLocation = require('ip-location')
+ipLocation.httpGet = function (url, callback) {
   var xhr = new XMLHttpRequest()
-  xhr.open('get', 'conf.json', true)
-  xhr.responseType = 'json'
+  xhr.open('get', url, true)
+  xhr.responseType = 'text'
   xhr.onreadystatechange = function() {
     if (xhr.readyState === 4) {
       if (xhr.status === 200) {
-        window.config = xhr.response
-        init()
+        callback(null, { body: xhr.responseText })
       } else {
-        alert('Can\'t load configuration from server. Does conf.json exist?')
+        callback(xhr.responseText)
       }
     }
-  };
+  }
   xhr.send()
+}
+var ipLoc
+
+window.onload = function () {
+  async.parallel([
+    function (callback) {
+      var xhr = new XMLHttpRequest()
+      xhr.open('get', 'conf.json', true)
+      xhr.responseType = 'json'
+      xhr.onreadystatechange = function() {
+        if (xhr.readyState === 4) {
+          if (xhr.status === 200) {
+            window.config = xhr.response
+            callback()
+          } else {
+            alert('Can\'t load configuration from server. Does conf.json exist?')
+          }
+        }
+      };
+      xhr.send()
+    },
+    function (callback) {
+      ipLocation('', function (err, data) {
+        if ('latitude' in data) {
+          ipLoc = data
+        }
+
+        callback()
+      })
+    }
+  ], function () {
+    init()
+  })
 }
 
 function init () {
   var hashUpdated = false
   window.overpassFrontend = new OverpassFrontend(config.overpass.url, config.overpass)
 
-  var map = L.map('map').setView([ config.location.lat, config.location.lon], config.location.zoom)
+  var map = L.map('map')
+
+  if (ipLoc) {
+    map.setView([ ipLoc.latitude, ipLoc.longitude ], 14)
+  } else {
+    map.setView([ config.location.lat, config.location.lon ], config.location.zoom)
+  }
 
   var osmMapnik = L.tileLayer('//{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
     {
