@@ -6,6 +6,9 @@ var OverpassFrontend = require('overpass-frontend')
 var SharedRouteWay = require('./SharedRouteWay')
 var StopArea = require('./StopArea')
 var OpeningHours = require('opening_hours')
+var turf = {
+  pointOnLine: require('@turf/point-on-line')
+}
 
 var priorityFromScale = [ 0.6, 0.4, 0.1, 0.3 ]
 
@@ -428,6 +431,23 @@ Route.prototype.routeWayCheck = function (wayIndex) {
           var stopLink = this._stops[stopIndex]
 
           stopLink.stopIndexOnWay = i
+          stopLink.stopLocationOnWay = null
+          var p = turf.pointOnLine(link.way.GeoJSON(),
+            {
+              type: 'Feature',
+              geometry: {
+                type: 'Point',
+                coordinates: [
+                  link.way.geometry[i].lon,
+                  link.way.geometry[i].lat
+                ]
+              }
+            },
+            'kilometers'
+          )
+          if (p) {
+            stopLink.stopLocationOnWay = p.properties.location
+          }
 
           link.stops.push(stopLink)
         }

@@ -9,6 +9,7 @@
  * @property {OSMObject} route OSM route object.
  * @property {StopArea} stopArea Stop Area where this stop has been added to.
  * @property {number|null} stopIndexOnWay nth node of the way
+ * @property {number|null} stopLocationOnWay location of the stop along the way (km)
  */
 
 /**
