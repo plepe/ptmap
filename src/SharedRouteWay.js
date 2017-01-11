@@ -5,7 +5,8 @@ var arrayEquals = require('array-equal')
 var BoundingBox = require('boundingbox')
 var OverpassFrontend = require('overpass-frontend')
 var turf = {
-  lineDistance: require('@turf/line-distance')
+  lineDistance: require('@turf/line-distance'),
+  along: require('@turf/along')
 }
 
 var cmpScaleCategory = require('./cmpScaleCategory')
@@ -33,6 +34,7 @@ var cmpScaleCategory = require('./cmpScaleCategory')
  * @property {string} stopId ID of the stop
  * @property {OSMObject} stop OSM object
  * @property {number} stopIndexOnWay nth node of the way
+ * @property {number|null} stopLocationOnWay location of the stop along the way (km)
  * @property {Stop.Link[]} links links to the routes
  */
 
@@ -131,6 +133,7 @@ SharedRouteWay.prototype.stops = function () {
       } else {
         r.stop = stopLink.stop
         r.stopIndexOnWay = stopLink.stopIndexOnWay
+        r.stopLocationOnWay = stopLink.stopLocationOnWay
         r.stopId = stopLink.stopId
         r.links = []
         index[stopLink.stopId] = r
@@ -355,6 +358,27 @@ SharedRouteWay.prototype.update = function (force) {
   } else if (this.feature) {
     this.ptmap.map.removeLayer(this.feature)
     delete this.feature
+  }
+
+  // stop features
+  var stops = this.stops()
+  for (var i = 0; i < stops.length; i++) {
+    if (stops[i].stopLocationOnWay !== null) {
+      var l = stops[i].stopLocationOnWay
+      var l1 = l > 0.001 ? l - 0.001 : 0
+      var l2 = l < this.wayLength - 0.001 ? l + 0.001 : this.wayLength
+      var p1 = turf.along(this.way.GeoJSON(), l1, 'kilometers')
+      var p2 = turf.along(this.way.GeoJSON(), l2, 'kilometers')
+
+      var f = L.polyline([
+          [ p1.geometry.coordinates[1], p1.geometry.coordinates[0] ],
+          [ p2.geometry.coordinates[1], p2.geometry.coordinates[0] ]
+        ],
+        { weight: 5, color: style.line.color, lineCap: 'square' })
+      f.setOffset(-5)
+
+      f.addTo(this.ptmap.map)
+    }
   }
 
   // text
