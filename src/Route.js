@@ -530,7 +530,7 @@ Route.prototype._initStops = function () {
  * @param {number} [options.priority] Priority
  * @param {BoundingBox} [options.bbox] Only return stops within the given bounding box
  * @param {string|string[]} [options.ids] Only return specified ids
- * @param {function} featureCallback Callback which will be called for every found stop with the parameters: err, feature, index
+ * @param {function} featureCallback Callback which will be called for every found stop with the parameters: err, feature (Stop.Link), index
  * @param {function} finalCallback Callback which will be called when request finished with the paramters: err
  */
 Route.prototype.stops = function (options, featureCallback, finalCallback) {

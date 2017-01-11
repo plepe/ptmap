@@ -9,23 +9,11 @@ var turf = {
 var cmpScaleCategory = require('./cmpScaleCategory')
 
 /**
- * A link to the routes of the stop area
- * @typedef {Object} StopArea.Link
- * @property {string} role OSM role of the stop inside the Route
- * @property {string} stopId Stop ID, e.g. 'n1234'
- * @property {number} stopIndex nth stop (starting with 0)
- * @property {OSMObject|false|null} stop OSM stop object. false, when not loaded yet. null, when not existant.
- * @property {string} routeId Route ID, e.g. 'r910886'
- * @property {OSMObject} route OSM route object.
- * @property {StopArea} stopArea Stop Area where this stop has been added to.
- */
-
-/**
  * A stop area - a collection of nearby stops with the same name
  * @constructor
  * @param {PTMap} ptmap Public transport map object - for accessing PTMap properties (e.g. map, environment, ...)
  * @property {string} id ID of the stop area. Consists of the name and the centroid latitude/longitude of all stop geometries. Might change as new stops are added during loading! Example: 'Main Station,0.234,-5.123'.
- * @property {StopArea.Link[]} links Links to the routes of the stop area.
+ * @property {Stop.Link[]} links Links to the routes of the stop area.
  * @property {BoundingBox} bounds Bounding box of all stops
  */
 function StopArea (ptmap) {
