@@ -5,6 +5,7 @@
   "main": "index.js",
   "dependencies": {
     "@turf/distance": "*",
+    "@turf/line-distance": "^3.7.3",
     "@turf/point-on-line": "plepe/turf-point-on-line",
     "array-equal": "^1.0.0",
     "async": "*",

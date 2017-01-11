@@ -4,6 +4,9 @@ var async = require('async')
 var arrayEquals = require('array-equal')
 var BoundingBox = require('boundingbox')
 var OverpassFrontend = require('overpass-frontend')
+var turf = {
+  lineDistance: require('@turf/line-distance')
+}
 
 var cmpScaleCategory = require('./cmpScaleCategory')
 
@@ -40,6 +43,7 @@ var cmpScaleCategory = require('./cmpScaleCategory')
  * @property {string} id ID of the way (equals the OSM way id).
  * @property {OSMObject} way OSM object.
  * @property {SharedRouteWay.Link[]} links Links to the routes of the shared route way.
+ * @property {number} wayLength length of the way in km
  */
 function SharedRouteWay (ptmap, way) {
   this.ptmap = ptmap
@@ -47,6 +51,7 @@ function SharedRouteWay (ptmap, way) {
   this.id = way.id
   this.links = []
   this.updateNeeded = true
+  this.wayLength = turf.lineDistance(this.way.GeoJSON(), 'kilometers')
 }
 
 // TODO: not implemented yet
