@@ -21,6 +21,16 @@ var cmpScaleCategory = require('./cmpScaleCategory')
  * @property {boolean|null} prevConnected Is the way properly connected to the previous way? true=yes, false=no, null=unknown.
  * @property {OSMObject|false|null} nextWay next way.
  * @property {boolean|null} nextConnected Is the way properly connected to the next way? true=yes, false=no, null=unknown.
+ * @property {Stop.Link[]} stops List of stops in this link
+ */
+
+/**
+ * A link to the stops on the shared route way
+ * @typedef {object[]} SharedRouteWay.stopsReturn
+ * @property {string} stopId ID of the stop
+ * @property {OSMObject} stop OSM object
+ * @property {number} stopIndexOnWay nth node of the way
+ * @property {Stop.Link[]} links links to the routes
  */
 
 /**
@@ -91,6 +101,39 @@ SharedRouteWay.prototype.routes = function (filter) {
     }
 
     ret.push(link.route)
+  }
+
+  return ret
+}
+
+/**
+ * return list of loaded stops on the way
+ * @return {SharedRouteWay.stopsReturn[]}
+ */
+SharedRouteWay.prototype.stops = function () {
+  var ret = []
+  var index = {}
+
+  for (var i = 0; i < this.links.length; i++) {
+    var link = this.links[i]
+
+    for (var j = 0; j < link.stops.length; j++) {
+      var r = {}
+      var stopLink = link.stops[j]
+
+      if (stopLink.stopId in index) {
+        r = index[stopLink.stopId]
+      } else {
+        r.stop = stopLink.stop
+        r.stopIndexOnWay = stopLink.stopIndexOnWay
+        r.stopId = stopLink.stopId
+        r.links = []
+        index[stopLink.stopId] = r
+        ret.push(r)
+      }
+
+      r.links.push(stopLink)
+    }
   }
 
   return ret

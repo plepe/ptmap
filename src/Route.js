@@ -425,25 +425,11 @@ Route.prototype.routeWayCheck = function (wayIndex) {
       if (member.id in this._stopsIndex) {
         for (var j = 0; j < this._stopsIndex[member.id].length; j++) {
           var stopIndex = this._stopsIndex[member.id][j]
+          var stopLink = this._stops[stopIndex]
 
-          link.stops.push({
-            stopId: member.id,
-            stopIndex: stopIndex,
-            stop: false,
-            stopIndexOnWay: i
-          })
+          stopLink.stopIndexOnWay = i
 
-          this.getStop(
-            member.id,
-            function (index, err, stop) {
-              if (err) {
-                alert(err)
-                return
-              }
-
-              link.stops[index] = stop
-            }.bind(this, link.stops.length - 1)
-          )
+          link.stops.push(stopLink)
         }
       }
     }

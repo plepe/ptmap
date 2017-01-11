@@ -8,6 +8,7 @@
  * @property {string} routeId Route ID, e.g. 'r910886'
  * @property {OSMObject} route OSM route object.
  * @property {StopArea} stopArea Stop Area where this stop has been added to.
+ * @property {number|null} stopIndexOnWay nth node of the way
  */
 
 /**
