@@ -26,6 +26,8 @@ function PTMap (map, env) {
   }
   this.env.on('updateMinute', this.checkUpdateMap.bind(this))
 
+  this.map.attributionControl.setPrefix('<a href="https://github.com/plepe/ptmap">PTMap</a>')
+
   this.currentStopAreas = []
   this.currentSharedRouteWays = []
   this.loadingState = 0
