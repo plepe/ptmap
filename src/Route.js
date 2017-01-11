@@ -362,7 +362,8 @@ Route.prototype.routeWays = function (filter, featureCallback, finalCallback) {
           prevWay: null,
           prevConnected: null,
           nextWay: null,
-          nextConnected: null
+          nextConnected: null,
+          stops: null
         })
       }
 
@@ -416,8 +417,35 @@ Route.prototype.routeWayCheck = function (wayIndex) {
     link.sharedRouteWay.addLink(link)
   }
 
-  if (!link.stops) {
-    for (var i = 0; i < this.way.members.length; i++) {
+  if (link.stops === null) {
+    link.stops = []
+
+    for (var i = 0; i < link.way.members.length; i++) {
+      var member = link.way.members[i]
+      if (member.id in this._stopsIndex) {
+        for (var j = 0; j < this._stopsIndex[member.id].length; j++) {
+          var stopIndex = this._stopsIndex[member.id][j]
+
+          link.stops.push({
+            stopId: member.id,
+            stopIndex: stopIndex,
+            stop: false,
+            stopIndexOnWay: i
+          })
+
+          this.getStop(
+            member.id,
+            function (index, err, stop) {
+              if (err) {
+                alert(err)
+                return
+              }
+
+              link.stops[index] = stop
+            }.bind(this, link.stops.length - 1)
+          )
+        }
+      }
     }
   }
 

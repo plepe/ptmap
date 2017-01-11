@@ -21,6 +21,11 @@ var cmpScaleCategory = require('./cmpScaleCategory')
  * @property {boolean|null} prevConnected Is the way properly connected to the previous way? true=yes, false=no, null=unknown.
  * @property {OSMObject|false|null} nextWay next way.
  * @property {boolean|null} nextConnected Is the way properly connected to the next way? true=yes, false=no, null=unknown.
+ * @property {object[]} stops List of stops in this link
+ * @property {string} stops.stopId ID of the stop
+ * @property {number} stops.stopIndex Index of the stop in the full list of stops
+ * @property {OSMObject|false|null} stops.stop OSM object
+ * @property {number} stops.stopIndexOnWay nth node of the way
  */
 
 /**
