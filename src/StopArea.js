@@ -3,7 +3,7 @@ var async = require('async')
 var arrayEquals = require('array-equal')
 var natsort = require('natsort')
 var turf = {
-  distance: require('turf-distance')
+  distance: require('@turf/distance')
 }
 
 var cmpScaleCategory = require('./cmpScaleCategory')

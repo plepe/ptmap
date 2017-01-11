@@ -4,6 +4,7 @@
   "version": "0.0.0",
   "main": "index.js",
   "dependencies": {
+    "@turf/distance": "*",
     "array-equal": "^1.0.0",
     "async": "*",
     "flatpickr": "^2.0.8",
@@ -15,7 +16,6 @@
     "promise": "^7.1.1",
     "query-string": "^4.2.3",
     "sheet-router": "^4.1.1",
-    "turf-distance": "*",
     "twig": "0.8.9",
     "weight-sort": "*"
   },
