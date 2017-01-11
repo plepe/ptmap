@@ -416,6 +416,11 @@ Route.prototype.routeWayCheck = function (wayIndex) {
     link.sharedRouteWay.addLink(link)
   }
 
+  if (!link.stops) {
+    for (var i = 0; i < this.way.members.length; i++) {
+    }
+  }
+
   var checkPrevWay = false
   if (!link.prevWay && wayIndex > 0) {
     link.prevWay = this._routeWays[wayIndex - 1].way
