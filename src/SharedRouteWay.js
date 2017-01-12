@@ -152,8 +152,12 @@ SharedRouteWay.prototype.stops = function (filter) {
       if (stopLink.stopId in index) {
         r = index[stopLink.stopId]
 
-        if (stopLink.wayDir !== r.wayDir) {
-          r.wayDir = 'both'
+        if (stopLink.wayDir !== null && stopLink.wayDir !== r.wayDir) {
+          if (r.wayDir !== null) {
+            r.wayDir = stopLink.wayDir
+          } else {
+            r.wayDir = 'both'
+          }
         }
       } else {
         r.stop = stopLink.stop
@@ -415,7 +419,7 @@ SharedRouteWay.prototype.update = function (force) {
           weight = 7
           break
         case 'backward':
-          offset = 3
+          offset = -3
           weight = 7
           break
         default:
@@ -456,6 +460,12 @@ SharedRouteWay.prototype.hide = function () {
   if (this.feature) {
     this.ptmap.map.removeLayer(this.feature)
     delete this.feature
+  }
+
+  if (this.featureStops) {
+    for (var i = 0; i < this.featureStops.length; i++) {
+      this.ptmap.map.removeLayer(this.featureStops[i])
+    }
   }
 
   this.shown = false
