@@ -7,6 +7,7 @@ var turf = {
 }
 
 var cmpScaleCategory = require('./cmpScaleCategory')
+var pxRectangleBuffer = require('./pxRectangleBuffer')
 
 /**
  * A stop area - a collection of nearby stops with the same name
@@ -213,7 +214,8 @@ StopArea.prototype.getStyle = function () {
         fillOpacity: 0.0,
         weight: 1,
         zIndex: 200,
-        pane: 'stopArea'
+        pane: 'stopArea',
+        buffer: 3
       }
     }
   } else if (topScale === 2) {
@@ -225,7 +227,8 @@ StopArea.prototype.getStyle = function () {
         fillOpacity: 0.0,
         weight: 2,
         zIndex: 201,
-        pane: 'stopArea'
+        pane: 'stopArea',
+        buffer: 5
       },
       text: {
         fill: routeConf.color,
@@ -242,7 +245,8 @@ StopArea.prototype.getStyle = function () {
         fillOpacity: 0.0,
         weight: 5,
         zIndex: 202,
-        pane: 'stopArea'
+        pane: 'stopArea',
+        buffer: 8
       },
       text: {
         fill: routeConf.color,
@@ -265,6 +269,10 @@ StopArea.prototype.update = function (force) {
   }
 
   var style = this.getStyle()
+  var geometry = this.bounds
+  if ('area' in style && 'buffer' in style.area) {
+    geometry = pxRectangleBuffer(this.bounds, style.area.buffer, this.ptmap.map)
+  }
 
   // popup
   if (!this.featurePopup) {
@@ -277,11 +285,11 @@ StopArea.prototype.update = function (force) {
   // area
   if (style.area) {
     if (this.feature) {
-      this.feature.setBounds(this.bounds.toLeaflet())
+      this.feature.setBounds(geometry.toLeaflet())
       this.feature.setStyle(style.area)
     }
     else {
-      this.feature = L.rectangle(this.bounds.toLeaflet(), style.area)
+      this.feature = L.rectangle(geometry.toLeaflet(), style.area)
         .addTo(this.ptmap.map).bindPopup(this.featurePopup)
     }
   }
@@ -301,12 +309,12 @@ StopArea.prototype.update = function (force) {
     })
 
     if (this.featureLabel) {
-      this.featureLabel.setLatLng(L.latLng(this.bounds.getNorth(), this.bounds.getCenter().lon))
+      this.featureLabel.setLatLng(L.latLng(geometry.getNorth(), geometry.getCenter().lon))
       this.featureLabel.setIcon(label)
     }
     else {
       this.featureLabel =
-        L.marker(L.latLng(this.bounds.getNorth(), this.bounds.getCenter().lon), {
+        L.marker(L.latLng(geometry.getNorth(), geometry.getCenter().lon), {
           icon: label,
           pane: 'stopArea'
       }).addTo(this.ptmap.map).bindPopup(this.featurePopup)
