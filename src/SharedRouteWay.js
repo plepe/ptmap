@@ -36,6 +36,7 @@ var drawTangent = require('./drawTangent')
  * @property {OSMObject} stop OSM object
  * @property {number} stopIndexOnWay nth node of the way
  * @property {number|null} stopLocationOnWay location of the stop along the way (km)
+ * @property {'forward'|'backward'|'both'} wayDir Direction of stop on the way
  * @property {Stop.Link[]} links links to the routes
  */
 
@@ -131,11 +132,16 @@ SharedRouteWay.prototype.stops = function () {
 
       if (stopLink.stopId in index) {
         r = index[stopLink.stopId]
+
+        if (stopLink.wayDir !== r.wayDir) {
+          r.wayDir = 'both'
+        }
       } else {
         r.stop = stopLink.stop
         r.stopIndexOnWay = stopLink.stopIndexOnWay
         r.stopLocationOnWay = stopLink.stopLocationOnWay
         r.stopId = stopLink.stopId
+        r.wayDir = stopLink.wayDir
         r.links = []
         index[stopLink.stopId] = r
         ret.push(r)
@@ -375,8 +381,27 @@ SharedRouteWay.prototype.update = function (force) {
       var l = stops[i].stopLocationOnWay
 
       var f = drawTangent(this.way.GeoJSON(), l, this.ptmap.map)
-      f.setStyle({ weight: 7, color: style.line.color, lineCap: 'butt' })
-      f.setOffset(-3)
+
+      var offset
+      var weight
+      switch (stops[i].wayDir) {
+        case 'forward':
+          offset = 3
+          weight = 7
+          break
+        case 'backward':
+          offset = 3
+          weight = 7
+          break
+        default:
+          offset = 0
+          weight = 10
+      }
+
+      console.log(stops[i].wayDir)
+
+      f.setStyle({ weight: weight, color: style.line.color, lineCap: 'butt' })
+      f.setOffset(offset)
 
       f.addTo(this.ptmap.map)
       this.featureStops.push(f)

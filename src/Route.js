@@ -501,6 +501,10 @@ Route.prototype.routeWayCheck = function (wayIndex) {
     }
   }
 
+  for (var i = 0; i < link.stops.length; i++) {
+    link.stops[i].wayDir = link.dir
+  }
+
   link.sharedRouteWay.requestUpdate()
 }
 
