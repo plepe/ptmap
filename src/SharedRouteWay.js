@@ -10,6 +10,7 @@ var turf = {
 }
 
 var cmpScaleCategory = require('./cmpScaleCategory')
+var drawTangent = require('./drawTangent')
 
 /**
  * A link to the routes of the shared route way
@@ -361,23 +362,24 @@ SharedRouteWay.prototype.update = function (force) {
   }
 
   // stop features
+  if (this.featureStops) {
+    for (var i = 0; i < this.featureStops.length; i++) {
+      this.ptmap.map.removeLayer(this.featureStops[i])
+    }
+  }
+
   var stops = this.stops()
+  this.featureStops = []
   for (var i = 0; i < stops.length; i++) {
     if (stops[i].stopLocationOnWay !== null) {
       var l = stops[i].stopLocationOnWay
-      var l1 = l > 0.001 ? l - 0.001 : 0
-      var l2 = l < this.wayLength - 0.001 ? l + 0.001 : this.wayLength
-      var p1 = turf.along(this.way.GeoJSON(), l1, 'kilometers')
-      var p2 = turf.along(this.way.GeoJSON(), l2, 'kilometers')
 
-      var f = L.polyline([
-          [ p1.geometry.coordinates[1], p1.geometry.coordinates[0] ],
-          [ p2.geometry.coordinates[1], p2.geometry.coordinates[0] ]
-        ],
-        { weight: 5, color: style.line.color, lineCap: 'square' })
-      f.setOffset(-5)
+      var f = drawTangent(this.way.GeoJSON(), l, this.ptmap.map)
+      f.setStyle({ weight: 7, color: style.line.color, lineCap: 'butt' })
+      f.setOffset(-3)
 
       f.addTo(this.ptmap.map)
+      this.featureStops.push(f)
     }
   }
 
