@@ -117,14 +117,27 @@ SharedRouteWay.prototype.routes = function (filter) {
 
 /**
  * return list of loaded stops on the way
+ * @param {object} [filter] Filter results
+ * @param {boolean} [filter.onlyActive=true] Return only stops of active route
  * @return {SharedRouteWay.stopsReturn[]}
  */
-SharedRouteWay.prototype.stops = function () {
+SharedRouteWay.prototype.stops = function (filter) {
   var ret = []
   var index = {}
 
+  if (typeof filter === 'undefined') {
+    filter = { onlyActive: true }
+  }
+  if (!('onlyActive' in filter)) {
+    filter.onlyActive = true
+  }
+
   for (var i = 0; i < this.links.length; i++) {
     var link = this.links[i]
+
+    if (filter.onlyActive === true && !link.route.isActive()) {
+      continue
+    }
 
     for (var j = 0; j < link.stops.length; j++) {
       var r = {}
