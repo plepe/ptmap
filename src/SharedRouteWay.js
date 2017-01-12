@@ -222,6 +222,13 @@ SharedRouteWay.prototype.getStyle = function () {
         opacity: 1,
         weight: 1,
         dashArray: null
+      },
+      stop: {
+        color: routeConf.color,
+        offset: 1,
+        weight: 2,
+        length: 2,
+        lineCap: 'butt'
       }
     }
   } else if (topScale == 2) {
@@ -236,6 +243,13 @@ SharedRouteWay.prototype.getStyle = function () {
         fill: routeConf.color,
         offset: 12,
         'font-weight': 'bold'
+      },
+      stop: {
+        color: routeConf.color,
+        offset: 3,
+        weight: 5,
+        length: 4,
+        lineCap: 'butt'
       }
     }
   } else {
@@ -250,6 +264,13 @@ SharedRouteWay.prototype.getStyle = function () {
         fill: routeConf.color,
         offset: 12,
         'font-weight': 'bold'
+      },
+      stop: {
+        color: routeConf.color,
+        offset: 3,
+        weight: 5,
+        length: 6,
+        lineCap: 'butt'
       }
     }
   }
@@ -408,29 +429,22 @@ SharedRouteWay.prototype.update = function (force) {
   for (var i = 0; i < stops.length; i++) {
     if (stops[i].stopLocationOnWay !== null) {
       var l = stops[i].stopLocationOnWay
+      var s = JSON.parse(JSON.stringify(style.stop))
+      var f = drawTangent(this.way.GeoJSON(), l, style.stop.length, this.ptmap.map)
 
-      var f = drawTangent(this.way.GeoJSON(), l, this.ptmap.map)
-
-      var offset
-      var weight
       switch (stops[i].wayDir) {
         case 'forward':
-          offset = 3
-          weight = 7
           break
         case 'backward':
-          offset = -3
-          weight = 7
+          s.offset = -s.offset
           break
         default:
-          offset = 0
-          weight = 10
+          s.offset = 0
+          s.weight = (s.weight - s.offset) * 2
       }
 
-      console.log(stops[i].wayDir)
-
-      f.setStyle({ weight: weight, color: style.line.color, lineCap: 'butt' })
-      f.setOffset(offset)
+      f.setStyle(s)
+      f.setOffset(s.offset)
 
       f.addTo(this.ptmap.map)
       this.featureStops.push(f)
