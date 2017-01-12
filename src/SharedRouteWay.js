@@ -92,6 +92,12 @@ SharedRouteWay.prototype.addLink = function (link) {
   this.links.push(link)
 }
 
+/**
+ * return routes on this way
+ * @param {object} [filter] Filter results
+ * @param {boolean} [filter.onlyActive=true] Return only stops of active route
+ * @return {Route[]}
+ */
 SharedRouteWay.prototype.routes = function (filter) {
   var ret = []
 
@@ -167,8 +173,14 @@ SharedRouteWay.prototype.stops = function (filter) {
   return ret
 }
 
-SharedRouteWay.prototype.topRoute = function () {
-  var routes = this.routes()
+/**
+ * return top route on this way
+ * @param {object} [filter] Filter results
+ * @param {boolean} [filter.onlyActive=true] Return only stops of active route
+ * @return {Route|null}
+ */
+SharedRouteWay.prototype.topRoute = function (filter) {
+  var routes = this.routes(filter)
 
   routes.sort(function (a, b) {
     return cmpScaleCategory(a.scaleCategory(), b.scaleCategory())
