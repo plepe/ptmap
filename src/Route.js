@@ -430,6 +430,7 @@ Route.prototype.routeWayCheck = function (wayIndex) {
           var stopIndex = this._stopsIndex[member.id][j]
           var stopLink = this._stops[stopIndex]
 
+          stopLink.wayLink = link
           stopLink.stopIndexOnWay = i
           stopLink.stopLocationOnWay = null
           var p = turf.pointOnLine(link.way.GeoJSON(),
@@ -528,7 +529,11 @@ Route.prototype._initStops = function () {
         stopIndex: i,
         stop: false,
         routeId: this.id,
-        route: this
+        route: this,
+        stopIndexOnWay: null,
+        stopLocationOnWay: null,
+        wayDir: null,
+        wayLink: null
       })
     }
   }

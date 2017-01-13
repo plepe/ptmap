@@ -11,6 +11,7 @@
  * @property {number|null} stopIndexOnWay nth node of the way
  * @property {number|null} stopLocationOnWay location of the stop along the way (km)
  * @property {'forward'|'backward'|'both'|null} wayDir Direction of the way
+ * @property {SharedRouteWay.Link|null} wayLink Link to the route's way link the stop is connected to (if it is connected)
  */
 
 /**
