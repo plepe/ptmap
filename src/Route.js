@@ -626,7 +626,9 @@ Route.prototype.stopCheck = function (stopIndex) {
   var link = this._stops[stopIndex]
 
   // analyze stop; add to stop area
-  this.ptmap.stopAreas.add(link)
+  if (!link.stopArea) {
+    this.ptmap.stopAreas.add(link)
+  }
 }
 
 // Factory
