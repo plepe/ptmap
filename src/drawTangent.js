@@ -26,11 +26,16 @@ function drawTangent (way, position, length, map) {
   px1 = { x: px1.x - origin.x, y: px1.y - origin.y }
   var px2 = map.project(p2, map.getZoom())
   px2 = { x: px2.x - origin.x, y: px2.y - origin.y }
-  var c = { x: px1.x + (px2.x - px1.x), y: px1.y + (px2.y - px1.y) }
   var cl = Math.sqrt(Math.pow(px1.x - px2.x, 2) + Math.pow(px1.y - px2.y, 2))
   var d = { x: (px2.x - px1.x) / cl, y: (px2.y - px1.y) / cl }
-  var d1 = { x: c.x - d.x * length / 2, y: c.y - d.y * length / 2 }
-  var d2 = { x: c.x + d.x * length / 2, y: c.y + d.y * length / 2 }
+
+  var p = turf.along(way, position, 'kilometers')
+  p = [ p.geometry.coordinates[1], p.geometry.coordinates[0] ]
+  p = map.project(p, map.getZoom())
+  p = { x: p.x - origin.x, y: p.y - origin.y }
+
+  var d1 = { x: p.x - d.x * length / 2, y: p.y - d.y * length / 2 }
+  var d2 = { x: p.x + d.x * length / 2, y: p.y + d.y * length / 2 }
 
   var e1 = map.layerPointToLatLng(d1)
   var e2 = map.layerPointToLatLng(d2)
