@@ -8,6 +8,7 @@ var Promise = require('promise');
 var Route = require('./Route')
 var SharedRouteWay = require('./SharedRouteWay')
 var StopArea = require('./StopArea')
+var Stop = require('./Stop')
 var BoundingBox = require('boundingbox')
 var Environment = require('./Environment')
 
@@ -26,6 +27,7 @@ function PTMap (map, env) {
   }
   this.env.on('updateMinute', this.checkUpdateMap.bind(this))
 
+  this.currentStops = []
   this.currentStopAreas = []
   this.currentSharedRouteWays = []
   this.loadingState = 0
@@ -36,6 +38,7 @@ function PTMap (map, env) {
   this.routes = Route.factory(this)
   this.sharedRouteWays = SharedRouteWay.factory(this)
   this.stopAreas = StopArea.factory(this)
+  this.stops = Stop.factory(this)
   this.notFoundIds = {}
 
   if (this.map) {
@@ -122,7 +125,7 @@ PTMap.prototype.get = function (id, options, callback) {
 
   var found = []
   async.eachOf(
-    [ 'routes', 'stopAreas', 'sharedRouteWays' ],
+    [ 'routes', 'stopAreas', 'sharedRouteWays', 'stops' ],
     function (realm, i, callback) {
       this[realm].get(
         id,
@@ -342,11 +345,22 @@ PTMap.prototype.checkUpdateMap = function () {
         ob.hide()
       }
     }
+
+    for(i = 0; i < this.currentStops.length; i++) {
+      var ob = this.currentStops[i]
+      if (ob.intersects(bbox)) {
+        ob.update()
+      } else {
+        this.currentStops.splice(i, 1)
+        ob.hide()
+      }
+    }
   }.bind(this))
 
   var request = {
     stopAreas: null,
     sharedRouteWays: null,
+    stops: null,
     finished: false
   }
   request.abort = function () {
@@ -396,6 +410,22 @@ PTMap.prototype.checkUpdateMap = function () {
             callback()
           }.bind(this)
         )
+      }.bind(this),
+      function (callback) {
+        request.stops = this.stops.query(
+          filter,
+          function (err, stop) {
+            if (this.currentStops.indexOf(stop) === -1) {
+              this.currentStops.push(stop)
+            }
+
+            stop.show()
+          }.bind(this),
+          function (err) {
+            request.stops = null
+            callback()
+          }.bind(this)
+        )
       }.bind(this)
     ], function (request) {
       this.unsetLoading()
@@ -409,6 +439,7 @@ PTMap.prototype.checkUpdateMap = function () {
 PTMap.prototype.update = function (force) {
   this.stopAreas.update(force)
   this.sharedRouteWays.update(force)
+  this.stops.update(force)
 }
 
 PTMap.prototype.getRouteById = function (ids, featureCallback, finalCallback) {

@@ -223,11 +223,11 @@ Route.prototype.buildPopup = function () {
     ret += '<h2>Stops</h2><ul>\n'
 
     for (var i = 0; i < this._stops.length; i++) {
-      var stop = this._stops[i]
+      var link = this._stops[i]
 
-      ret += '<li>' + '<a href="#q=' + this.id + '/' + stop.stopId + '">'
-      if (stop.stop) {
-        ret += htmlEscape(stop.stop.tags.name)
+      ret += '<li>' + '<a href="#q=' + this.id + '/' + link.stopId + '">'
+      if (link.stop.object) {
+        ret += htmlEscape(link.stop.object.tags.name)
       } else {
         ret += 'unknown'
       }
@@ -591,7 +591,9 @@ Route.prototype.stops = function (options, featureCallback, finalCallback) {
       var stopIndex = stopIndexList[index]
 
       if (result !== false && result !== null) {
-        this._stops[stopIndex].stop = result
+        var stop = this.ptmap.stops.add(result)
+        stop.addLink(this._stops[stopIndex])
+        this._stops[stopIndex].stop = stop 
         this.stopCheck(stopIndex)
       }
 
@@ -629,11 +631,6 @@ Route.prototype.getStop = function (id, callback) {
 
 Route.prototype.stopCheck = function (stopIndex) {
   var link = this._stops[stopIndex]
-
-  // analyze stop; add to stop area
-  if (!link.stopArea) {
-    this.ptmap.stopAreas.add(link)
-  }
 }
 
 // Factory

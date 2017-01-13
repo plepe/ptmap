@@ -66,9 +66,9 @@ StopArea.prototype.addStop = function (link) {
   this.links.push(link)
 
   if (this.bounds) {
-    this.bounds.extend(link.stop.bounds)
+    this.bounds.extend(link.stop.object.bounds)
   } else {
-    this.bounds = new BoundingBox(link.stop.bounds)
+    this.bounds = new BoundingBox(link.stop.object.bounds)
   }
 
   var name = this.name()
@@ -89,11 +89,11 @@ StopArea.prototype.name = function () {
     return null
   }
 
-  if (!('name' in this.links[0].stop.tags)) {
+  if (!('name' in this.links[0].stop.object.tags)) {
     return 'unknown'
   }
 
-  return this.links[0].stop.tags.name
+  return this.links[0].stop.object.tags.name
 }
 
 /**
@@ -328,39 +328,39 @@ StopArea.prototype.update = function (force) {
   }
 
   // stops which are not part of a SharedRouteWay
-  if (!this.featureStops) {
-    this.featureStops = {}
-  }
-  var newFeatureStops = {}
-  var activeLinks = this.activeLinks()
-  for (var i = 0; i < activeLinks.length; i++) {
-    var link = activeLinks[i]
-    if (link.wayLink === null) {
-      var s = {
-        fillColor: 'red',
-        radius: 3,
-        stroke: false,
-        fill: true,
-        fillOpacity: 1.0
-      }
-
-      if (link.stopId in this.featureStops) {
-        newFeatureStops[link.stopId] = this.featureStops[link.stopId]
-        feature.setStyle(s)
-      }
-
-      var feature = L.circleMarker(link.stop.geometry, s)
-
-      feature.addTo(this.ptmap.map)
-      newFeatureStops[link.stopId] = feature
-    }
-  }
-  for (var k in this.featureStops) {
-    if (!(k in newFeatureStops)) {
-      this.ptmap.map.removeLayer(this.featureStops[k])
-    }
-  }
-  this.featureStops = newFeatureStops
+//  if (!this.featureStops) {
+//    this.featureStops = {}
+//  }
+//  var newFeatureStops = {}
+//  var activeLinks = this.activeLinks()
+//  for (var i = 0; i < activeLinks.length; i++) {
+//    var link = activeLinks[i]
+//    if (link.wayLink === null) {
+//      var s = {
+//        fillColor: 'red',
+//        radius: 3,
+//        stroke: false,
+//        fill: true,
+//        fillOpacity: 1.0
+//      }
+//
+//      if (link.stopId in this.featureStops) {
+//        newFeatureStops[link.stopId] = this.featureStops[link.stopId]
+//        feature.setStyle(s)
+//      }
+//
+//      var feature = L.circleMarker(link.stop.geometry, s)
+//
+//      feature.addTo(this.ptmap.map)
+//      newFeatureStops[link.stopId] = feature
+//    }
+//  }
+//  for (var k in this.featureStops) {
+//    if (!(k in newFeatureStops)) {
+//      this.ptmap.map.removeLayer(this.featureStops[k])
+//    }
+//  }
+//  this.featureStops = newFeatureStops
 
   this.shown = true
 }
@@ -376,7 +376,7 @@ StopArea.prototype.hide = function () {
     this.ptmap.map.removeLayer(this.featureLabel)
     delete this.featureLabel
   }
-  for (var k in this.featureStops) {
+  if (this.featureStops) for (var k in this.featureStops) {
     this.ptmap.map.removeLayer(this.featureStops[k])
   }
   delete this.featureStops
@@ -431,13 +431,13 @@ StopArea.factory = function (ptmap) {
     add: function (link) {
       var name = null
 
-      if ('name' in link.stop.tags) {
-        name = link.stop.tags.name
+      if ('name' in link.stop.object.tags) {
+        name = link.stop.object.tags.name
       }
 
       if (name) {
         var found
-        if (found = this.findNear(name, link.stop.geometry)) {
+        if (found = this.findNear(name, link.stop.object.geometry)) {
           found.addStop(link)
           return found
         }
@@ -567,7 +567,7 @@ StopArea.factory = function (ptmap) {
                 return
               }
 
-              if (link.stop && link.stop.intersects(bbox)) {
+              if (link.stop && link.stop.object.intersects(bbox)) {
                 done.push(link.stopArea)
                 featureCallback(null, link.stopArea)
               }
