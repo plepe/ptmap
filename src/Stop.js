@@ -195,13 +195,13 @@ Stop.prototype.getStyle = function () {
       stop: {
         color: routeConf.color,
         offset: 3,
-        weight: 5,
-        length: 6,
+        weight: 7,
+        length: 8,
         lineCap: 'butt'
       },
       stopUnconnected: {
         fillColor: routeConf.color,
-        radius: 5,
+        radius: 4,
         stroke: false,
         fill: true,
         fillOpacity: 1.0
