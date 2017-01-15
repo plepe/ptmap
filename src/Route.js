@@ -504,6 +504,10 @@ Route.prototype.routeWayCheck = function (wayIndex) {
 
   for (var i = 0; i < link.stops.length; i++) {
     link.stops[i].wayDir = link.dir
+
+    if (link.stops[i].stop) {
+      link.stops[i].stop.requestUpdate()
+    }
   }
 
   link.sharedRouteWay.requestUpdate()

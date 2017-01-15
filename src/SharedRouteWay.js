@@ -10,7 +10,6 @@ var turf = {
 }
 
 var cmpScaleCategory = require('./cmpScaleCategory')
-var drawTangent = require('./drawTangent')
 
 /**
  * A link to the routes of the shared route way
@@ -222,13 +221,6 @@ SharedRouteWay.prototype.getStyle = function () {
         opacity: 1,
         weight: 1,
         dashArray: null
-      },
-      stop: {
-        color: routeConf.color,
-        offset: 1,
-        weight: 2,
-        length: 2,
-        lineCap: 'butt'
       }
     }
   } else if (topScale == 2) {
@@ -243,13 +235,6 @@ SharedRouteWay.prototype.getStyle = function () {
         fill: routeConf.color,
         offset: 12,
         'font-weight': 'bold'
-      },
-      stop: {
-        color: routeConf.color,
-        offset: 3,
-        weight: 5,
-        length: 4,
-        lineCap: 'butt'
       }
     }
   } else {
@@ -264,13 +249,6 @@ SharedRouteWay.prototype.getStyle = function () {
         fill: routeConf.color,
         offset: 12,
         'font-weight': 'bold'
-      },
-      stop: {
-        color: routeConf.color,
-        offset: 3,
-        weight: 5,
-        length: 6,
-        lineCap: 'butt'
       }
     }
   }
@@ -417,40 +395,6 @@ SharedRouteWay.prototype.update = function (force) {
     delete this.feature
   }
 
-  // stop features
-  if (this.featureStops) {
-    for (var i = 0; i < this.featureStops.length; i++) {
-      this.ptmap.map.removeLayer(this.featureStops[i])
-    }
-  }
-
-  var stops = this.stops()
-  this.featureStops = []
-  for (var i = 0; i < stops.length; i++) {
-    if (stops[i].stopLocationOnWay !== null) {
-      var l = stops[i].stopLocationOnWay
-      var s = JSON.parse(JSON.stringify(style.stop))
-      var f = drawTangent(this.way.GeoJSON(), l, style.stop.length, this.ptmap.map)
-
-      switch (stops[i].wayDir) {
-        case 'forward':
-          break
-        case 'backward':
-          s.offset = -s.offset
-          break
-        default:
-          s.offset = 0
-          s.weight = (s.weight - s.offset) * 2
-      }
-
-      f.setStyle(s)
-      f.setOffset(s.offset)
-
-      f.addTo(this.ptmap.map)
-      this.featureStops.push(f)
-    }
-  }
-
   // text
   if (this.feature) {
     this.feature.setText(null)
@@ -474,12 +418,6 @@ SharedRouteWay.prototype.hide = function () {
   if (this.feature) {
     this.ptmap.map.removeLayer(this.feature)
     delete this.feature
-  }
-
-  if (this.featureStops) {
-    for (var i = 0; i < this.featureStops.length; i++) {
-      this.ptmap.map.removeLayer(this.featureStops[i])
-    }
   }
 
   this.shown = false

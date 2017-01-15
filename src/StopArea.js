@@ -362,40 +362,9 @@ StopArea.prototype.update = function (force) {
     }
   }
 
-  // stops which are not part of a SharedRouteWay
-//  if (!this.featureStops) {
-//    this.featureStops = {}
-//  }
-//  var newFeatureStops = {}
-//  var activeLinks = this.activeLinks()
-//  for (var i = 0; i < activeLinks.length; i++) {
-//    var link = activeLinks[i]
-//    if (link.wayLink === null) {
-//      var s = {
-//        fillColor: 'red',
-//        radius: 3,
-//        stroke: false,
-//        fill: true,
-//        fillOpacity: 1.0
-//      }
-//
-//      if (link.stopId in this.featureStops) {
-//        newFeatureStops[link.stopId] = this.featureStops[link.stopId]
-//        feature.setStyle(s)
-//      }
-//
-//      var feature = L.circleMarker(link.stop.geometry, s)
-//
-//      feature.addTo(this.ptmap.map)
-//      newFeatureStops[link.stopId] = feature
-//    }
-//  }
-//  for (var k in this.featureStops) {
-//    if (!(k in newFeatureStops)) {
-//      this.ptmap.map.removeLayer(this.featureStops[k])
-//    }
-//  }
-//  this.featureStops = newFeatureStops
+  for (var i = 0; i < this._stops.length; i++) {
+    this._stops[i].update(force)
+  }
 
   this.shown = true
 }
@@ -411,10 +380,9 @@ StopArea.prototype.hide = function () {
     this.ptmap.map.removeLayer(this.featureLabel)
     delete this.featureLabel
   }
-  if (this.featureStops) for (var k in this.featureStops) {
-    this.ptmap.map.removeLayer(this.featureStops[k])
+  for (var i = 0; i < this._stops.length; i++) {
+    this._stops[i].hide()
   }
-  delete this.featureStops
 
   this.shown = false
 }

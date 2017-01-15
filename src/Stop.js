@@ -1,5 +1,9 @@
 /* global L:false */
 var async = require('async')
+
+var cmpScaleCategory = require('./cmpScaleCategory')
+var drawTangent = require('./drawTangent')
+
 /**
  * A link to a stop of a route 
  * @typedef {Object} Stop.Link
@@ -68,12 +72,12 @@ Stop.prototype.addLink = function (link) {
 }
 
 /**
- * return routes on this way
+ * return all links whose route is currently active
  * @param {object} [filter] Filter results
  * @param {boolean} [filter.onlyActive=true] Return only stops of active route
- * @return {Route[]}
+ * @return {object[]} links
  */
-Stop.prototype.routes = function (filter) {
+Stop.prototype.activeLinks = function (filter) {
   var ret = []
 
   if (typeof filter === 'undefined') {
@@ -90,6 +94,24 @@ Stop.prototype.routes = function (filter) {
       continue
     }
 
+    ret.push(link)
+  }
+
+  return ret
+}
+
+/**
+ * return routes which are currently active
+ * @param {object} [filter] Filter results
+ * @param {boolean} [filter.onlyActive=true] Return only stops of active route
+ * @return {Route[]} routes
+ */
+Stop.prototype.routes = function (filter) {
+  var ret = []
+  var activeLinks = this.activeLinks()
+
+  for (var i = 0; i < activeLinks.length; i++) {
+    var link = activeLinks[i]
     ret.push(link.route)
   }
 
@@ -136,61 +158,55 @@ Stop.prototype.getStyle = function () {
     }
   } else if (topScale === 1) {
     return {
-      line: {
-        color: routeConf.color,
-        opacity: 1,
-        weight: 1,
-        dashArray: null
-      },
       stop: {
         color: routeConf.color,
         offset: 1,
         weight: 2,
         length: 2,
-        lineCap: 'butt'
+        lineCap: 'butt',
+      },
+      stopUnconnected: {
+        fillColor: routeConf.color,
+        radius: 2,
+        stroke: false,
+        fill: true,
+        fillOpacity: 1.0
       }
     }
   } else if (topScale == 2) {
     return {
-      line: {
-        color: routeConf.color,
-        opacity: 1,
-        weight: 3,
-        dashArray: null
-      },
-      text: {
-        fill: routeConf.color,
-        offset: 12,
-        'font-weight': 'bold'
-      },
       stop: {
         color: routeConf.color,
         offset: 3,
         weight: 5,
         length: 4,
         lineCap: 'butt'
+      },
+      stopUnconnected: {
+        fillColor: routeConf.color,
+        radius: 3,
+        stroke: false,
+        fill: true,
+        fillOpacity: 1.0
       }
     }
   } else {
     return {
-      line: {
-        color: routeConf.color,
-        opacity: 1,
-        weight: 3,
-        dashArray: '1,7'
-      },
-      text: {
-        fill: routeConf.color,
-        offset: 12,
-        'font-weight': 'bold'
-      },
       stop: {
         color: routeConf.color,
         offset: 3,
         weight: 5,
         length: 6,
         lineCap: 'butt'
+      },
+      stopUnconnected: {
+        fillColor: routeConf.color,
+        radius: 5,
+        stroke: false,
+        fill: true,
+        fillOpacity: 1.0
       }
+
     }
   }
 }
@@ -211,7 +227,79 @@ Stop.prototype.update = function (force) {
   }
 
   var style = this.getStyle()
-  console.log(this.id, 'update')
+
+  var way = null
+  var wayDir = null
+  var wayPosition
+  var activeLinks = this.activeLinks()
+  var dirs = []
+  for (var i = 0; i < activeLinks.length; i++) {
+    var link = activeLinks[i]
+    if (link.wayLink !== null) {
+      way = link.wayLink.sharedRouteWay.way
+      wayPosition = link.stopLocationOnWay
+      dirs.push(link.wayDir)
+
+      if (wayDir === null) {
+        wayDir = link.wayDir
+      } else if (wayDir !== link.wayDir) {
+        if (link.wayDir !== null) {
+          wayDir = link.wayDir
+        } else {
+          wayDir = 'both'
+        }
+      }
+    }
+  }
+
+  if (way === null) {
+    if (style.stopUnconnected) {
+      if (this.featureUnconnected) {
+        this.featureUnconnected.setStyle(style.stopUnconnected)
+      } else {
+        this.featureUnconnected = L.circleMarker(this.object.geometry, style.stopUnconnected)
+        this.featureUnconnected.addTo(this.ptmap.map)
+      }
+    } else {
+      this.ptmap.map.removeLayer(this.featureUnconnected)
+      delete this.featureUnconnected
+    }
+
+    if (this.featureStop) {
+      this.ptmap.map.removeLayer(this.featureStop)
+      delete this.featureStop
+    }
+  } else {
+    if (style.stop) {
+      var s = JSON.parse(JSON.stringify(style.stop))
+      switch (wayDir) {
+        case 'forward':
+          break
+        case 'backward':
+          s.offset = -s.offset
+          break
+        default:
+          s.offset = 0
+          s.weight = (s.weight - s.offset) * 2
+      }
+
+      if (this.featureStop) {
+        this.ptmap.map.removeLayer(this.featureStop)
+      }
+      // if (!this.featureStop) {
+        this.featureStop = drawTangent(way.GeoJSON(), wayPosition, s.length, this.ptmap.map)
+        this.featureStop.addTo(this.ptmap.map)
+      // }
+
+      this.featureStop.setStyle(s)
+      this.featureStop.setOffset(s.offset)
+    }
+
+    if (this.featureUnconnected) {
+      this.ptmap.map.removeLayer(this.featureUnconnected)
+      delete this.featureUnconnected
+    }
+  }
 
   this.shown = true
   this.updateNeeded = false
@@ -220,6 +308,16 @@ Stop.prototype.update = function (force) {
 Stop.prototype.show = Stop.prototype.update
 
 Stop.prototype.hide = function () {
+  if (this.featureUnconnected) {
+    this.ptmap.map.removeLayer(this.featureUnconnected)
+  }
+  delete this.featureUnconnected
+
+  if (this.featureStop) {
+    this.ptmap.map.removeLayer(this.featureStop)
+  }
+  delete this.featureStop
+
   this.shown = false
 }
 
