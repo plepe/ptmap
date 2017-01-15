@@ -615,7 +615,7 @@ SharedRouteWay.factory = function (ptmap) {
       return overpassFrontend.get(
         [ id ],
         {
-          properties: OverpassFrontend.BBOX
+          properties: OverpassFrontend.GEOM | OverpassFrontend.MEMBERS,
         },
         function (err, feature) {
           found = true
