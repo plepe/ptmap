@@ -595,10 +595,13 @@ Route.prototype.stops = function (options, featureCallback, finalCallback) {
       var stopIndex = stopIndexList[index]
 
       if (result !== false && result !== null) {
-        var stop = this.ptmap.stops.add(result)
-        stop.addLink(this._stops[stopIndex])
-        this._stops[stopIndex].stop = stop 
-        this.stopCheck(stopIndex)
+        var link = this._stops[stopIndex]
+
+        if (!link.stop) {
+          link.stop = this.ptmap.stops.add(result)
+          link.stop.addLink(link)
+          this.stopCheck(stopIndex)
+        }
       }
 
       featureCallback(err, this._stops[stopIndex], stopIndex)

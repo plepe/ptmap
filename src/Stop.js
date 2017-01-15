@@ -65,8 +65,6 @@ Stop.prototype.requestUpdate = function () {
 }
 
 Stop.prototype.addLink = function (link) {
-  link.stop = this
-
   this.links.push(link)
   this.stopArea = this.ptmap.stopAreas.add(link)
 }
