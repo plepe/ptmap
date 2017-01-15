@@ -15,6 +15,7 @@ var pxRectangleBuffer = require('./pxRectangleBuffer')
  * @param {PTMap} ptmap Public transport map object - for accessing PTMap properties (e.g. map, environment, ...)
  * @property {string} id ID of the stop area. Consists of the name and the centroid latitude/longitude of all stop geometries. Might change as new stops are added during loading! Example: 'Main Station,0.234,-5.123'.
  * @property {Stop.Link[]} links Links to the routes of the stop area.
+ * @property {Stop[]} _stops List of stops
  * @property {BoundingBox} bounds Bounding box of all stops
  */
 function StopArea (ptmap) {
@@ -22,6 +23,7 @@ function StopArea (ptmap) {
   this.id = null
 
   this.links = []
+  this._stops = []
   this.bounds = null
 }
 
@@ -62,8 +64,12 @@ StopArea.prototype.requestUpdate = function () {
   this.ptmap.stopAreas.requestUpdate(this)
 }
 
-StopArea.prototype.addStop = function (link) {
+StopArea.prototype.addLink = function (link) {
   this.links.push(link)
+
+  if (this._stops.indexOf(link.stop) === -1) {
+    this._stops.push(link.stop)
+  }
 
   if (this.bounds) {
     this.bounds.extend(link.stop.object.bounds)
@@ -134,6 +140,35 @@ StopArea.prototype.routes = function (filter) {
   for (var i = 0; i < activeLinks.length; i++) {
     var link = activeLinks[i]
     ret.push(link.route)
+  }
+
+  return ret
+}
+
+/**
+ * return stops of this stop area
+ * @return {Stop[]} stops
+ * @param {object} [filter] Filter results
+ * @param {boolean} [filter.onlyActive=true] Return only stops of active routes
+ */
+StopArea.prototype.stops = function (filter) {
+  var ret = []
+
+  if (typeof filter === 'undefined') {
+    filter = { onlyActive: true }
+  }
+  if (!('onlyActive' in filter)) {
+    filter.onlyActive = true
+  }
+
+  for (var i = 0; i < this._stops.length; i++) {
+    var stop = this._stops[i]
+
+    if (filter.onlyActive === true && !stop.isActive()) {
+      continue
+    }
+
+    ret.push(stop)
   }
 
   return ret
@@ -438,13 +473,13 @@ StopArea.factory = function (ptmap) {
       if (name) {
         var found
         if (found = this.findNear(name, link.stop.object.geometry)) {
-          found.addStop(link)
+          found.addLink(link)
           return found
         }
 
         var ob = new StopArea(ptmap)
         stopAreas.push(ob)
-        ob.addStop(link)
+        ob.addLink(link)
         if (name in stopAreaNames) {
           stopAreaNames[name].push(ob)
         } else {
@@ -455,7 +490,7 @@ StopArea.factory = function (ptmap) {
       } else {
         var ob = new StopArea(ptmap)
         stopAreas.push(ob)
-        ob.addStop(link)
+        ob.addLink(link)
 
         return ob
       }
