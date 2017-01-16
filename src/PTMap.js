@@ -325,25 +325,29 @@ PTMap.prototype.checkUpdateMap = function () {
   async.setImmediate(function () {
     var i
 
+    var newSharedRouteWays = []
     for(i = 0; i < this.currentSharedRouteWays.length; i++) {
       var ob = this.currentSharedRouteWays[i]
       if (ob.intersects(bbox)) {
+        newSharedRouteWays.push(ob)
         ob.update()
       } else {
-        this.currentSharedRouteWays.splice(i, 1)
         ob.hide()
       }
     }
+    this.currentSharedRouteWays = newSharedRouteWays
 
+    var newStopAreas = []
     for(i = 0; i < this.currentStopAreas.length; i++) {
       var ob = this.currentStopAreas[i]
       if (ob.intersects(bbox)) {
+        newStopAreas.push(ob)
         ob.update()
       } else {
-        this.currentStopAreas.splice(i, 1)
         ob.hide()
       }
     }
+    this.currentStopAreas = newStopAreas
   }.bind(this))
 
   var request = {
