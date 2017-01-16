@@ -273,7 +273,21 @@ Route.prototype.showHighlight = function (callback) {
     }.bind(this),
     function (callback) {
       this.stops({},
-        function () {},
+        function (err, stop, index) {
+          var feature
+
+          if (stop.wayLink.way) {
+            feature = drawTangent(stop.wayLink.way.GeoJSON(), stop.stopLocationOnWay, 8, this.ptmap.map)
+            feature.setStyle({
+              weight: 7
+            })
+            feature.setOffset(3)
+
+          } else {
+          }
+
+          this.highlightsStops.push(feature)
+        },
         function () {
           callback()
         }
