@@ -178,10 +178,9 @@ Route.prototype.open = function (options, callback) {
 
     this.getStop(stopId,
       function (err, result, index) {
-        console.log(err, result, index)
         if (result) {
-          popupLocation = result.stop.geometry
-          mapLocation = result.stop.geometry
+          popupLocation = result.stop.object.geometry
+          mapLocation = result.stop.object.geometry
         } else {
           alert("Can't find stop " + stopId)
         }
