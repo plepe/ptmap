@@ -27,7 +27,6 @@ function PTMap (map, env) {
   }
   this.env.on('updateMinute', this.checkUpdateMap.bind(this))
 
-  this.currentStops = []
   this.currentStopAreas = []
   this.currentSharedRouteWays = []
   this.loadingState = 0
@@ -345,16 +344,6 @@ PTMap.prototype.checkUpdateMap = function () {
         ob.hide()
       }
     }
-
-    for(i = 0; i < this.currentStops.length; i++) {
-      var ob = this.currentStops[i]
-      if (ob.intersects(bbox)) {
-        ob.update()
-      } else {
-        this.currentStops.splice(i, 1)
-        ob.hide()
-      }
-    }
   }.bind(this))
 
   var request = {
@@ -407,22 +396,6 @@ PTMap.prototype.checkUpdateMap = function () {
           }.bind(this),
           function (err) {
             request.sharedRouteWays = null
-            callback()
-          }.bind(this)
-        )
-      }.bind(this),
-      function (callback) {
-        request.stops = this.stops.query(
-          filter,
-          function (err, stop) {
-            if (this.currentStops.indexOf(stop) === -1) {
-              this.currentStops.push(stop)
-            }
-
-            stop.show()
-          }.bind(this),
-          function (err) {
-            request.stops = null
             callback()
           }.bind(this)
         )
