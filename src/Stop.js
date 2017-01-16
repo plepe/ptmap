@@ -258,7 +258,7 @@ Stop.prototype.update = function (force) {
         this.featureUnconnected = L.circleMarker(this.object.geometry, style.stopUnconnected)
         this.featureUnconnected.addTo(this.ptmap.map)
       }
-    } else {
+    } else if (this.featureUnconnected) {
       this.ptmap.map.removeLayer(this.featureUnconnected)
       delete this.featureUnconnected
     }
@@ -291,6 +291,9 @@ Stop.prototype.update = function (force) {
 
       this.featureStop.setStyle(s)
       this.featureStop.setOffset(s.offset)
+    } else if (this.featureStop) {
+      this.ptmap.map.removeLayer(this.featureStop)
+      delete this.featureStop
     }
 
     if (this.featureUnconnected) {
