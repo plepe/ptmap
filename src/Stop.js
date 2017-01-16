@@ -2,7 +2,7 @@
 var async = require('async')
 
 var cmpScaleCategory = require('./cmpScaleCategory')
-var drawTangent = require('./drawTangent')
+var buildTangent = require('./buildTangent')
 
 /**
  * A link to a stop of a route 
@@ -281,15 +281,14 @@ Stop.prototype.update = function (force) {
           s.weight = (s.weight - s.offset) * 2
       }
 
+      var geometry = buildTangent(way.GeoJSON(), wayPosition, s.length, this.ptmap.map)
       if (this.featureStop) {
-        this.ptmap.map.removeLayer(this.featureStop)
-      }
-      // if (!this.featureStop) {
-        this.featureStop = drawTangent(way.GeoJSON(), wayPosition, s.length, this.ptmap.map)
+        this.featureStop.setLatLngs(geometry)
+        this.featureStop.setStyle(s)
+      } else {
+        this.featureStop = L.polyline(geometry, s)
         this.featureStop.addTo(this.ptmap.map)
-      // }
-
-      this.featureStop.setStyle(s)
+      }
       this.featureStop.setOffset(s.offset)
     } else if (this.featureStop) {
       this.ptmap.map.removeLayer(this.featureStop)

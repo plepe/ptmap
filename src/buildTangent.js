@@ -11,7 +11,7 @@ var turf = {
  * @param {L.map} map
  * @return {L.polyline}
  */
-function drawTangent (way, position, length, map) {
+function buildTangent (way, position, length, map) {
   var wayLength = turf.lineDistance(way, 'kilometers')
 
   var l1 = position > 0.001 ? position - 0.001 : 0
@@ -40,7 +40,7 @@ function drawTangent (way, position, length, map) {
   var e1 = map.layerPointToLatLng(d1)
   var e2 = map.layerPointToLatLng(d2)
   
-  return L.polyline([ e1, e2 ])
+  return [ e1, e2 ]
 }
 
-module.exports = drawTangent
+module.exports = buildTangent
