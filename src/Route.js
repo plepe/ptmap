@@ -5,6 +5,7 @@ var htmlEscape = require('html-escape')
 var OverpassFrontend = require('overpass-frontend')
 var SharedRouteWay = require('./SharedRouteWay')
 var StopArea = require('./StopArea')
+var buildTangent = require('./buildTangent')
 var OpeningHours = require('opening_hours')
 var turf = {
   pointOnLine: require('@turf/point-on-line')
@@ -245,6 +246,7 @@ Route.prototype.close = function () {
 
 Route.prototype.showHighlight = function (callback) {
   this.highlightsRouteWays = []
+  this.highlightsStops = []
 
   async.parallel([
     function (callback) {
@@ -273,21 +275,38 @@ Route.prototype.showHighlight = function (callback) {
     }.bind(this),
     function (callback) {
       this.stops({},
-        function (err, stop, index) {
+        function (err, link, index) {
           var feature
-
-          if (stop.wayLink.way) {
-            feature = drawTangent(stop.wayLink.way.GeoJSON(), stop.stopLocationOnWay, 8, this.ptmap.map)
-            feature.setStyle({
-              weight: 7
+          if (link.wayLink && link.wayLink.way) {
+            var geometry = buildTangent(link.wayLink.way.GeoJSON(), link.stopLocationOnWay, 8, this.ptmap.map)
+            feature = L.polyline(geometry, {
+              color: 'black',
+              lineCap: 'butt',
+              weight: 7,
+              pane: 'highlightRouteWays'
             })
-            feature.setOffset(3)
-
+            var dirValue =
+              link.wayDir === 'backward' ? -1 :
+              link.wayDir === 'forward' ? 1 : 0
+            if (dirValue === 0) {
+              feature.setStyle({ weight: (7 - 3) * 2 })
+            } else {
+              feature.setOffset(dirValue * 3)
+            }
           } else {
+            feature = L.circleMarker(link.stop.object.geometry, {
+              fillColor: 'black',
+              radius: 4,
+              stroke: false,
+              fill: true,
+              fillOpacity: 1.0,
+              pane: 'highlightRouteWays'
+            })
           }
 
+          feature.addTo(this.ptmap.map)
           this.highlightsStops.push(feature)
-        },
+        }.bind(this),
         function () {
           callback()
         }
@@ -299,13 +318,21 @@ Route.prototype.showHighlight = function (callback) {
 }
 
 Route.prototype.hideHighlight = function () {
-  if (!this.highlightsRouteWays) {
-    return
+  var i
+
+  if (this.highlightsRouteWays) {
+    for (i = 0; i < this.highlightsRouteWays.length; i++) {
+      if (this.highlightsRouteWays[i]) {
+        this.ptmap.map.removeLayer(this.highlightsRouteWays[i])
+      }
+    }
   }
 
-  for (var i = 0; i < this.highlightsRouteWays.length; i++) {
-    if (this.highlightsRouteWays[i]) {
-      this.ptmap.map.removeLayer(this.highlightsRouteWays[i])
+  if (this.highlightsStops) {
+    for (i = 0; i < this.highlightsStops.length; i++) {
+      if (this.highlightsStops[i]) {
+        this.ptmap.map.removeLayer(this.highlightsStops[i])
+      }
     }
   }
 }
