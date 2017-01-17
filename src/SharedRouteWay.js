@@ -4,6 +4,10 @@ var async = require('async')
 var arrayEquals = require('array-equal')
 var BoundingBox = require('boundingbox')
 var OverpassFrontend = require('overpass-frontend')
+var turf = {
+  lineDistance: require('@turf/line-distance'),
+  along: require('@turf/along')
+}
 
 var cmpScaleCategory = require('./cmpScaleCategory')
 
@@ -21,6 +25,18 @@ var cmpScaleCategory = require('./cmpScaleCategory')
  * @property {boolean|null} prevConnected Is the way properly connected to the previous way? true=yes, false=no, null=unknown.
  * @property {OSMObject|false|null} nextWay next way.
  * @property {boolean|null} nextConnected Is the way properly connected to the next way? true=yes, false=no, null=unknown.
+ * @property {Stop.Link[]} stops List of stops in this link
+ */
+
+/**
+ * A link to the stops on the shared route way
+ * @typedef {object[]} SharedRouteWay.stopsReturn
+ * @property {string} stopId ID of the stop
+ * @property {OSMObject} stop OSM object
+ * @property {number} stopIndexOnWay nth node of the way
+ * @property {number|null} stopLocationOnWay location of the stop along the way (km)
+ * @property {'forward'|'backward'|'both'} wayDir Direction of stop on the way
+ * @property {Stop.Link[]} links links to the routes
  */
 
 /**
@@ -30,6 +46,7 @@ var cmpScaleCategory = require('./cmpScaleCategory')
  * @property {string} id ID of the way (equals the OSM way id).
  * @property {OSMObject} way OSM object.
  * @property {SharedRouteWay.Link[]} links Links to the routes of the shared route way.
+ * @property {number} wayLength length of the way in km
  */
 function SharedRouteWay (ptmap, way) {
   this.ptmap = ptmap
@@ -37,6 +54,7 @@ function SharedRouteWay (ptmap, way) {
   this.id = way.id
   this.links = []
   this.updateNeeded = true
+  this.wayLength = turf.lineDistance(this.way.GeoJSON(), 'kilometers')
 }
 
 // TODO: not implemented yet
@@ -73,6 +91,12 @@ SharedRouteWay.prototype.addLink = function (link) {
   this.links.push(link)
 }
 
+/**
+ * return routes on this way
+ * @param {object} [filter] Filter results
+ * @param {boolean} [filter.onlyActive=true] Return only stops of active route
+ * @return {Route[]}
+ */
 SharedRouteWay.prototype.routes = function (filter) {
   var ret = []
 
@@ -96,8 +120,70 @@ SharedRouteWay.prototype.routes = function (filter) {
   return ret
 }
 
-SharedRouteWay.prototype.topRoute = function () {
-  var routes = this.routes()
+/**
+ * return list of loaded stops on the way
+ * @param {object} [filter] Filter results
+ * @param {boolean} [filter.onlyActive=true] Return only stops of active route
+ * @return {SharedRouteWay.stopsReturn[]}
+ */
+SharedRouteWay.prototype.stops = function (filter) {
+  var ret = []
+  var index = {}
+
+  if (typeof filter === 'undefined') {
+    filter = { onlyActive: true }
+  }
+  if (!('onlyActive' in filter)) {
+    filter.onlyActive = true
+  }
+
+  for (var i = 0; i < this.links.length; i++) {
+    var link = this.links[i]
+
+    if (filter.onlyActive === true && !link.route.isActive()) {
+      continue
+    }
+
+    for (var j = 0; j < link.stops.length; j++) {
+      var r = {}
+      var stopLink = link.stops[j]
+
+      if (stopLink.stopId in index) {
+        r = index[stopLink.stopId]
+
+        if (stopLink.wayDir !== null && stopLink.wayDir !== r.wayDir) {
+          if (r.wayDir !== null) {
+            r.wayDir = stopLink.wayDir
+          } else {
+            r.wayDir = 'both'
+          }
+        }
+      } else {
+        r.stop = stopLink.stop
+        r.stopIndexOnWay = stopLink.stopIndexOnWay
+        r.stopLocationOnWay = stopLink.stopLocationOnWay
+        r.stopId = stopLink.stopId
+        r.wayDir = stopLink.wayDir
+        r.links = []
+        index[stopLink.stopId] = r
+        ret.push(r)
+      }
+
+      r.links.push(stopLink)
+    }
+  }
+
+  return ret
+}
+
+/**
+ * return top route on this way
+ * @param {object} [filter] Filter results
+ * @param {boolean} [filter.onlyActive=true] Return only stops of active route
+ * @return {Route|null}
+ */
+SharedRouteWay.prototype.topRoute = function (filter) {
+  var routes = this.routes(filter)
 
   routes.sort(function (a, b) {
     return cmpScaleCategory(a.scaleCategory(), b.scaleCategory())
@@ -467,7 +553,7 @@ SharedRouteWay.factory = function (ptmap) {
       return overpassFrontend.get(
         [ id ],
         {
-          properties: OverpassFrontend.BBOX
+          properties: OverpassFrontend.GEOM | OverpassFrontend.MEMBERS,
         },
         function (err, feature) {
           found = true

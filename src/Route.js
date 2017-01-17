@@ -5,7 +5,11 @@ var htmlEscape = require('html-escape')
 var OverpassFrontend = require('overpass-frontend')
 var SharedRouteWay = require('./SharedRouteWay')
 var StopArea = require('./StopArea')
+var buildTangent = require('./buildTangent')
 var OpeningHours = require('opening_hours')
+var turf = {
+  pointOnLine: require('@turf/point-on-line')
+}
 
 var priorityFromScale = [ 0.6, 0.4, 0.1, 0.3 ]
 
@@ -175,10 +179,9 @@ Route.prototype.open = function (options, callback) {
 
     this.getStop(stopId,
       function (err, result, index) {
-        console.log(err, result, index)
         if (result) {
-          popupLocation = result.stop.geometry
-          mapLocation = result.stop.geometry
+          popupLocation = result.stop.object.geometry
+          mapLocation = result.stop.object.geometry
         } else {
           alert("Can't find stop " + stopId)
         }
@@ -220,11 +223,11 @@ Route.prototype.buildPopup = function () {
     ret += '<h2>Stops</h2><ul>\n'
 
     for (var i = 0; i < this._stops.length; i++) {
-      var stop = this._stops[i]
+      var link = this._stops[i]
 
-      ret += '<li>' + '<a href="#q=' + this.id + '/' + stop.stopId + '">'
-      if (stop.stop) {
-        ret += htmlEscape(stop.stop.tags.name)
+      ret += '<li>' + '<a href="#q=' + this.id + '/' + link.stopId + '">'
+      if (link.stop.object) {
+        ret += htmlEscape(link.stop.object.tags.name)
       } else {
         ret += 'unknown'
       }
@@ -243,6 +246,7 @@ Route.prototype.close = function () {
 
 Route.prototype.showHighlight = function (callback) {
   this.highlightsRouteWays = []
+  this.highlightsStops = []
 
   async.parallel([
     function (callback) {
@@ -271,7 +275,43 @@ Route.prototype.showHighlight = function (callback) {
     }.bind(this),
     function (callback) {
       this.stops({},
-        function () {},
+        function (err, link, index) {
+          var feature
+          if (link.wayLink && link.wayLink.way) {
+            var geometry = buildTangent(link.wayLink.way.GeoJSON(), link.stopLocationOnWay, 8, this.ptmap.map)
+            feature = L.polyline(geometry, {
+              color: 'black',
+              lineCap: 'butt',
+              weight: 7,
+              pane: 'highlightRouteWays'
+            })
+            var dirValue =
+              link.wayDir === 'backward' ? -1 :
+              link.wayDir === 'forward' ? 1 : 0
+            if (dirValue === 0) {
+              feature.setStyle({ weight: (7 - 3) * 2 })
+            } else {
+              feature.setOffset(dirValue * 3)
+            }
+
+            // remember for update
+            feature.GeoJSON = link.wayLink.way.GeoJSON()
+            feature.stopLocationOnWay = link.stopLocationOnWay
+            feature.length = 8
+          } else {
+            feature = L.circleMarker(link.stop.object.geometry, {
+              fillColor: 'black',
+              radius: 4,
+              stroke: false,
+              fill: true,
+              fillOpacity: 1.0,
+              pane: 'highlightRouteWays'
+            })
+          }
+
+          feature.addTo(this.ptmap.map)
+          this.highlightsStops.push(feature)
+        }.bind(this),
         function () {
           callback()
         }
@@ -282,14 +322,33 @@ Route.prototype.showHighlight = function (callback) {
   })
 }
 
+Route.prototype.updateHighlight = function() {
+  for (var i = 0; i < this.highlightsStops.length; i++) {
+    var feature = this.highlightsStops[i]
+
+    if ('stopLocationOnWay' in feature) {
+      var geometry = buildTangent(feature.GeoJSON, feature.stopLocationOnWay, feature.length, this.ptmap.map)
+      feature.setLatLngs(geometry)
+    }
+  }
+}
+
 Route.prototype.hideHighlight = function () {
-  if (!this.highlightsRouteWays) {
-    return
+  var i
+
+  if (this.highlightsRouteWays) {
+    for (i = 0; i < this.highlightsRouteWays.length; i++) {
+      if (this.highlightsRouteWays[i]) {
+        this.ptmap.map.removeLayer(this.highlightsRouteWays[i])
+      }
+    }
   }
 
-  for (var i = 0; i < this.highlightsRouteWays.length; i++) {
-    if (this.highlightsRouteWays[i]) {
-      this.ptmap.map.removeLayer(this.highlightsRouteWays[i])
+  if (this.highlightsStops) {
+    for (i = 0; i < this.highlightsStops.length; i++) {
+      if (this.highlightsStops[i]) {
+        this.ptmap.map.removeLayer(this.highlightsStops[i])
+      }
     }
   }
 }
@@ -342,6 +401,9 @@ Route.prototype.routeWays = function (filter, featureCallback, finalCallback) {
     this._routeWays = []
     init = true
   }
+  if (!this._stops) {
+    this._initStops()
+  }
 
   for (var i = 0; i < this.object.members.length; i++) {
     var member = this.object.members[i]
@@ -359,7 +421,8 @@ Route.prototype.routeWays = function (filter, featureCallback, finalCallback) {
           prevWay: null,
           prevConnected: null,
           nextWay: null,
-          nextConnected: null
+          nextConnected: null,
+          stops: null
         })
       }
 
@@ -413,6 +476,42 @@ Route.prototype.routeWayCheck = function (wayIndex) {
     link.sharedRouteWay.addLink(link)
   }
 
+  if (link.stops === null) {
+    link.stops = []
+
+    for (var i = 0; i < link.way.members.length; i++) {
+      var member = link.way.members[i]
+      if (member.id in this._stopsIndex) {
+        for (var j = 0; j < this._stopsIndex[member.id].length; j++) {
+          var stopIndex = this._stopsIndex[member.id][j]
+          var stopLink = this._stops[stopIndex]
+
+          stopLink.wayLink = link
+          stopLink.stopIndexOnWay = i
+          stopLink.stopLocationOnWay = null
+          var p = turf.pointOnLine(link.way.GeoJSON(),
+            {
+              type: 'Feature',
+              geometry: {
+                type: 'Point',
+                coordinates: [
+                  link.way.geometry[i].lon,
+                  link.way.geometry[i].lat
+                ]
+              }
+            },
+            'kilometers'
+          )
+          if (p) {
+            stopLink.stopLocationOnWay = p.properties.location
+          }
+
+          link.stops.push(stopLink)
+        }
+      }
+    }
+  }
+
   var checkPrevWay = false
   if (!link.prevWay && wayIndex > 0) {
     link.prevWay = this._routeWays[wayIndex - 1].way
@@ -459,23 +558,42 @@ Route.prototype.routeWayCheck = function (wayIndex) {
     }
   }
 
+  for (var i = 0; i < link.stops.length; i++) {
+    link.stops[i].wayDir = link.dir
+
+    if (link.stops[i].stop) {
+      link.stops[i].stop.requestUpdate()
+    }
+  }
+
   link.sharedRouteWay.requestUpdate()
 }
 
 Route.prototype._initStops = function () {
   this._stops = []
+  this._stopsIndex = {}
 
   for (i = 0; i < this.object.members.length; i++) {
     var member = this.object.members[i]
 
     if (member.type === 'node' && member.role === 'stop') {
+      if (member.id in this._stopsIndex) {
+        this._stopsIndex[member.id].push(this._stops.length)
+      } else {
+        this._stopsIndex[member.id] = [ this._stops.length ]
+      }
+
       this._stops.push({
         role: member.role,
         stopId: member.id,
         stopIndex: i,
         stop: false,
         routeId: this.id,
-        route: this
+        route: this,
+        stopIndexOnWay: null,
+        stopLocationOnWay: null,
+        wayDir: null,
+        wayLink: null
       })
     }
   }
@@ -487,7 +605,7 @@ Route.prototype._initStops = function () {
  * @param {number} [options.priority] Priority
  * @param {BoundingBox} [options.bbox] Only return stops within the given bounding box
  * @param {string|string[]} [options.ids] Only return specified ids
- * @param {function} featureCallback Callback which will be called for every found stop with the parameters: err, feature, index
+ * @param {function} featureCallback Callback which will be called for every found stop with the parameters: err, feature (Stop.Link), index
  * @param {function} finalCallback Callback which will be called when request finished with the paramters: err
  */
 Route.prototype.stops = function (options, featureCallback, finalCallback) {
@@ -533,8 +651,13 @@ Route.prototype.stops = function (options, featureCallback, finalCallback) {
       var stopIndex = stopIndexList[index]
 
       if (result !== false && result !== null) {
-        this._stops[stopIndex].stop = result
-        this.stopCheck(stopIndex)
+        var link = this._stops[stopIndex]
+
+        if (!link.stop) {
+          link.stop = this.ptmap.stops.add(result)
+          link.stop.addLink(link)
+          this.stopCheck(stopIndex)
+        }
       }
 
       featureCallback(err, this._stops[stopIndex], stopIndex)
@@ -571,9 +694,6 @@ Route.prototype.getStop = function (id, callback) {
 
 Route.prototype.stopCheck = function (stopIndex) {
   var link = this._stops[stopIndex]
-
-  // analyze stop; add to stop area
-  this.ptmap.stopAreas.add(link)
 }
 
 // Factory

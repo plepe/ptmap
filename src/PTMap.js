@@ -8,6 +8,7 @@ var Promise = require('promise');
 var Route = require('./Route')
 var SharedRouteWay = require('./SharedRouteWay')
 var StopArea = require('./StopArea')
+var Stop = require('./Stop')
 var BoundingBox = require('boundingbox')
 var Environment = require('./Environment')
 
@@ -38,6 +39,7 @@ function PTMap (map, env) {
   this.routes = Route.factory(this)
   this.sharedRouteWays = SharedRouteWay.factory(this)
   this.stopAreas = StopArea.factory(this)
+  this.stops = Stop.factory(this)
   this.notFoundIds = {}
 
   if (this.map) {
@@ -124,7 +126,7 @@ PTMap.prototype.get = function (id, options, callback) {
 
   var found = []
   async.eachOf(
-    [ 'routes', 'stopAreas', 'sharedRouteWays' ],
+    [ 'routes', 'stopAreas', 'sharedRouteWays', 'stops' ],
     function (realm, i, callback) {
       this[realm].get(
         id,
@@ -325,30 +327,39 @@ PTMap.prototype.checkUpdateMap = function () {
   async.setImmediate(function () {
     var i
 
+    if (this.highlight && 'updateHighlight' in this.highlight) {
+      this.highlight.updateHighlight()
+    }
+
+    var newSharedRouteWays = []
     for(i = 0; i < this.currentSharedRouteWays.length; i++) {
       var ob = this.currentSharedRouteWays[i]
       if (ob.intersects(bbox)) {
+        newSharedRouteWays.push(ob)
         ob.update()
       } else {
-        this.currentSharedRouteWays.splice(i, 1)
         ob.hide()
       }
     }
+    this.currentSharedRouteWays = newSharedRouteWays
 
+    var newStopAreas = []
     for(i = 0; i < this.currentStopAreas.length; i++) {
       var ob = this.currentStopAreas[i]
       if (ob.intersects(bbox)) {
+        newStopAreas.push(ob)
         ob.update()
       } else {
-        this.currentStopAreas.splice(i, 1)
         ob.hide()
       }
     }
+    this.currentStopAreas = newStopAreas
   }.bind(this))
 
   var request = {
     stopAreas: null,
     sharedRouteWays: null,
+    stops: null,
     finished: false
   }
   request.abort = function () {
@@ -411,6 +422,7 @@ PTMap.prototype.checkUpdateMap = function () {
 PTMap.prototype.update = function (force) {
   this.stopAreas.update(force)
   this.sharedRouteWays.update(force)
+  this.stops.update(force)
 }
 
 PTMap.prototype.getRouteById = function (ids, featureCallback, finalCallback) {

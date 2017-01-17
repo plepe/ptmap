@@ -14,6 +14,7 @@ var ptmap = new PTMap()
 var Route = require('../src/Route')
 var SharedRouteWay = require('../src/SharedRouteWay')
 var StopArea = require('../src/StopArea')
+var Stop = require('../src/Stop')
 var routes = {}
 
 /* global describe it overpassFrontend */
@@ -22,6 +23,7 @@ var fakePTMap = {}
 fakePTMap.routes = Route.factory(fakePTMap)
 fakePTMap.sharedRouteWays = SharedRouteWay.factory(fakePTMap)
 fakePTMap.stopAreas = StopArea.factory(fakePTMap)
+fakePTMap.stops = Stop.factory(fakePTMap)
 
 describe('Route', function () {
   it('load object', function (done) {
