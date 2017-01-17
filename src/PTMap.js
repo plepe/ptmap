@@ -325,6 +325,10 @@ PTMap.prototype.checkUpdateMap = function () {
   async.setImmediate(function () {
     var i
 
+    if (this.highlight && 'updateHighlight' in this.highlight) {
+      this.highlight.updateHighlight()
+    }
+
     var newSharedRouteWays = []
     for(i = 0; i < this.currentSharedRouteWays.length; i++) {
       var ob = this.currentSharedRouteWays[i]
