@@ -20,8 +20,12 @@
   <script src="node_modules/leaflet-polylineoffset/leaflet.polylineoffset.js"></script>
   <script src="dist/ptmap.js"></script>
 </head>
-<body>
-  <div id='map' style='position: absolute; left: 0; top: 0; bottom: 0; right: 0'></div>
+<body class='showSidebar'>
+  <div id='sidebar'>
+    <div id='logo'>PTMap</div>
+    <div id='details'></div>
+  </div>
+  <div id='map'></div>
   <div id='status'>
     <div id='clock'></div>
     <div id='loadingIndicator'><img src='img/loading.gif'>Loading</div>

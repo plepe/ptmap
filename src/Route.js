@@ -207,6 +207,7 @@ Route.prototype.open = function (options, callback) {
 
   this.showHighlight(function () {
     this.highlightPopup.setContent(this.buildPopup())
+    document.getElementById('details').innerHTML = this.buildPopup()
 
     if (++done === 2) {
       callback(null, mapLocation)

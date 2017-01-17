@@ -1,10 +1,27 @@
 #map {
   position: absolute;
-  left: 0px;
+  left: 32px;
   right: 0px;
   top: 0px;
   bottom: 0px;
 }
+#sidebar {
+  position: absolute;
+  left: 0px;
+  width: 31px;
+  border-right: 1px solid black;
+  top: 0px;
+  bottom: 0px;
+  overflow-y: auto;
+}
+
+body.showSidebar #map {
+  left: 200px;
+}
+body.showSidebar #sidebar {
+  width: 199px;
+}
+
 .label-stop {
 }
 .label-stop div {
