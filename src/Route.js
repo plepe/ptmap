@@ -293,6 +293,11 @@ Route.prototype.showHighlight = function (callback) {
             } else {
               feature.setOffset(dirValue * 3)
             }
+
+            // remember for update
+            feature.GeoJSON = link.wayLink.way.GeoJSON()
+            feature.stopLocationOnWay = link.stopLocationOnWay
+            feature.length = 8
           } else {
             feature = L.circleMarker(link.stop.object.geometry, {
               fillColor: 'black',
@@ -315,6 +320,17 @@ Route.prototype.showHighlight = function (callback) {
   ], function () {
     callback()
   })
+}
+
+Route.prototype.updateHighlight = function() {
+  for (var i = 0; i < this.highlightsStops.length; i++) {
+    var feature = this.highlightsStops[i]
+
+    if ('stopLocationOnWay' in feature) {
+      var geometry = buildTangent(feature.GeoJSON, feature.stopLocationOnWay, feature.length, this.ptmap.map)
+      feature.setLatLngs(geometry)
+    }
+  }
 }
 
 Route.prototype.hideHighlight = function () {
