@@ -31,6 +31,9 @@
   border: 1px solid black;
   background: white;
 }
+#status #clock {
+  cursor: pointer;
+}
 #status div {
   display: inline;
   margin-left: 5px;
