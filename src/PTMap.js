@@ -3,6 +3,7 @@ var async = require('async')
 var moment = require('moment')
 var events = require('events')
 var Promise = require('promise');
+var twig = require('twig').twig
 /* global overpassFrontend */
 
 var Route = require('./Route')
@@ -454,6 +455,30 @@ PTMap.prototype.getSharedRouteWays = function (filter, featureCallback, finalCal
 
 PTMap.prototype.getStopAreas = function (filter, featureCallback, finalCallback) {
   return this.stopAreas.query(filter, featureCallback, finalCallback)
+}
+
+PTMap.prototype.showMapKey = function () {
+  var dom = document.createElement('div')
+  dom.id = 'mapKey'
+  document.body.appendChild(dom)
+
+  var close = document.createElement('a')
+  close.className = 'close-button'
+  close.innerHTML = '×'
+  close.onclick = function () {
+    document.body.removeChild(dom)
+  }
+  dom.appendChild(close)
+
+  var contentDom = document.createElement('div')
+  contentDom.className = 'content'
+  dom.appendChild(contentDom)
+
+  var template = twig({
+    data: document.getElementById('mapKeyTemplate').innerHTML
+  })
+
+  contentDom.innerHTML = template.render(config)
 }
 
 module.exports = PTMap

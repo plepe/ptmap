@@ -69,4 +69,10 @@ function init () {
   })
 
   var environmentFrontend = new EnvironmentFrontend(env, document.getElementById('clock'))
+
+  ptmap.showMapKey()
+}
+
+window.showMapKey = function () {
+  ptmap.showMapKey()
 }

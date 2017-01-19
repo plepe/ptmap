@@ -20,7 +20,7 @@
     "promise": "^7.1.1",
     "query-string": "^4.2.3",
     "sheet-router": "^4.1.1",
-    "twig": "0.8.9",
+    "twig": "^0.10.3",
     "weight-sort": "*"
   },
   "devDependencies": {
