@@ -30,6 +30,75 @@
 
 <!-- Templates, to be rendered by twig.js -->
 <script type='text/template' id='mapKeyTemplate'>
+<h1>PTMap</h1>
+<p>The PTMap shows public transport routes as they are entered to the OpenStreetMap. As there is no timetable data added to the OpenStreetMap, this information can not be available. Anyhow, the operating hours are respected, so you can play with the date/time to show routes at different days resp. times of day (see below for more information).</p>
+
+<p>Please be patient while data is being loaded - route data is rather complex. As data source the Overpass API at <code>{{ overpass.url}}</code> is used.</p>
+
+<h2>Route Type</h2>
+<p>The following route types will be shown on the public transport map. The notch indicates a stop at the route and is shown on the right side of the route (at least when the direction is known):
+<ul>
+{% for routeType, routeData in routes %}
+  <li>
+    <svg width='32px' height='8px'>
+      <path d='m 1,2.5 30,0' style='stroke: {{ routeData.color }}; stroke-width: 3px; stroke-linecap: round;'/>
+      <path d='m 13,5.5 4,0' style='stroke: {{ routeData.color }}; stroke-width: 5px; stroke-linecap: butt; '/>
+    </svg>
+    <span>Route: {{ routeType }}</span></li>
+{% endfor %}
+</ul>
+<p>
+
+<h2>Scale of a Route</h2>
+<p>Dependent on the scale of a route, different renderings are used (or a route is not shown at all). As there's no such thing as a scale in the route's data, an approximate stop distance is used as indicator, which calculates from the pixel length of the diagonal of the route's bounding box at the current zoom level divided by the count of stops. The following renderings will be used:
+<ul>
+  <li>
+    <svg width='32px' height='8px'>
+      <path d='m 1,2.5 30,0' style='stroke: {{ routes.bus.color }}; stroke-width: 1px; stroke-linecap: round;'/>
+      <path d='m 14,3.5 2,0' style='stroke: {{ routes.bus.color }}; stroke-width: 2px; stroke-linecap: butt; '/>
+    </svg>
+    small scale route (stop distance 20px to 70px)
+  </li>
+
+  <li>
+    <svg width='32px' height='8px'>
+      <path d='m 1,2.5 30,0' style='stroke: {{ routes.bus.color }}; stroke-width: 3px; stroke-linecap: round;'/>
+      <path d='m 13,5.5 4,0' style='stroke: {{ routes.bus.color }}; stroke-width: 5px; stroke-linecap: butt; '/>
+    </svg>
+    optimum scale route (stop distance 70px to 1000px)
+  </li>
+
+  <li>
+    <svg width='32px' height='8px'>
+      <path d='m 1,2.5 30,0' style='stroke: {{ routes.bus.color }}; stroke-width: 3px; stroke-linecap: round; stroke-dasharray: 1,7;'/>
+      <path d='m 11,5.5 8,0' style='stroke: {{ routes.bus.color }}; stroke-width: 7px; stroke-linecap: butt; '/>
+    </svg>
+    large scale route (stop distance from 1000px)
+  </li>
+</ul>
+
+<h2>Stops, Stop Areas</h2>
+<p>Stops with the same name will be collected into a "Stop Area", which is surrounded by a black border and labeled by the name. Dependant on the scale of routes stopping at the Stop Area, different borders are used.</p>
+
+<h2>OpenStreetMap tagging information</h2>
+<p>Currently only the tagging scheme v2 is supported, as described <a target='_blank' href='http://wiki.openstreetmap.org/wiki/Proposed_features/Public_Transport'>here</a>.</p>
+
+<h3>Route relation</h3>
+<p>Routes must have <code>type=route</code>, <code>route=*</code>. The following tags are regared: <code>from</code>, <code>to</code>, <code>name</code>, <code>ref</code>, <code>opening_hours</code>.</p>
+
+<p><code>platform</code> members are currently not supported.</p>
+
+<p>The operating hours of a route are read from the <a target='_blank' href='http://wiki.openstreetmap.org/wiki/Key:opening_hours'><code>opening_hours</code></a> tag. If no such information is available, the following value is assumed: <code>{{ default_tags.opening_hours }}</code>.</p>
+
+<h3>Route master</h3>
+<p>Currently not supported, but planned.</p>
+
+<h3>Stop Area relation</h3>
+<p>Currently stops are grouped only by the same name, the stop area relation is not supported yet.</p>
+
+<h3>Stops</h3>
+<p>Stops are only loaded via the route's membership. The following tags are regarded: <code>name</code>.</p>
+<p>Route members with the role <code>stop_exit_only</code> and <code>stop_entry_only</code> are not supported yet.</p>
 </script>
 </body>
 </html>
