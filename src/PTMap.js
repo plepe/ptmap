@@ -13,6 +13,8 @@ var Stop = require('./Stop')
 var BoundingBox = require('boundingbox')
 var Environment = require('./Environment')
 
+var LeafletGeoSearch = require('leaflet-geosearch')
+
 /**
  * A public transport map
  * @constructor
@@ -29,6 +31,23 @@ function PTMap (map, env) {
   this.env.on('updateMinute', this.checkUpdateMap.bind(this))
 
   this.map.attributionControl.setPrefix('<a href="https://github.com/plepe/ptmap">PTMap</a>')
+
+  // Add Geo Search
+  var provider = new LeafletGeoSearch.OpenStreetMapProvider()
+  var searchControl = new LeafletGeoSearch.GeoSearchControl({
+    provider: provider,
+    showMarker: false,
+    retainZoomLevel: true
+  })
+  this.map.addControl(searchControl)
+
+  // Geo location
+  L.control.locate({
+    keepCurrentZoomLevel: true,
+    drawCircle: false,
+    drawMarker: false,
+    showPopup: false
+  }).addTo(map);
 
   this.currentStopAreas = []
   this.currentSharedRouteWays = []
