@@ -3,6 +3,7 @@ var async = require('async')
 var moment = require('moment')
 var events = require('events')
 var Promise = require('promise');
+var twig = require('twig').twig
 /* global overpassFrontend */
 
 var Route = require('./Route')
@@ -11,6 +12,8 @@ var StopArea = require('./StopArea')
 var Stop = require('./Stop')
 var BoundingBox = require('boundingbox')
 var Environment = require('./Environment')
+
+var LeafletGeoSearch = require('leaflet-geosearch')
 
 /**
  * A public transport map
@@ -28,6 +31,23 @@ function PTMap (map, env) {
   this.env.on('updateMinute', this.checkUpdateMap.bind(this))
 
   this.map.attributionControl.setPrefix('<a href="https://github.com/plepe/ptmap">PTMap</a>')
+
+  // Add Geo Search
+  var provider = new LeafletGeoSearch.OpenStreetMapProvider()
+  var searchControl = new LeafletGeoSearch.GeoSearchControl({
+    provider: provider,
+    showMarker: false,
+    retainZoomLevel: true
+  })
+  this.map.addControl(searchControl)
+
+  // Geo location
+  L.control.locate({
+    keepCurrentZoomLevel: true,
+    drawCircle: false,
+    drawMarker: false,
+    showPopup: false
+  }).addTo(map);
 
   this.currentStopAreas = []
   this.currentSharedRouteWays = []
@@ -454,6 +474,32 @@ PTMap.prototype.getSharedRouteWays = function (filter, featureCallback, finalCal
 
 PTMap.prototype.getStopAreas = function (filter, featureCallback, finalCallback) {
   return this.stopAreas.query(filter, featureCallback, finalCallback)
+}
+
+PTMap.prototype.showMapKey = function () {
+  var dom = document.createElement('div')
+  dom.id = 'mapKey'
+  document.body.appendChild(dom)
+
+  var close = document.createElement('a')
+  close.className = 'close-button'
+  close.innerHTML = '×'
+  close.onclick = function () {
+    document.body.removeChild(dom)
+  }
+  dom.appendChild(close)
+
+  var contentDom = document.createElement('div')
+  contentDom.className = 'content'
+  dom.appendChild(contentDom)
+
+  var template = twig({
+    data: document.getElementById('mapKeyTemplate').innerHTML
+  })
+
+  var param = JSON.parse(JSON.stringify(config)) // copy config data
+  param.version = '__GIT_MY_VERSION__'
+  contentDom.innerHTML = template.render(param)
 }
 
 module.exports = PTMap

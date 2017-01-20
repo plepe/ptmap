@@ -7,6 +7,25 @@ var PTMap = require('./PTMap')
 var OverpassFrontend = require('overpass-frontend')
 var hash = require('sheet-router/hash')
 var queryString = require('query-string')
+var async = require('async')
+var ipLocation = require('ip-location')
+var map
+ipLocation.httpGet = function (url, callback) {
+  var xhr = new XMLHttpRequest()
+  xhr.open('get', url, true)
+  xhr.responseType = 'text'
+  xhr.onreadystatechange = function() {
+    if (xhr.readyState === 4) {
+      if (xhr.status === 200) {
+        callback(null, { body: xhr.responseText })
+      } else {
+        callback(xhr.responseText)
+      }
+    }
+  }
+  xhr.send()
+}
+var ipLoc
 
 window.onload = function () {
   var xhr = new XMLHttpRequest()
@@ -29,7 +48,7 @@ function init () {
   var hashUpdated = false
   window.overpassFrontend = new OverpassFrontend(config.overpass.url, config.overpass)
 
-  var map = L.map('map').setView([ config.location.lat, config.location.lon], config.location.zoom)
+  map = L.map('map')
 
   var osmMapnik = L.tileLayer('//{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
     {
@@ -43,6 +62,23 @@ function init () {
     e.popup._container.popup = e.popup
   })
 
+  if ('checkIPLocation' in config.location && config.location.checkIPLocation) {
+    ipLocation('', function (err, ipLoc) {
+      if ('latitude' in ipLoc) {
+        map.setView([ ipLoc.latitude, ipLoc.longitude ], 14)
+      } else {
+        map.setView([ config.location.lat, config.location.lon ], config.location.zoom)
+      }
+
+      init2()
+    })
+  } else {
+    map.setView([ config.location.lat, config.location.lon ], config.location.zoom)
+    init2()
+  }
+}
+
+function init2 () {
   var env = new Environment()
   ptmap = new PTMap(map, env)
 
@@ -69,4 +105,10 @@ function init () {
   })
 
   var environmentFrontend = new EnvironmentFrontend(env, document.getElementById('clock'))
+
+  ptmap.showMapKey()
+}
+
+window.showMapKey = function () {
+  ptmap.showMapKey()
 }
