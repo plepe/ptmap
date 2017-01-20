@@ -11,6 +11,8 @@ var StopArea = require('./StopArea')
 var BoundingBox = require('boundingbox')
 var Environment = require('./Environment')
 
+var LeafletGeoSearch = require('leaflet-geosearch')
+
 /**
  * A public transport map
  * @constructor
@@ -25,6 +27,15 @@ function PTMap (map, env) {
     this.env = new Environment()
   }
   this.env.on('updateMinute', this.checkUpdateMap.bind(this))
+
+  // Add Geo Search
+  var provider = new LeafletGeoSearch.OpenStreetMapProvider()
+  var searchControl = new LeafletGeoSearch.GeoSearchControl({
+    provider: provider,
+    showMarker: false,
+    retainZoomLevel: true
+  })
+  this.map.addControl(searchControl)
 
   this.currentStopAreas = []
   this.currentSharedRouteWays = []
