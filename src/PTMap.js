@@ -37,6 +37,14 @@ function PTMap (map, env) {
   })
   this.map.addControl(searchControl)
 
+  // Geo location
+  L.control.locate({
+    keepCurrentZoomLevel: true,
+    drawCircle: false,
+    drawMarker: false,
+    showPopup: false
+  }).addTo(map);
+
   this.currentStopAreas = []
   this.currentSharedRouteWays = []
   this.loadingState = 0

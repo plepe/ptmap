@@ -11,6 +11,7 @@
     "html-escape": "^2.0.0",
     "ip-location": "^1.0.0",
     "leaflet-geosearch": "^2.0.1",
+    "leaflet.locatecontrol": "^0.59.0",
     "moment": "*",
     "natsort": "*",
     "nodent-runtime": "^3.0.3",
