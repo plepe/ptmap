@@ -30,7 +30,7 @@
 
 <!-- Templates, to be rendered by twig.js -->
 <script type='text/template' id='mapKeyTemplate'>
-<h1>PTMap</h1>
+<h1>PTMap <span class='version'>version {{ version }}</span></h1>
 <p>The PTMap shows public transport routes as they are entered to the OpenStreetMap. As there is no timetable data added to the OpenStreetMap, this information can not be available. Anyhow, the operating hours are respected, so you can play with the date/time to show routes at different days resp. times of day (see below for more information).</p>
 
 <p>Please be patient while data is being loaded - route data is rather complex. As data source the Overpass API at <code>{{ overpass.url}}</code> is used.</p>

@@ -478,7 +478,9 @@ PTMap.prototype.showMapKey = function () {
     data: document.getElementById('mapKeyTemplate').innerHTML
   })
 
-  contentDom.innerHTML = template.render(config)
+  var param = JSON.parse(JSON.stringify(config)) // copy config data
+  param.version = '__GIT_MY_VERSION__'
+  contentDom.innerHTML = template.render(param)
 }
 
 module.exports = PTMap
