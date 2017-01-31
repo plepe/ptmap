@@ -64,7 +64,7 @@ function init () {
 
   if ('checkIPLocation' in config.location && config.location.checkIPLocation) {
     ipLocation('', function (err, ipLoc) {
-      if ('latitude' in ipLoc) {
+      if (typeof ipLoc === 'object' && 'latitude' in ipLoc) {
         map.setView([ ipLoc.latitude, ipLoc.longitude ], 14)
       } else {
         map.setView([ config.location.lat, config.location.lon ], config.location.zoom)
