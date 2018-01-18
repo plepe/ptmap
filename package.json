@@ -12,6 +12,7 @@
     "async": "*",
     "flatpickr": "^2.0.8",
     "html-escape": "^2.0.0",
+    "i18next-client": "^1.11.4",
     "ip-location": "^1.0.1",
     "leaflet-geosearch": "^2.0.1",
     "leaflet-polylineoffset": "^1.0.0",
