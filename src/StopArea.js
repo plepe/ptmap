@@ -421,7 +421,7 @@ StopArea.factory = function (ptmap) {
             }
           }
 
-        var distance = turf.distance(locGeoJSON, stopAreaCenter, 'kilometers')
+        var distance = turf.distance(locGeoJSON, stopAreaCenter, { units: 'kilometers' })
         if (distance < minDistance) {
           minDistance = distance
           found = stopArea
