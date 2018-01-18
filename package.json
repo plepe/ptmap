@@ -38,11 +38,13 @@
     "jsdoc": "^3.4.3",
     "leaflet": "^1.0.0",
     "leaflet-textpath": "https://github.com/makinacorpus/Leaflet.TextPath#leaflet0.8-dev",
-    "mocha": "^3.1.2"
+    "mocha": "^3.1.2",
+    "watchify": "^3.9.0"
   },
   "scripts": {
     "test": "mocha --bail",
     "build": "mkdir -p dist && browserify -t browserify-git-my-version src/index.js -o dist/ptmap.js",
+    "watch": "watchify --debug -v -t browserify-git-my-version src/index.js -o dist/ptmap.js",
     "lint": "eslint src/*.js test/*.js",
     "doc": "jsdoc -d doc/ src/*.js"
   },
