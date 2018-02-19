@@ -440,24 +440,31 @@ Route.prototype.routeWays = function (filter, featureCallback, finalCallback) {
   }
 
   var param = {
-    bbox: filter.bbox,
-    properties: OverpassFrontend.GEOM | OverpassFrontend.MEMBERS,
-    priority: 'priority' in filter ? filter.priority : 0
+    members: true,
+    memberBounds: filter.bbox,
+    properties: OverpassFrontend.ID,
+    memberProperties: OverpassFrontend.GEOM | OverpassFrontend.MEMBERS,
+    priority: 'priority' in filter ? filter.priority : 0,
+    minEffort: 32
   }
   param.priority += priorityFromScale[this.scaleCategory()]
 
-  return overpassFrontend.get(wayIds,
+  param.memberCallback =
+    (err, result) => {
+      this._routeWays.map((way, index) => {
+        if (way.wayId === result.id) {
+
+          way.way = result
+          this.routeWayCheck(index)
+
+          featureCallback(err, way, index)
+        }
+      })
+    }
+
+  return overpassFrontend.get([ this.id ],
     param,
-    function (wayIndexList, err, result, index) {
-      wayIndex = wayIndexList[index]
-
-      if (result !== false && result !== null) {
-        this._routeWays[wayIndex].way = result
-        this.routeWayCheck(wayIndex)
-      }
-
-      featureCallback(err, this._routeWays[wayIndex], wayIndex)
-    }.bind(this, wayIndexList),
+    function () {},
     function (err) {
       finalCallback(err, this._routeWays)
     }.bind(this)
@@ -636,32 +643,35 @@ Route.prototype.stops = function (options, featureCallback, finalCallback) {
   }
 
   var param = {
-    properties: OverpassFrontend.GEOM | OverpassFrontend.TAGS,
-    priority: 'priority' in options ? options.priority : 0
+    members: true,
+    properties: OverpassFrontend.ID,
+    memberProperties: OverpassFrontend.GEOM | OverpassFrontend.TAGS,
+    priority: 'priority' in options ? options.priority : 0,
+    minEffort: 32
   }
   param.priority += priorityFromScale[this.scaleCategory()]
   if (options.bbox) {
-    param.bbox = options.bbox
+    param.memberBounds = options.bbox
   }
 
-  return overpassFrontend.get(
-    stopIds,
-    param,
-    function (stopIndexList, err, result, index) {
-      var stopIndex = stopIndexList[index]
+  param.memberCallback =
+    (err, result) => {
+      this._stops.map((link, index) => {
+        if (link.stopId === result.id) {
+          if (!link.stop) {
+            link.stop = this.ptmap.stops.add(result)
+            link.stop.addLink(link)
+            this.stopCheck(index)
+          }
 
-      if (result !== false && result !== null) {
-        var link = this._stops[stopIndex]
-
-        if (!link.stop) {
-          link.stop = this.ptmap.stops.add(result)
-          link.stop.addLink(link)
-          this.stopCheck(stopIndex)
+          featureCallback(err, stop, index)
         }
-      }
+      })
+    }
 
-      featureCallback(err, this._stops[stopIndex], stopIndex)
-    }.bind(this, stopIndexList),
+  return overpassFrontend.get([ this.id ],
+    param,
+    function () {},
     function (err) {
       finalCallback(err, this._stops)
     }.bind(this)
