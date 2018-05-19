@@ -5,8 +5,8 @@ var arrayEquals = require('array-equal')
 var BoundingBox = require('boundingbox')
 var OverpassFrontend = require('overpass-frontend')
 var turf = {
-  lineDistance: require('@turf/line-distance'),
-  along: require('@turf/along')
+  length: require('@turf/length').default,
+  along: require('@turf/along').default
 }
 
 var cmpScaleCategory = require('./cmpScaleCategory')
@@ -54,7 +54,7 @@ function SharedRouteWay (ptmap, way) {
   this.id = way.id
   this.links = []
   this.updateNeeded = true
-  this.wayLength = turf.lineDistance(this.way.GeoJSON(), 'kilometers')
+  this.wayLength = turf.length(this.way.GeoJSON(), 'kilometers')
 }
 
 // TODO: not implemented yet

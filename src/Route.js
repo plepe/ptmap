@@ -8,7 +8,7 @@ var StopArea = require('./StopArea')
 var buildTangent = require('./buildTangent')
 var OpeningHours = require('opening_hours')
 var turf = {
-  pointOnLine: require('@turf/point-on-line')
+  pointOnLine: require('@turf/nearest-point-on-line').default
 }
 
 var priorityFromScale = [ 0.6, 0.4, 0.1, 0.3 ]
@@ -794,7 +794,7 @@ Route.factory = function (ptmap) {
       param.priority += 0.2
 
       return overpassFrontend.BBoxQuery(
-        'relation[type=route][route~"^(' + query.join('|') + ')$"]',
+        'relation[type=route][route~"^(' + query.join('|') + ')$"];',
         filter.bbox,
         param,
         _loadRoute.bind(this, filter, featureCallback),

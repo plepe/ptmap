@@ -1,6 +1,6 @@
 var turf = {
-  lineDistance: require('@turf/line-distance'),
-  along: require('@turf/along')
+  length: require('@turf/length').default,
+  along: require('@turf/along').default
 }
 
 /**
@@ -12,7 +12,7 @@ var turf = {
  * @return {L.polyline}
  */
 function buildTangent (way, position, length, map) {
-  var wayLength = turf.lineDistance(way, 'kilometers')
+  var wayLength = turf.length(way, 'kilometers')
 
   var l1 = position > 0.001 ? position - 0.001 : 0
   var l2 = position < wayLength - 0.001 ? position + 0.001 : wayLength
