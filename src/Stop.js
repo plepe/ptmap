@@ -374,6 +374,7 @@ Stop.factory = function (ptmap) {
           this.requests[i].abort()
         }
         console.log('Stop.factory.query(): abort called')
+        finalCallback()
       }.bind(request)
 
       request.requests.push(ptmap.getRoutes(

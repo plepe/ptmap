@@ -25,7 +25,7 @@
     "natsort": "^1.0.6",
     "nodent-runtime": "^3.0.3",
     "opening_hours": "*",
-    "overpass-frontend": "https://github.com/plepe/overpass-frontend",
+    "overpass-frontend": "^2.4.7",
     "promise": "^7.1.1",
     "query-string": "^4.2.3",
     "sheet-router": "^4.1.1",

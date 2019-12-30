@@ -476,6 +476,7 @@ SharedRouteWay.factory = function (ptmap) {
           this.requests[i].abort()
         }
         console.log('PTMap.getSharedRouteWays.abort called')
+        finalCallback()
       }.bind(request)
 
       request.requests.push(ptmap.getRoutes(
