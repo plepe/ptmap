@@ -1,6 +1,8 @@
 /* global call_hooks L:false */
 window.config = {}
 
+require("@babel/polyfill");
+
 var Environment = require('./Environment')
 var EnvironmentFrontend = require('./EnvironmentFrontend')
 var PTMap = require('./PTMap')
