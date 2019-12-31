@@ -50,6 +50,15 @@ function init () {
   var hashUpdated = false
   window.overpassFrontend = new OverpassFrontend(config.overpass.url, config.overpass)
 
+  // if a file is being loaded, log time for loading and parsing
+  if (config.overpass.url.match(/\.(json|osm\.bz2|osm)$/)) {
+    let loadingStart = new Date().getTime()
+    window.overpassFrontend.once('load', () => {
+      let duration = new Date().getTime() - loadingStart
+      console.log('Loading and parsing took ' + (duration / 1000).toFixed(1) + ' seconds')
+    })
+  }
+
   map = L.map('map')
 
   var osmMapnik = L.tileLayer('//{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
